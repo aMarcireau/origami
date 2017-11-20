@@ -6,7 +6,7 @@ Origami is an open-source research tool focused on graphical representations of 
 
 ## Download
 
-Visit the [releases page](releases) to download Origami for your platform.
+Visit the [releases page](https://github.com/aMarcireau/origami/releases) to download Origami for your platform.
 
 ## Contribute
 
