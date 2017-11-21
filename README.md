@@ -8,6 +8,15 @@ Origami is an open-source research tool focused on graphical representations of 
 
 Visit the [releases page](https://github.com/aMarcireau/origami/releases) to download Origami for your platform.
 
+## Themes
+
+To change the color theme, edit the *colors.json* file with the path:
+- *Origami/resources/app* on Linux
+- *Origami.app/Contents/Resources/app* on macOS (right-cick on the app and choose *Show Package Contents*)
+- *Origami\resources/app* on Windows
+
+The *themes* directory of this repository contains several themes suggestions.
+
 ## Contribute
 
 Origami is build with [Electron](https://electronjs.org), [React](https://reactjs.org) and [Redux](https://redux.js.org).
@@ -20,4 +29,6 @@ Follow these steps to download the source code, edit and build Origami:
 
 For development, run form the *origami* folder: `npm start`. This command will trigger a development build whenever something from the *souce* directory changes.
 
-In order to create a new release, run `npm run-script build` to generate production builds for each supported platform, and `npm run-scrit release` to create a new Github release. The latter requires administration rights on this repository, and must run after creating the production builds.
+In order to create a new release, run:
+1. `npm run build` to generate production builds for each supported platform
+2. `npm run release -- v<major>.<minor>.<patch> [--prerelease]` to create a new Github release (requires administration rights on this repository).
