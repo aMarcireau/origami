@@ -27,7 +27,7 @@ Follow these steps to download the source code, edit and build Origami:
 2. Clone the repository by running from a terminal `git clone git@github.com:aMarcireau/origami.git`.
 3. Go to the created *origami* folder and run `npm install`.
 
-For development, run form the *origami* folder: `npm start`. This command will trigger a development build whenever something from the *souce* directory changes.
+For development, run from the *origami* folder the command `npm start`. It will trigger a development build whenever something from the *souce* directory changes.
 
 In order to create a new release, run:
 1. `npm run build` to generate production builds for each supported platform
