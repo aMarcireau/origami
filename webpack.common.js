@@ -13,6 +13,7 @@ module.exports = {
         for (const sourceFileToCopy of ['main.js', 'package.json']) {
             fs.copyFileSync(`${__dirname}/source/${sourceFileToCopy}`, `${__dirname}/build/origami/${sourceFileToCopy}`);
         }
+        fs.copyFileSync(`${__dirname}/themes/default.json`, `${__dirname}/build/origami/colors.json`);
         try {
             fs.mkdirSync(`${__dirname}/build/origami/fonts`);
         } catch (error) {}
@@ -28,6 +29,9 @@ module.exports = {
             out: `${__dirname}/build`,
             overwrite: true,
             icon: `${__dirname}/icons/origami`,
+            download: {
+                cache: `${__dirname}/build/cache`,
+            },
         }, (error, appPaths) => {
             if (error) {
                 console.error(error);
