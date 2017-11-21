@@ -11,9 +11,9 @@ Visit the [releases page](https://github.com/aMarcireau/origami/releases) to dow
 ## Themes
 
 To change the color theme, edit the *colors.json* file with the path:
-- *Origami/resources/app* on Linux
-- *Origami.app/Contents/Resources/app* on macOS (right-cick on the app and choose *Show Package Contents*)
-- *Origami\resources/app* on Windows
+- *Origami/resources/app/colors.json* under Linux
+- *Origami.app/Contents/Resources/app/colors.json* under macOS (right-cick on the app and choose *Show Package Contents*)
+- *Origami\resources\app\colors.json* under Windows
 
 The *themes* directory of this repository contains several themes suggestions.
 
