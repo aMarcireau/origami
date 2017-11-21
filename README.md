@@ -32,3 +32,7 @@ For development, run form the *origami* folder: `npm start`. This command will t
 In order to create a new release, run:
 1. `npm run build` to generate production builds for each supported platform
 2. `npm run release -- v<major>.<minor>.<patch> [--prerelease]` to create a new Github release (requires administration rights on this repository).
+
+## License
+
+See the [LICENSE](LICENSE.txt) file for license rights and limitations (MIT).
