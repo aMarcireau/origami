@@ -72,9 +72,6 @@ class HorizontallyMovable extends React.Component {
     }
 
     onMouseEnter(event) {
-
-        console.log('onMouseEnter'); // @DEBUG
-
         this.setState({hover: true});
         if (this.props.mouseOwner === null) {
             this.props.dispatch(acquireMouse(this.props.id));
@@ -82,18 +79,12 @@ class HorizontallyMovable extends React.Component {
     }
 
     onMouseDown(event) {
-
-        console.log('onMouseDown'); // @DEBUG
-
         if (event.button === 0 && this.props.id === this.props.mouseOwner) {
             this.setState({active: true, mouseOffset: this.props.position - event.clientX});
         }
     }
 
     onMouseLeave(event) {
-
-        console.log('onMouseLeave'); // @DEBUG
-
         this.setState({hover: false});
         if (this.props.id === this.props.mouseOwner && !this.state.active) {
             document.body.style.cursor = '';
@@ -102,9 +93,6 @@ class HorizontallyMovable extends React.Component {
     }
 
     onMouseMove(event) {
-
-        console.log('onMouseMove'); // @DEBUG
-
         if (this.state.active) {
             const targetPosition = event.clientX + this.state.mouseOffset;
             this.setState({targetPosition});

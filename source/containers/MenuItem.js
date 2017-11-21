@@ -10,13 +10,6 @@ import {
     openMenuItem,
     closeMenu,
 } from '../actions/manageMenu'
-import {
-    SIDE_BACKGROUND_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-    SECONDARY_CONTENT_COLOR,
-} from '../constants/styles'
 
 class HorizontallyMovable extends React.Component {
 
@@ -49,8 +42,8 @@ class HorizontallyMovable extends React.Component {
                             (this.props.activeShortcut !== null && this.props.elements.some(element => this.props.activeShortcut === element.shortcut))
                             || this.props.id === this.props.activeMenuItem
                         ) ?
-                            ACTIVE_COLOR
-                            : LINK_COLOR
+                            this.props.colors.active
+                            : this.props.colors.link
                         ),
                         height: '39px',
                         lineHeight: '39px',
@@ -59,10 +52,10 @@ class HorizontallyMovable extends React.Component {
                         textAlign: 'center',
                         paddingLeft: '10px',
                         paddingRight: '10px',
-                        borderRight: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                        borderRight: `1px solid ${this.props.colors.sideSeparator}`,
                         cursor: 'pointer',
                         ':hover': {
-                            color: ACTIVE_COLOR,
+                            color: this.props.colors.active,
                         }
                     }}
                 >
@@ -87,9 +80,9 @@ class HorizontallyMovable extends React.Component {
                             style={{
 //                                position: 'absolute',
 
-                                backgroundColor: SIDE_BACKGROUND_COLOR,
-                                borderRight: `1px solid ${SIDE_SEPARATOR_COLOR}`,
-                                borderLeft: this.props.left > 0 ? `1px solid ${SIDE_SEPARATOR_COLOR}` : 'none',
+                                backgroundColor: this.props.colors.sideBackground,
+                                borderRight: `1px solid ${this.props.colors.sideSeparator}`,
+                                borderLeft: this.props.left > 0 ? `1px solid ${this.props.colors.sideSeparator}` : 'none',
                                 boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.2)',
                             }}
                         >
@@ -115,10 +108,10 @@ class HorizontallyMovable extends React.Component {
                                                 paddingRight: '10px',
                                                 whiteSpace: 'nowrap',
                                                 color: (element.onClick == null ?
-                                                    SECONDARY_CONTENT_COLOR
+                                                    this.props.colors.secondaryContent
                                                     : (Radium.getState(this.state, `${this.props.hash}-${this.props.id}-${element.name}-${index}`, ':hover') ?
-                                                        ACTIVE_COLOR
-                                                        : LINK_COLOR
+                                                        this.props.colors.active
+                                                        : this.props.colors.link
                                                     )
                                                 ),
                                             }}
@@ -139,10 +132,10 @@ class HorizontallyMovable extends React.Component {
                                             fontSize: '14px',
                                             fontFamily: 'robotoLight',
                                             color: (element.onClick == null ?
-                                                SECONDARY_CONTENT_COLOR
+                                                this.props.colors.secondaryContent
                                                 : (Radium.getState(this.state, `${this.props.hash}-${this.props.id}-${element.name}-${index}`, ':hover') ?
-                                                    ACTIVE_COLOR
-                                                    : LINK_COLOR
+                                                    this.props.colors.active
+                                                    : this.props.colors.link
                                                 )
                                             ),
                                         }}>
@@ -155,10 +148,10 @@ class HorizontallyMovable extends React.Component {
                                             fontSize: '14px',
                                             fontFamily: 'robotoLight',
                                             color: (element.onClick == null ?
-                                                SECONDARY_CONTENT_COLOR
+                                                this.props.colors.secondaryContent
                                                 : (Radium.getState(this.state, `${this.props.hash}-${this.props.id}-${element.name}-${index}`, ':hover') ?
-                                                    ACTIVE_COLOR
-                                                    : LINK_COLOR
+                                                    this.props.colors.active
+                                                    : this.props.colors.link
                                                 )
                                             ),
                                         }}>
@@ -168,7 +161,7 @@ class HorizontallyMovable extends React.Component {
                                     {(element.separator || index === this.props.elements.length - 1) && (
                                         <div style={{
                                             height: '5px',
-                                            borderBottom: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                                            borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                                         }} />
                                     )}
                                     {(element.separator && index < this.props.elements.length - 1) && (
@@ -206,6 +199,7 @@ export default connect(
             activeMenuItem: state.menu.activeItem,
             hash: state.menu.hash,
             activeShortcut: state.menu.activeShortcut,
+            colors: state.colors,
         };
     }
 )(Radium(HorizontallyMovable));

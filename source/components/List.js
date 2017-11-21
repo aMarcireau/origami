@@ -1,12 +1,6 @@
 import React from 'react'
 import Radium from 'radium'
-import PropTypes from 'prop-types';
-import {
-    SECONDARY_CONTENT_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-} from '../constants/styles'
+import PropTypes from 'prop-types'
 
 class List extends React.Component {
 
@@ -15,6 +9,7 @@ class List extends React.Component {
         elements: PropTypes.array.isRequired,
         pageFromElements: PropTypes.func.isRequired,
         emptyContent: PropTypes.node.isRequired,
+        colors: PropTypes.object.isRequired,
     }
 
     constructor() {
@@ -44,8 +39,8 @@ class List extends React.Component {
                 padding: 0,
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: 'white',
-                borderBottom: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                backgroundColor: this.props.colors.background,
+                borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
             }}>
                 <li
                     onClick={() => {
@@ -58,15 +53,15 @@ class List extends React.Component {
                             marginLeft: '3px',
                             fontSize: '12px',
                             ':hover': {
-                                color: (this.state.activePage !== 1 ? ACTIVE_COLOR : SECONDARY_CONTENT_COLOR),
+                                color: (this.state.activePage !== 1 ? this.props.colors.active : this.props.colors.secondaryContent),
                             },
                         },
                         (this.state.activePage !== 1 ? {
                             cursor: 'pointer',
-                            color: LINK_COLOR,
+                            color: this.props.colors.link,
                         } : {
                             cursor: 'default',
-                            color: SECONDARY_CONTENT_COLOR,
+                            color: this.props.colors.secondaryContent,
                         }),
                     ]}
                     key={`${id}--1`}
@@ -105,13 +100,13 @@ class List extends React.Component {
                                     marginRight: '3px',
                                     fontSize: '14px',
                                     color: (value === '…' ?
-                                        SECONDARY_CONTENT_COLOR
-                                        : (value === this.state.activePage ? ACTIVE_COLOR : LINK_COLOR)
+                                        this.props.colors.secondaryContent
+                                        : (value === this.state.activePage ? this.props.colors.active : this.props.colors.link)
                                     ),
                                     ':hover': {
                                         color: (value === this.state.activePage ?
-                                            ACTIVE_COLOR
-                                            : (value === '…' ? SECONDARY_CONTENT_COLOR : ACTIVE_COLOR)
+                                            this.props.colors.active
+                                            : (value === '…' ? this.props.colors.secondaryContent : this.props.colors.active)
                                         ),
                                     },
                                 },
@@ -135,15 +130,15 @@ class List extends React.Component {
                             marginLeft: '3px',
                             fontSize: '12px',
                             ':hover': {
-                                color: (this.state.activePage !== numberOfPages ? ACTIVE_COLOR : SECONDARY_CONTENT_COLOR),
+                                color: (this.state.activePage !== numberOfPages ? this.props.colors.active : this.props.colors.secondaryContent),
                             },
                         },
                         (this.state.activePage !== numberOfPages ? {
                             cursor: 'pointer',
-                            color: LINK_COLOR,
+                            color: this.props.colors.link,
                         } : {
                             cursor: 'default',
-                            color: SECONDARY_CONTENT_COLOR,
+                            color: this.props.colors.secondaryContent,
                         }),
                     ]}
                     key={`${id}--2`}

@@ -1,0 +1,13 @@
+{
+    "background": "#fdf6e3",
+    "content": "#586e75",
+    "secondaryContent": "#93a1a1",
+    "sideBackground": "#eee8d5",
+    "sideSeparator": "#ded9c3",
+    "link": "#0c5d82",
+    "active": "#268bd2",
+    "warning": "#b58900",
+    "error": "#dc322f",
+    "valid": "#859900",
+    "placeholder": "#93a1a1"
+}

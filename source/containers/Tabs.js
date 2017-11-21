@@ -1,11 +1,8 @@
 import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
-import PropTypes from 'prop-types';
-import {selectInformationTab, selectWarningsTab} from '../actions/selectTab';
-import {
-    SIDE_SEPARATOR_COLOR,
-} from '../constants/styles'
+import PropTypes from 'prop-types'
+import {selectInformationTab, selectWarningsTab} from '../actions/selectTab'
 
 const liStyle = {
     width: '40px',
@@ -32,7 +29,7 @@ class Tabs extends React.Component {
                     margin: 0,
                     padding: 0,
                     justifyContent: 'center',
-                    borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                    borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                 }}>{this.props.children.map((child, index) => this.props.activeIndex === index ?
                     <li key={`${this.props.hash}-${index}`} style={liStyle}>{child.props.activeIcon}</li>
                     : <li
@@ -58,6 +55,7 @@ export default connect(
         return {
             activeIndex: state.tabs.index,
             hash: state.tabs.hash,
+            colors: state.colors,
         };
     }
 )(Radium(Tabs));

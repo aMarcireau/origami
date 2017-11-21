@@ -78,6 +78,7 @@ export default function(state, action) {
         },
         combineReducers({
             bibtexRequests: (state = new Map()) => state,
+            colors: (state = {}) => state,
             connected,
             doiRequests: (state = new Map()) => state,
             graph,

@@ -1,7 +1,7 @@
 import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 import Graph from './Graph'
 import SetGraphZoom from './SetGraphZoom'
 import Checkbox from '../components/Checkbox'
@@ -11,14 +11,6 @@ import {
     disableStickyGraph,
     releaseGraphNode,
 } from '../actions/manageGraph'
-import {
-    SIDE_SEPARATOR_COLOR,
-    SIDE_BACKGROUND_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-    CONTENT_COLOR,
-    SECONDARY_CONTENT_COLOR,
-} from '../constants/styles'
 
 class GraphWithToolbar extends React.Component {
 
@@ -38,7 +30,7 @@ class GraphWithToolbar extends React.Component {
                 <div style={{
                     width: '100%',
                     height: '40px',
-                    borderBottom: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                    borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                     position: 'relative',
                 }}>
                     <button
@@ -55,11 +47,11 @@ class GraphWithToolbar extends React.Component {
                             textAlign: 'center',
                             outline: 'none',
                             fontSize: '14px',
-                            color: LINK_COLOR,
-                            backgroundColor: 'white',
+                            color: this.props.colors.link,
+                            backgroundColor: this.props.colors.background,
                             ':hover': {
                                 cursor: 'pointer',
-                                color: ACTIVE_COLOR,
+                                color: this.props.colors.active,
                             },
                         }}
                         onClick={() => {
@@ -69,14 +61,14 @@ class GraphWithToolbar extends React.Component {
                     <span style={{
                         height: '39px',
                         lineHeight: '39px',
-                        color: CONTENT_COLOR,
+                        color: this.props.colors.content,
                         fontSize: '14px',
                         fontFamily: 'robotoLight',
                         textAlign: 'center',
                         position: 'absolute',
                         left: `${offset + 51}px`,
                         paddingLeft: '10px',
-                        borderLeft: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                        borderLeft: `1px solid ${this.props.colors.sideSeparator}`,
                     }}>Zoom</span>
                     <SetGraphZoom
                         left={offset + 51 + 62}
@@ -102,8 +94,8 @@ class GraphWithToolbar extends React.Component {
                     height: '41px',
                     lineHeight: '39px',
                     textAlign: 'center',
-                    borderTop: `1px solid ${SIDE_SEPARATOR_COLOR}`,
-                    borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                    borderTop: `1px solid ${this.props.colors.sideSeparator}`,
+                    borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                 }}>
                     <div style={{
                         display: 'inline-block',
@@ -111,7 +103,7 @@ class GraphWithToolbar extends React.Component {
                     }}>
                         <span style={{
                             fontSize: '14px',
-                            color: CONTENT_COLOR,
+                            color: this.props.colors.content,
                             fontFamily: 'robotoLight',
                             height: '39px',
                             lineHeight: '39px',
@@ -126,7 +118,7 @@ class GraphWithToolbar extends React.Component {
                             verticalAlign: 'middle',
                             paddingRight: '10px',
                             paddingTop: '9.5px',
-                            borderRight: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                            borderRight: `1px solid ${this.props.colors.sideSeparator}`,
                         }}>
                             <Checkbox
                                 checked={this.props.sticky}
@@ -137,21 +129,22 @@ class GraphWithToolbar extends React.Component {
                                         this.props.dispatch(enableStickyGraph());
                                     }
                                 }}
+                                colors={this.props.colors}
                             />
                         </div>
                         <span
                             key={this.props.selectedPublication == null ? 'null' : this.props.selectedPublication.doi}
                             style={{
                                 height: '39px',
-                                color: this.props.selectedPublication == null || !this.props.selectedPublication.locked ? SECONDARY_CONTENT_COLOR : LINK_COLOR,
+                                color: this.props.selectedPublication == null || !this.props.selectedPublication.locked ? this.props.colors.secondaryContent : this.props.colors.link,
                                 fontSize: '14px',
                                 paddingLeft: '10px',
                                 textAlign: 'center',
                                 cursor: this.props.selectedPublication == null || !this.props.selectedPublication.locked ? '' : 'pointer',
                                 ':hover': {
                                     color: (this.props.selectedPublication == null || !this.props.selectedPublication.locked ?
-                                        SECONDARY_CONTENT_COLOR
-                                        : ACTIVE_COLOR
+                                        this.props.colors.secondaryContent
+                                        : this.props.colors.active
                                     ),
                                 },
                             }}
@@ -186,6 +179,7 @@ export default connect(
             zoom: state.graph.zoom,
             sticky: state.graph.sticky,
             selectedPublication: selectedPublicationCandidates.length > 0 ? selectedPublicationCandidates[0] : null,
+            colors: state.colors,
         };
     }
 )(Radium(GraphWithToolbar));

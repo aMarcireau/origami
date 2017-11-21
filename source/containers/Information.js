@@ -18,17 +18,6 @@ import {
     PUBLICATION_STATUS_IN_COLLECTION,
     PAGE_TYPE_INITIALIZE,
 } from '../constants/enums'
-import {
-    CONTENT_COLOR,
-    SECONDARY_CONTENT_COLOR,
-    SIDE_BACKGROUND_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-    VALID_COLOR,
-    WARNING_COLOR,
-    ERROR_COLOR,
-} from '../constants/styles'
 
 class Information extends React.Component {
 
@@ -40,7 +29,7 @@ class Information extends React.Component {
         return (this.props.publication ? (
             <div style={this.props.style}>
                 <h1 style={{
-                    color: CONTENT_COLOR,
+                    color: this.props.colors.content,
                     fontSize: '14px',
                     fontFamily: 'roboto',
                     margin: 0,
@@ -52,7 +41,7 @@ class Information extends React.Component {
                     userSelect: 'text',
                 }}>{this.props.publication.title}</h1>
                 <p style={{
-                    color: CONTENT_COLOR,
+                    color: this.props.colors.content,
                     fontSize: '14px',
                     fontFamily: 'robotoLight',
                     margin: 0,
@@ -64,7 +53,7 @@ class Information extends React.Component {
                     userSelect: 'text',
                 }}>{this.props.publication.authors.join(', ')}</p>
                 <p style={{
-                    color: CONTENT_COLOR,
+                    color: this.props.colors.content,
                     fontSize: '14px',
                     fontFamily: 'robotoLight',
                     fontStyle: 'italic',
@@ -77,7 +66,7 @@ class Information extends React.Component {
                     userSelect: 'text',
                 }}>{this.props.publication.journal}</p>
                 <p style={{
-                    color: CONTENT_COLOR,
+                    color: this.props.colors.content,
                     fontSize: '14px',
                     fontFamily: 'robotoLight',
                     margin: 0,
@@ -97,22 +86,22 @@ class Information extends React.Component {
                         paddingLeft: '6px',
                         borderTop: 'none',
                         borderRight: 'none',
-                        borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                        borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                         borderLeft: 'none',
                         display: 'inline-block',
                         textAlign: 'left',
                         outline: 'none',
                         fontSize: '14px',
                         fontFamily: 'robotoLight',
-                        color: LINK_COLOR,
-                        backgroundColor: SIDE_BACKGROUND_COLOR,
+                        color: this.props.colors.link,
+                        backgroundColor: this.props.colors.sideBackground,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
                         width: '100%',
                         ':hover': {
                             cursor: 'pointer',
-                            color: ACTIVE_COLOR,
+                            color: this.props.colors.active,
                         },
                     }}
                     onClick={() => {
@@ -121,7 +110,7 @@ class Information extends React.Component {
                 >{this.props.doi}</button>
                 {this.props.publication.citers.length > 0 &&
                     <h2 style={{
-                        color: CONTENT_COLOR,
+                        color: this.props.colors.content,
                         fontSize: '14px',
                         fontFamily: 'roboto',
                         margin: 0,
@@ -130,7 +119,7 @@ class Information extends React.Component {
                         paddingBottom: '10px',
                         paddingLeft: '6px',
                         textAlign: 'left',
-                        borderBottom: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                        borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                     }}>{`Cited by ${this.props.publication.citers.length.toString()}${this.props.updatable ? '' : ' (still loading)'}`}</h2>
                 }
                 {this.props.publication.status === PUBLICATION_STATUS_IN_COLLECTION &&
@@ -146,7 +135,7 @@ class Information extends React.Component {
                         )}
                         emptyContent={
                             <div style={{
-                                color: SECONDARY_CONTENT_COLOR,
+                                color: this.props.colors.secondaryContent,
                                 fontSize: '14px',
                                 fontFamily: 'robotoLight',
                                 textAlign: 'left',
@@ -154,7 +143,7 @@ class Information extends React.Component {
                                 paddingRight: '6px',
                                 paddingTop: '10px',
                                 paddingBottom: '10px',
-                                borderBottom: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                                borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                             }}>{`This publication is not cited ${this.props.updatable ? '' : ' (still loading)'}`}</div>
                         }
                         pageFromElements={(elements, list) => (
@@ -166,13 +155,77 @@ class Information extends React.Component {
                                 <li
                                     key={`${this.props.publication.updated}-${this.props.doi}-${index}-${element.doi}`}
                                     style={{
-                                        borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                                        borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                                         height: '50px',
                                         position: 'relative',
                                     }}
                                 >
+                                    {element.status === PUBLICATION_STATUS_DEFAULT && (
+                                        <button
+                                            key={`${this.props.publication.updated}-${this.props.doi}-${index}-${element.doi}-add-button`}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                top: 0,
+                                                width: '40px',
+                                                height: '49px',
+                                                textDecoration: 'none',
+                                                paddingTop: '5px',
+                                                paddingRight: 0,
+                                                paddingBottom: 0,
+                                                paddingLeft: 0,
+                                                borderTop: 'none',
+                                                borderRight: `1px solid ${this.props.colors.sideSeparator}`,
+                                                borderBottom: 'none',
+                                                borderLeft: 'none',
+                                                display: 'inline-block',
+                                                textAlign: 'center',
+                                                outline: 'none',
+                                                backgroundColor: this.props.colors.sideBackground,
+                                                ':hover': {
+                                                    cursor: 'pointer',
+                                                },
+                                                ':active': {
+                                                    backgroundColor: this.props.colors.background,
+                                                },
+                                            }}
+                                            onClick={() => {
+                                                const bytes = new Uint8Array(64);
+                                                window.crypto.getRandomValues(bytes);
+                                                this.props.dispatch(addPublicationToCollection(
+                                                    element.doi,
+                                                    new Date().getTime(),
+                                                    Array.from(bytes).map(byte => byte.toString(16)).join('')
+                                                ));
+                                            }}
+                                        >
+                                            <svg viewBox="0 0 40 40">
+                                                <rect
+                                                    style={{
+                                                        fill: (Radium.getState(list.state, `${this.props.publication.updated}-${this.props.doi}-${index}-${element.doi}-add-button`, ':hover') ? this.props.colors.valid : this.props.colors.link),
+                                                    }}
+                                                    x="10"
+                                                    y="19"
+                                                    width="20"
+                                                    height="2"
+                                                />
+                                                <rect
+                                                    style={{
+                                                        fill: (Radium.getState(list.state, `${this.props.publication.updated}-${this.props.doi}-${index}-${element.doi}-add-button`, ':hover') ? this.props.colors.valid : this.props.colors.link),
+                                                    }}
+                                                    x="19"
+                                                    y="10"
+                                                    width="2"
+                                                    height="20"
+                                                />
+                                            </svg>
+                                        </button>
+                                    )}
                                     <div style={{
                                         width: element.status === PUBLICATION_STATUS_IN_COLLECTION ? '100%' : 'calc(100% - 40px)',
+                                        position: 'absolute',
+                                        top: 0,
+                                        right: 0,
                                         height: '49px',
                                         paddingTop: '6px',
                                         paddingRight: '6px',
@@ -190,8 +243,8 @@ class Information extends React.Component {
                                                 textDecoration: 'none',
                                                 border: 'none',
                                                 outline: 'none',
-                                                backgroundColor: SIDE_BACKGROUND_COLOR,
-                                                color: LINK_COLOR,
+                                                backgroundColor: this.props.colors.sideBackground,
+                                                color: this.props.colors.link,
                                                 fontSize: '14px',
                                                 marginTop: 0,
                                                 marginRight: 0,
@@ -201,7 +254,7 @@ class Information extends React.Component {
                                                 textAlign: 'left',
                                                 ':hover': {
                                                     cursor: 'pointer',
-                                                    color: VALID_COLOR,
+                                                    color: this.props.colors.valid,
                                                 },
                                             }}
                                             onClick={() => {
@@ -209,7 +262,7 @@ class Information extends React.Component {
                                             }}
                                         >{element.title}</button>
                                         <p style={{
-                                            color: CONTENT_COLOR,
+                                            color: this.props.colors.content,
                                             fontSize: '14px',
                                             fontFamily: 'robotoLight',
                                             margin: 0,
@@ -218,70 +271,10 @@ class Information extends React.Component {
                                             whiteSpace: 'nowrap',
                                         }}>{element.authors.join(', ')}</p>
                                     </div>
-                                    {element.status === PUBLICATION_STATUS_DEFAULT && (
-                                        <button
-                                            key={`${this.props.publication.updated}-${this.props.doi}-${index}-${element.doi}-add-button`}
-                                            style={{
-                                                position: 'absolute',
-                                                right: 0,
-                                                top: 0,
-                                                width: '40px',
-                                                height: '49px',
-                                                textDecoration: 'none',
-                                                paddingTop: '5px',
-                                                paddingRight: 0,
-                                                paddingBottom: 0,
-                                                paddingLeft: 0,
-                                                borderTop: 'none',
-                                                borderRight: 'none',
-                                                borderBottom: 'none',
-                                                borderLeft: `1px solid ${SIDE_SEPARATOR_COLOR}`,
-                                                display: 'inline-block',
-                                                textAlign: 'center',
-                                                outline: 'none',
-                                                backgroundColor: SIDE_BACKGROUND_COLOR,
-                                                ':hover': {
-                                                    cursor: 'pointer',
-                                                },
-                                                ':active': {
-                                                    backgroundColor: 'white',
-                                                },
-                                            }}
-                                            onClick={() => {
-                                                const bytes = new Uint8Array(64);
-                                                window.crypto.getRandomValues(bytes);
-                                                this.props.dispatch(addPublicationToCollection(
-                                                    element.doi,
-                                                    new Date().getTime(),
-                                                    Array.from(bytes).map(byte => byte.toString(16)).join('')
-                                                ));
-                                            }}
-                                        >
-                                            <svg viewBox="0 0 40 40">
-                                                <rect
-                                                    style={{
-                                                        fill: (Radium.getState(list.state, `${this.props.publication.updated}-${this.props.doi}-${index}-${element.doi}-add-button`, ':hover') ? VALID_COLOR : LINK_COLOR),
-                                                    }}
-                                                    x="10"
-                                                    y="19"
-                                                    width="20"
-                                                    height="2"
-                                                />
-                                                <rect
-                                                    style={{
-                                                        fill: (Radium.getState(list.state, `${this.props.publication.updated}-${this.props.doi}-${index}-${element.doi}-add-button`, ':hover') ? VALID_COLOR : LINK_COLOR),
-                                                    }}
-                                                    x="19"
-                                                    y="10"
-                                                    width="2"
-                                                    height="20"
-                                                />
-                                            </svg>
-                                        </button>
-                                    )}
                                 </li>
                             ))}</ul>
                         )}
+                        colors={this.props.colors}
                     />
                 }
                 {this.props.publication.status === PUBLICATION_STATUS_DEFAULT && (
@@ -297,19 +290,19 @@ class Information extends React.Component {
                             lineHeight: '40px',
                             borderTop: 'none',
                             borderRight: 'none',
-                            borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                             borderLeft: 'none',
                             display: 'block',
                             textAlign: 'center',
                             outline: 'none',
                             fontSize: '14px',
                             fontFamily: 'robotoLight',
-                            color: LINK_COLOR,
-                            backgroundColor: SIDE_BACKGROUND_COLOR,
+                            color: this.props.colors.link,
+                            backgroundColor: this.props.colors.sideBackground,
                             width: '100%',
                             ':hover': {
                                 cursor: 'pointer',
-                                color: VALID_COLOR,
+                                color: this.props.colors.valid,
                             },
                         }}
                         onClick={() => {
@@ -325,7 +318,7 @@ class Information extends React.Component {
                 )}
                 {this.props.publication.updated != null && (
                     <p style={{
-                        color: CONTENT_COLOR,
+                        color: this.props.colors.content,
                         fontSize: '14px',
                         fontFamily: 'robotoLight',
                         margin: 0,
@@ -334,7 +327,7 @@ class Information extends React.Component {
                         paddingBottom: '10px',
                         paddingLeft: '6px',
                         textAlign: 'left',
-                        borderBottom: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                        borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                     }}>{`Last update: ${new Date(this.props.publication.updated).getFullYear()}-${pad(new Date(this.props.publication.updated).getMonth() + 1)}-${pad(new Date(this.props.publication.updated).getDate())}`}</p>
                 )}
                 {this.props.updatable && (
@@ -350,19 +343,19 @@ class Information extends React.Component {
                             lineHeight: '40px',
                             borderTop: 'none',
                             borderRight: 'none',
-                            borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                             borderLeft: 'none',
                             display: 'block',
                             textAlign: 'center',
                             outline: 'none',
                             fontSize: '14px',
                             fontFamily: 'robotoLight',
-                            color: LINK_COLOR,
-                            backgroundColor: SIDE_BACKGROUND_COLOR,
+                            color: this.props.colors.link,
+                            backgroundColor: this.props.colors.sideBackground,
                             width: '100%',
                             ':hover': {
                                 cursor: 'pointer',
-                                color: ACTIVE_COLOR,
+                                color: this.props.colors.active,
                             },
                         }}
                         onClick={() => {
@@ -383,19 +376,19 @@ class Information extends React.Component {
                             lineHeight: '40px',
                             borderTop: 'none',
                             borderRight: 'none',
-                            borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                             borderLeft: 'none',
                             display: 'block',
                             textAlign: 'center',
                             outline: 'none',
                             fontSize: '14px',
                             fontFamily: 'robotoLight',
-                            color: LINK_COLOR,
-                            backgroundColor: SIDE_BACKGROUND_COLOR,
+                            color: this.props.colors.link,
+                            backgroundColor: this.props.colors.sideBackground,
                             width: '100%',
                             ':hover': {
                                 cursor: 'pointer',
-                                color: ERROR_COLOR,
+                                color: this.props.colors.error,
                             },
                         }}
                         onClick={() => {
@@ -419,19 +412,19 @@ class Information extends React.Component {
                             lineHeight: '40px',
                             borderTop: 'none',
                             borderRight: 'none',
-                            borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                             borderLeft: 'none',
                             display: 'block',
                             textAlign: 'center',
                             outline: 'none',
                             fontSize: '14px',
                             fontFamily: 'robotoLight',
-                            color: LINK_COLOR,
-                            backgroundColor: SIDE_BACKGROUND_COLOR,
+                            color: this.props.colors.link,
+                            backgroundColor: this.props.colors.sideBackground,
                             width: '100%',
                             ':hover': {
                                 cursor: 'pointer',
-                                color: ACTIVE_COLOR,
+                                color: this.props.colors.active,
                             },
                         }}
                         onClick={() => {
@@ -440,7 +433,7 @@ class Information extends React.Component {
                     >Update the collection</button>
                 )}
                 <div style={{
-                    color: SECONDARY_CONTENT_COLOR,
+                    color: this.props.colors.secondaryContent,
                     fontSize: '14px',
                     fontFamily: 'robotoLight',
                     textAlign: 'center',
@@ -473,6 +466,7 @@ export default connect(
                 publications: state.publications,
                 collectionUpdatable: updatableDois.size > 0,
                 hash: state.tabs.hash,
+                colors: state.colors,
             };
         }
         return {
@@ -488,6 +482,7 @@ export default connect(
                 )
             ),
             publications: state.publications,
+            colors: state.colors,
         };
     }
 )(Radium(Information));

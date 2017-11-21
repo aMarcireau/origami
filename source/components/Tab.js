@@ -1,6 +1,6 @@
 import React from 'react'
 import Radium from 'radium'
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 
 class Tab extends React.PureComponent {
 

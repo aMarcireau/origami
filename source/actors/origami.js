@@ -1,6 +1,7 @@
 import manageScholar from './manageScholar'
 import manageConnection from './manageConnection'
 import manageCrossref from './manageCrossref'
+import managePlaceholderColor from './managePlaceholderColor'
 import manageVersion from './manageVersion'
 
 export default function origami(store) {
@@ -8,6 +9,7 @@ export default function origami(store) {
         manageScholar,
         manageConnection,
         manageCrossref,
+        managePlaceholderColor,
         manageVersion,
     ]) {
         store.subscribe(() => {

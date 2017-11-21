@@ -8,11 +8,6 @@ import {
     acquireMouse,
     releaseMouse,
 } from '../actions/manageMouse'
-import {
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-} from '../constants/styles'
 
 class SetRefractoryPeriod extends React.Component {
 
@@ -39,7 +34,7 @@ class SetRefractoryPeriod extends React.Component {
                     position: 'absolute',
                     top: '18.5px',
                     left: '-10px',
-                    backgroundColor: SIDE_SEPARATOR_COLOR,
+                    backgroundColor: this.props.colors.sideSeparator,
                 }} />
                 <div style={{
                     height: '2px',
@@ -47,7 +42,7 @@ class SetRefractoryPeriod extends React.Component {
                     top: '17.5px',
                     left: `${(this.props.minimumRefractoryPeriod / this.props.refractoryPeriodLimit) * this.props.width}px`,
                     width: `${(this.props.maximumRefractoryPeriod - this.props.minimumRefractoryPeriod) / this.props.refractoryPeriodLimit * this.props.width}px`,
-                    backgroundColor: LINK_COLOR,
+                    backgroundColor: this.props.colors.link,
                 }} />
                 <svg
                     style={{
@@ -63,7 +58,7 @@ class SetRefractoryPeriod extends React.Component {
                         key='minimumRefractoryPeriod'
                         points='0 0 0 10 10 20 10 0'
                         style={{
-                            fill: this.props.mouseOwner === 'SetRefractoryPeriodLeftSideHorizontallyMovable' ? ACTIVE_COLOR : LINK_COLOR,
+                            fill: this.props.mouseOwner === 'SetRefractoryPeriodLeftSideHorizontallyMovable' ? this.props.colors.active : this.props.colors.link,
                         }}
                     />
                 </svg>
@@ -79,8 +74,8 @@ class SetRefractoryPeriod extends React.Component {
                 }}>
                     <div style={{
                         display: 'inline-block',
-                        backgroundColor: ACTIVE_COLOR,
-                        color: 'white',
+                        backgroundColor: this.props.colors.active,
+                        color: this.props.colors.background,
                         padding: '5px',
                         fontFamily: 'roboto',
                         fontSize: '14px',
@@ -101,8 +96,8 @@ class SetRefractoryPeriod extends React.Component {
                 }}>
                     <div style={{
                         display: 'inline-block',
-                        backgroundColor: ACTIVE_COLOR,
-                        color: 'white',
+                        backgroundColor: this.props.colors.active,
+                        color: this.props.colors.background,
                         padding: '5px',
                         fontFamily: 'roboto',
                         fontSize: '14px',
@@ -125,7 +120,7 @@ class SetRefractoryPeriod extends React.Component {
                         key='maximumRefractoryPeriod'
                         points='0 0 0 20 10 10 10 0'
                         style={{
-                            fill: this.props.mouseOwner === 'SetRefractoryPeriodRightSideHorizontallyMovable' ? ACTIVE_COLOR : LINK_COLOR,
+                            fill: this.props.mouseOwner === 'SetRefractoryPeriodRightSideHorizontallyMovable' ? this.props.colors.active : this.props.colors.link,
                         }}
                     />
                 </svg>
@@ -178,6 +173,7 @@ export default connect(
             minimumRefractoryPeriod: state.scholar.minimumRefractoryPeriod,
             maximumRefractoryPeriod: state.scholar.maximumRefractoryPeriod,
             mouseOwner: state.mouseOwner,
+            colors: state.colors,
         }
     }
 )(Radium(SetRefractoryPeriod));

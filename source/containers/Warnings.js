@@ -8,15 +8,6 @@ import {
     removeAllWarnings,
 } from '../actions/manageWarning'
 import List from '../components/List'
-import {
-    CONTENT_COLOR,
-    SECONDARY_CONTENT_COLOR,
-    SIDE_BACKGROUND_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    WARNING_COLOR,
-    ERROR_COLOR,
-} from '../constants/styles'
 
 class Warnings extends React.Component {
 
@@ -32,7 +23,7 @@ class Warnings extends React.Component {
                     elements={this.props.warnings}
                     emptyContent={
                         <div style={{
-                            color: SECONDARY_CONTENT_COLOR,
+                            color: this.props.colors.secondaryContent,
                             fontSize: '14px',
                             fontFamily: 'robotoLight',
                             textAlign: 'center',
@@ -48,8 +39,8 @@ class Warnings extends React.Component {
                             <li
                                 key={`${index}-${element.timestamp}-${element.message}`}
                                 style={{
-                                    borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
-                                    borderLeft: `solid 3px ${element.level == 'error' ? ERROR_COLOR : WARNING_COLOR}`,
+                                    borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
+                                    borderLeft: `solid 3px ${element.level == 'error' ? this.props.colors.error : this.props.colors.warning}`,
                                     height: '50px',
                                     position: 'relative',
                                 }}
@@ -64,7 +55,7 @@ class Warnings extends React.Component {
                                 }}>
                                     <p style={{
                                         fontSize: '14px',
-                                        color: CONTENT_COLOR,
+                                        color: this.props.colors.content,
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap',
@@ -74,7 +65,7 @@ class Warnings extends React.Component {
                                         marginLeft: 0,
                                     }}>{element.message}</p>
                                     <p style={{
-                                        color: SECONDARY_CONTENT_COLOR,
+                                        color: this.props.colors.secondaryContent,
                                         fontSize: '14px',
                                         margin: 0,
                                     }}>{(() => {
@@ -98,16 +89,16 @@ class Warnings extends React.Component {
                                         borderTop: 'none',
                                         borderRight: 'none',
                                         borderBottom: 'none',
-                                        borderLeft: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                                        borderLeft: `1px solid ${this.props.colors.sideSeparator}`,
                                         display: 'inline-block',
                                         textAlign: 'center',
                                         outline: 'none',
-                                        backgroundColor: SIDE_BACKGROUND_COLOR,
+                                        backgroundColor: this.props.colors.sideBackground,
                                         ':hover': {
                                             cursor: 'pointer',
                                         },
                                         ':active': {
-                                            backgroundColor: 'white',
+                                            backgroundColor: this.props.colors.background,
                                         },
                                     }}
                                     onClick={() => {
@@ -117,7 +108,7 @@ class Warnings extends React.Component {
                                     <svg viewBox="0 0 40 40">
                                         <rect
                                             style={{
-                                                fill: (Radium.getState(list.state, `${index}-${element.timestamp}-${element.message}-warnings-remove-button`, ':hover') ? ERROR_COLOR : LINK_COLOR),
+                                                fill: (Radium.getState(list.state, `${index}-${element.timestamp}-${element.message}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
                                             }}
                                             transform="translate(20.000000, 20.000000) rotate(45.000000) translate(-20.000000, -20.000000)"
                                             x="19"
@@ -127,7 +118,7 @@ class Warnings extends React.Component {
                                         />
                                         <rect
                                             style={{
-                                                fill: (Radium.getState(list.state, `${index}-${element.timestamp}-${element.message}-warnings-remove-button`, ':hover') ? ERROR_COLOR : LINK_COLOR),
+                                                fill: (Radium.getState(list.state, `${index}-${element.timestamp}-${element.message}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
                                             }}
                                             transform="translate(20.000000, 20.000000) rotate(-45.000000) translate(-20.000000, -20.000000)"
                                             x="19"
@@ -140,6 +131,7 @@ class Warnings extends React.Component {
                             </li>
                         ))}</ul>
                     )}
+                    colors={this.props.colors}
                 />
 
                 {this.props.warnings.length > 0 && (
@@ -155,19 +147,19 @@ class Warnings extends React.Component {
                             lineHeight: '40px',
                             borderTop: 'none',
                             borderRight: 'none',
-                            borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                             borderLeft: 'none',
                             display: 'block',
                             textAlign: 'center',
                             outline: 'none',
                             fontSize: '14px',
                             fontFamily: 'robotoLight',
-                            color: LINK_COLOR,
-                            backgroundColor: SIDE_BACKGROUND_COLOR,
+                            color: this.props.colors.link,
+                            backgroundColor: this.props.colors.sideBackground,
                             width: '100%',
                             ':hover': {
                                 cursor: 'pointer',
-                                color: ERROR_COLOR,
+                                color: this.props.colors.error,
                             },
                         }}
                         onClick={() => {
@@ -185,6 +177,7 @@ export default connect(
         return {
             warnings: state.warnings.list,
             hash: state.warnings.hash,
+            colors: state.colors,
         };
     }
 )(Radium(Warnings));

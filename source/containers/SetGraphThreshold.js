@@ -13,11 +13,6 @@ import {
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
 } from '../constants/enums'
-import {
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-} from '../constants/styles'
 
 class SetGraphThreshold extends React.Component {
 
@@ -43,7 +38,7 @@ class SetGraphThreshold extends React.Component {
                     position: 'absolute',
                     top: '18.5px',
                     left: '-5px',
-                    backgroundColor: SIDE_SEPARATOR_COLOR,
+                    backgroundColor: this.props.colors.sideSeparator,
                 }} />
                 <div style={{
                     height: '2px',
@@ -51,7 +46,7 @@ class SetGraphThreshold extends React.Component {
                     top: '17.5px',
                     left: `${((this.props.threshold - 1) / (this.props.thresholdLimit - 1)) * this.props.width + 5}px`,
                     width: `${(1 - ((this.props.threshold - 1) / (this.props.thresholdLimit - 1))) * this.props.width}px`,
-                    backgroundColor: LINK_COLOR,
+                    backgroundColor: this.props.colors.link,
                 }} />
                 <svg
                     style={{
@@ -67,7 +62,7 @@ class SetGraphThreshold extends React.Component {
                         key='minimumRefractoryPeriod'
                         points='0 0 0 10 5 20 10 10 10 0'
                         style={{
-                            fill: this.props.mouseOwner === 'SetGraphThresholdHorizontallyMovable' ? ACTIVE_COLOR : LINK_COLOR,
+                            fill: this.props.mouseOwner === 'SetGraphThresholdHorizontallyMovable' ? this.props.colors.active : this.props.colors.link,
                         }}
                     />
                 </svg>
@@ -83,8 +78,8 @@ class SetGraphThreshold extends React.Component {
                 }}>
                     <div style={{
                         display: 'inline-block',
-                        backgroundColor: ACTIVE_COLOR,
-                        color: 'white',
+                        backgroundColor: this.props.colors.active,
+                        color: this.props.colors.background,
                         padding: '5px',
                         fontFamily: 'roboto',
                         fontSize: '14px',
@@ -138,6 +133,7 @@ export default connect(
             threshold: Math.min(state.graph.threshold, thresholdLimit),
             thresholdLimit,
             mouseOwner: state.mouseOwner,
+            colors: state.colors,
         }
     }
 )(Radium(SetGraphThreshold));

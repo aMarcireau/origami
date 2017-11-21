@@ -1,9 +1,6 @@
 import React from 'react'
 import Radium from 'radium'
-import PropTypes from 'prop-types';
-import {
-    LINK_COLOR,
-} from '../constants/styles'
+import PropTypes from 'prop-types'
 
 class ProgressBar extends React.Component {
 

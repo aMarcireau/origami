@@ -24,17 +24,6 @@ import {
     SCHOLAR_STATUS_BLOCKED_VISIBLE,
     SCHOLAR_STATUS_UNBLOCKING,
 } from '../constants/enums'
-import {
-    ACTIVE_COLOR,
-    CONTENT_COLOR,
-    SECONDARY_CONTENT_COLOR,
-    SIDE_BACKGROUND_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    WARNING_COLOR,
-    ERROR_COLOR,
-    VALID_COLOR,
-} from '../constants/styles'
 
 class Requests extends React.Component {
 
@@ -63,7 +52,7 @@ class Requests extends React.Component {
                         zIndex: '30',
                         width: `${this.props.rightPosition - this.props.leftPosition - 1}px`,
                         height: `${this.props.height}px`,
-                        borderTop: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                        borderTop: `solid 1px ${this.props.colors.sideSeparator}`,
                     }}/>
                 }
                 <div style={{
@@ -86,8 +75,8 @@ class Requests extends React.Component {
                                 height: '40px',
                                 textDecoration: 'none',
                                 outline: 'none',
-                                backgroundColor: SIDE_BACKGROUND_COLOR,
-                                color: LINK_COLOR,
+                                backgroundColor: this.props.colors.sideBackground,
+                                color: this.props.colors.link,
                                 fontSize: '14px',
                                 marginTop: 0,
                                 marginRight: 0,
@@ -97,11 +86,11 @@ class Requests extends React.Component {
                                 textAlign: 'center',
                                 ':hover': {
                                     cursor: 'pointer',
-                                    color: ACTIVE_COLOR,
+                                    color: this.props.colors.active,
                                 },
                                 borderTop: 'none',
                                 borderRight: 'none',
-                                borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                                borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                                 borderLeft: 'none',
                             }}
                             onClick={() => {
@@ -118,10 +107,10 @@ class Requests extends React.Component {
                             lineHeight: '40px',
                             textAlign: 'center',
                             margin: 0,
-                            color: this.props.scholarStatus === SCHOLAR_STATUS_UNBLOCKING && this.props.connected ? VALID_COLOR : ERROR_COLOR,
+                            color: this.props.scholarStatus === SCHOLAR_STATUS_UNBLOCKING && this.props.connected ? this.props.colors.valid : this.props.colors.error,
                             fontSize: '14px',
                             fontFamily: 'robotoLight',
-                            borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                         }}>{this.props.scholarStatus === SCHOLAR_STATUS_UNBLOCKING && this.props.connected ? 'reCAPTCHA filled' : 'Disconnected'}</p>
                     )}
                 </div>
@@ -130,22 +119,22 @@ class Requests extends React.Component {
                     top: this.props.blocked ? '40px' : '0px',
                     transition: 'top 500ms',
                     width: '100%',
-                    backgroundColor: SIDE_BACKGROUND_COLOR,
+                    backgroundColor: this.props.colors.sideBackground,
                 }}>
                     <div style={{
-                        color: CONTENT_COLOR,
+                        color: this.props.colors.content,
                         fontSize: '14px',
                         fontFamily: 'robotoLight',
                         textAlign: 'center',
                         lineHeight: '39px',
                         height: '40px',
-                        borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                        borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                     }}>Queued requests</div>
                     {this.props.hasPages && (
                         <ProgressBar
                             begin={this.props.beginOfRefractoryPeriod}
                             end={this.props.endOfRefractoryPeriod}
-                            color={this.props.blocked ? ERROR_COLOR : (this.props.scholarStatus === SCHOLAR_STATUS_FETCHING ? ACTIVE_COLOR : LINK_COLOR)}
+                            color={this.props.blocked ? this.props.colors.error : (this.props.scholarStatus === SCHOLAR_STATUS_FETCHING ? this.props.colors.active : this.props.colors.link)}
                         />
                     )}
                     <div style={{
@@ -157,7 +146,7 @@ class Requests extends React.Component {
                             elements={this.props.requests}
                             emptyContent={
                                 <div style={{
-                                    color: SECONDARY_CONTENT_COLOR,
+                                    color: this.props.colors.secondaryContent,
                                     fontSize: '14px',
                                     fontFamily: 'robotoLight',
                                     textAlign: 'center',
@@ -173,7 +162,7 @@ class Requests extends React.Component {
                                     <li
                                         key={`${index}-${element.id}`}
                                         style={{
-                                            borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
+                                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                                             borderLeft: `solid 3px ${element.borderColor}`,
                                             height: '50px',
                                             position: 'relative',
@@ -196,7 +185,7 @@ class Requests extends React.Component {
                                                         textDecoration: 'none',
                                                         border: 'none',
                                                         outline: 'none',
-                                                        backgroundColor: SIDE_BACKGROUND_COLOR,
+                                                        backgroundColor: this.props.colors.sideBackground,
                                                         color: element.color,
                                                         fontSize: '14px',
                                                         marginTop: 0,
@@ -207,7 +196,7 @@ class Requests extends React.Component {
                                                         textAlign: 'left',
                                                         ':hover': {
                                                             cursor: 'pointer',
-                                                            color: ACTIVE_COLOR,
+                                                            color: this.props.colors.active,
                                                         },
                                                     }}
                                                     onClick={() => {
@@ -221,7 +210,7 @@ class Requests extends React.Component {
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap',
-                                                        backgroundColor: SIDE_BACKGROUND_COLOR,
+                                                        backgroundColor: this.props.colors.sideBackground,
                                                         color: element.color,
                                                         fontSize: '14px',
                                                         marginTop: 0,
@@ -235,7 +224,7 @@ class Requests extends React.Component {
                                             )}
                                             <p style={{
                                                 fontSize: '14px',
-                                                color: SECONDARY_CONTENT_COLOR,
+                                                color: this.props.colors.secondaryContent,
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap',
@@ -245,6 +234,7 @@ class Requests extends React.Component {
                                     </li>
                                 ))}</ul>
                             )}
+                            colors={this.props.colors}
                         />
                     </div>
                 </div>
@@ -284,14 +274,14 @@ export default connect(
                         ),
                         subtitle: page.type === PAGE_TYPE_INITIALIZE ? 'Initial request' : `${page.number} / ${page.total}`,
                         color: (state.publications.has(page.doi) ?
-                            (state.publications.get(page.doi).selected ? ACTIVE_COLOR : LINK_COLOR)
-                            : ERROR_COLOR
+                            (state.publications.get(page.doi).selected ? this.props.colors.active : this.props.colors.link)
+                            : this.props.colors.error
                         ),
                         borderColor: (blocked ?
-                            ERROR_COLOR
+                            this.props.colors.error
                             : (index === 0 && state.scholar.status === SCHOLAR_STATUS_FETCHING ?
-                                ACTIVE_COLOR
-                                : LINK_COLOR
+                                this.props.colors.active
+                                : this.props.colors.link
                             )
                         ),
                     };
@@ -304,12 +294,12 @@ export default connect(
                         title: doi,
                         onTitleClick: null,
                         subtitle: 'Validation',
-                        color: CONTENT_COLOR,
+                        color: this.props.colors.content,
                         borderColor: (!state.connected ?
-                            ERROR_COLOR
+                            this.props.colors.error
                             : (publication.validating ?
-                                ACTIVE_COLOR
-                                : LINK_COLOR
+                                this.props.colors.active
+                                : this.props.colors.link
                             )
                         ),
                     };
@@ -326,12 +316,12 @@ export default connect(
                             }
                         },
                         subtitle: `BibTeX for “${bibtexRequest.doi}”`,
-                        color: state.publications.get(bibtexRequest.doi).selected ? ACTIVE_COLOR : LINK_COLOR,
+                        color: state.publications.get(bibtexRequest.doi).selected ? this.props.colors.active : this.props.colors.link,
                         borderColor: (!state.connected ?
-                            ERROR_COLOR
+                            this.props.colors.error
                             : (bibtexRequest.fetching ?
-                                ACTIVE_COLOR
-                                : LINK_COLOR
+                                this.props.colors.active
+                                : this.props.colors.link
                             )
                         ),
                     };
@@ -348,12 +338,12 @@ export default connect(
                             }
                         },
                         subtitle: `DOI for “${doiRequest.title}”`,
-                        color: state.publications.get(doiRequest.parentDoi).selected ? ACTIVE_COLOR : LINK_COLOR,
+                        color: state.publications.get(doiRequest.parentDoi).selected ? this.props.colors.active : this.props.colors.link,
                         borderColor: (!state.connected ?
-                            ERROR_COLOR
+                            this.props.colors.error
                             : (doiRequest.fetching ?
-                                ACTIVE_COLOR
-                                : LINK_COLOR
+                                this.props.colors.active
+                                : this.props.colors.link
                             )
                         ),
                     };
@@ -365,6 +355,7 @@ export default connect(
             blocked,
             scholarStatus: state.scholar.status,
             connected: state.connected,
+            colors: state.colors,
         };
     }
 )(Radium(Requests));

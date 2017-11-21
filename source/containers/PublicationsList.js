@@ -14,13 +14,6 @@ import {
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
 } from '../constants/enums'
-import {
-    CONTENT_COLOR,
-    SIDE_BACKGROUND_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-} from '../constants/styles'
 
 class PublicationsList extends React.Component {
 
@@ -31,16 +24,13 @@ class PublicationsList extends React.Component {
     }
 
     render() {
-
-        console.log('render', this.state); // @DEBUG
-
         return (
             <div style={{
                 width: `${this.props.width}px`,
                 height: `${this.props.height}px`,
                 position: 'absolute',
                 zIndex: this.props.zIndex,
-                backgroundColor: 'white',
+                backgroundColor: this.props.colors.background,
                 top: 0,
                 left: 0,
                 overflow: 'scroll',
@@ -62,16 +52,16 @@ class PublicationsList extends React.Component {
                                     height: '50px',
                                     padding: '6px',
                                     backgroundColor: (element.selected ?
-                                        ACTIVE_COLOR
+                                        this.props.colors.active
                                         : (element.status === PUBLICATION_STATUS_IN_COLLECTION ?
-                                            LINK_COLOR
-                                            : 'white'
+                                            this.props.colors.link
+                                            : this.props.colors.background
                                         )
                                     ),
-                                    borderBottom: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                                    borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                                     cursor: 'pointer',
                                     ':hover': {
-                                        backgroundColor: ACTIVE_COLOR,
+                                        backgroundColor: this.props.colors.active,
                                     },
                                 }}
                                 onClick={() => {
@@ -87,7 +77,7 @@ class PublicationsList extends React.Component {
                                         element.selected
                                         || element.status === PUBLICATION_STATUS_IN_COLLECTION
                                         || Radium.getState(list.state, `${index}-${element.doi}`, ':hover')
-                                    ) ? 'white' : CONTENT_COLOR,
+                                    ) ? this.props.colors.background : this.props.colors.content,
                                     fontSize: '14px',
                                     marginBottom: '6px',
                                     fontFamily: 'roboto',
@@ -108,7 +98,7 @@ class PublicationsList extends React.Component {
                                         element.selected
                                         || element.status === PUBLICATION_STATUS_IN_COLLECTION
                                         || Radium.getState(list.state, `${index}-${element.doi}`, ':hover')
-                                    ) ? 'white' : CONTENT_COLOR,
+                                    ) ? this.props.colors.background : this.props.colors.content,
                                     fontSize: '14px',
                                     fontFamily: 'robotoLight',
                                     overflow: 'hidden',
@@ -128,6 +118,7 @@ class PublicationsList extends React.Component {
                             </li>
                         ))}</ul>
                     )}
+                    colors={this.props.colors}
                 />
             </div>
         )
@@ -176,6 +167,7 @@ export default connect(
         return {
             publications,
             recommandedDois,
+            colors: state.colors,
         };
     }
 )(Radium(PublicationsList));

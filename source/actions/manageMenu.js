@@ -113,6 +113,7 @@ export function stateToJson(state, expand) {
 export function jsonToState(json, saveFilename, previousState) {
     try {
         const state = JSON.parse(new TextDecoder('utf-8').decode(json));
+        state.colors = previousState ? previousState.colors : undefined;
         state.connected = previousState ? previousState.connected : undefined;
         state.doiRequests = new Map(state.doiRequests.map(
             ([id, doiRequest]) => [id, {

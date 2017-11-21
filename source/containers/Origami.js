@@ -32,12 +32,6 @@ import {
     PUBLICATION_STATUS_IN_COLLECTION,
 } from '../constants/enums'
 import {
-    CONTENT_COLOR,
-    SIDE_BACKGROUND_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-    WARNING_COLOR,
     MINIMUM_WINDOW_WIDTH,
     MINIMUM_LEFT_SIDE_WIDTH,
     MINIMUM_RIGHT_SIDE_WIDTH,
@@ -62,14 +56,15 @@ class Origami extends React.Component {
                 gridTemplateRows: '40px auto',
                 gridTemplateColumns: `${this.state.leftPosition}px 1px ${this.state.rightPosition - this.state.leftPosition - 1}px 1px ${this.state.width - this.state.rightPosition - 1}px`,
                 height: '100%',
+                backgroundColor: this.props.colors.background,
             }}>
                 <div style={{
                     gridRowStart: 1,
                     gridRowEnd: 2,
                     gridColumnStart: 1,
                     gridColumnEnd: 6,
-                    borderBottom: `solid 1px ${SIDE_SEPARATOR_COLOR}`,
-                    backgroundColor: SIDE_BACKGROUND_COLOR,
+                    borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
+                    backgroundColor: this.props.colors.sideBackground,
                 }}>
                     <Menu
                         items={[
@@ -275,7 +270,7 @@ class Origami extends React.Component {
                     <span style={{
                         height: '39px',
                         lineHeight: '39px',
-                        color: CONTENT_COLOR,
+                        color: this.props.colors.content,
                         fontSize: '14px',
                         fontFamily: 'robotoLight',
                         textAlign: 'center',
@@ -291,14 +286,14 @@ class Origami extends React.Component {
                     <span style={{
                         height: '39px',
                         lineHeight: '39px',
-                        color: CONTENT_COLOR,
+                        color: this.props.colors.content,
                         fontSize: '14px',
                         fontFamily: 'robotoLight',
                         textAlign: 'center',
                         position: 'absolute',
                         left: '350px',
                         paddingLeft: '10px',
-                        borderLeft: `1px solid ${SIDE_SEPARATOR_COLOR}`,
+                        borderLeft: `1px solid ${this.props.colors.sideSeparator}`,
                     }}>Delay</span>
                     <SetRefractoryPeriod
                         left={415}
@@ -313,23 +308,23 @@ class Origami extends React.Component {
                     gridRowEnd: 3,
                     gridColumnStart: 1,
                     gridColumnEnd: 2,
-                    backgroundColor: SIDE_BACKGROUND_COLOR,
+                    backgroundColor: this.props.colors.sideBackground,
                 }}>
                     <AddDoi />
                     <Tabs>
                         <Tab
                             icon={
                                 <svg viewBox='0 0 40 40'>
-                                    <circle fill='none' stroke={LINK_COLOR} strokeWidth='1.5' cx='20' cy='20' r='14.5' />
-                                    <rect fill={LINK_COLOR} x='19' y='17' width='2' height='10' />
-                                    <rect fill={LINK_COLOR} x='19' y='13' width='2' height='2' />
+                                    <circle fill='none' stroke={this.props.colors.link} strokeWidth='1.5' cx='20' cy='20' r='14.5' />
+                                    <rect fill={this.props.colors.link} x='19' y='17' width='2' height='10' />
+                                    <rect fill={this.props.colors.link} x='19' y='13' width='2' height='2' />
                                 </svg>
                             }
                             activeIcon={
                                 <svg viewBox='0 0 40 40'>
-                                    <circle fill='none' stroke={ACTIVE_COLOR} strokeWidth='2.5' cx='20' cy='20' r='14.5' />
-                                    <rect fill={ACTIVE_COLOR} x='19' y='17' width='2' height='10' />
-                                    <rect fill={ACTIVE_COLOR} x='19' y='13' width='2' height='2' />
+                                    <circle fill='none' stroke={this.props.colors.active} strokeWidth='2.5' cx='20' cy='20' r='14.5' />
+                                    <rect fill={this.props.colors.active} x='19' y='17' width='2' height='10' />
+                                    <rect fill={this.props.colors.active} x='19' y='13' width='2' height='2' />
                                 </svg>
                             }
                         >
@@ -341,24 +336,24 @@ class Origami extends React.Component {
                         <Tab
                             icon={
                                 <svg viewBox='0 0 40 40'>
-                                    <rect fill={this.props.hasWarnings ? WARNING_COLOR : LINK_COLOR} x='19' y='16' width='2' height='10' />
-                                    <rect fill={this.props.hasWarnings ? WARNING_COLOR : LINK_COLOR} x='19' y='28' width='2' height='2' />
+                                    <rect fill={this.props.hasWarnings ? this.props.colors.warning : this.props.colors.link} x='19' y='16' width='2' height='10' />
+                                    <rect fill={this.props.hasWarnings ? this.props.colors.warning : this.props.colors.link} x='19' y='28' width='2' height='2' />
                                     <path
                                         fill='none'
                                         d='M21.3010502,6.26754455 L36.2110222,32.2534958 L36.2110222,32.2534958 C36.6233051,32.972046 36.3750264,33.8887673 35.6564762,34.3010502 C35.4292805,34.4314084 35.1719094,34.5 34.909972,34.5 L5.09002796,34.5 L5.09002796,34.5 C4.26160084,34.5 3.59002796,33.8284271 3.59002796,33 C3.59002796,32.7380627 3.65861961,32.4806915 3.78897781,32.2534958 L18.6989498,6.26754455 L18.6989498,6.26754455 C19.1112327,5.54899439 20.027954,5.30071571 20.7465042,5.71299859 C20.9772594,5.84539911 21.1686496,6.03678936 21.3010502,6.26754455 Z'
-                                        stroke={this.props.hasWarnings ? WARNING_COLOR : LINK_COLOR}
+                                        stroke={this.props.hasWarnings ? this.props.colors.warning : this.props.colors.link}
                                         strokeWidth='1.5'
                                     />
                                 </svg>
                             }
                             activeIcon={
                                 <svg viewBox='0 0 40 40'>
-                                    <rect fill={ACTIVE_COLOR} x='19' y='16' width='2' height='10' />
-                                    <rect fill={ACTIVE_COLOR} x='19' y='28' width='2' height='2' />
+                                    <rect fill={this.props.colors.active} x='19' y='16' width='2' height='10' />
+                                    <rect fill={this.props.colors.active} x='19' y='28' width='2' height='2' />
                                     <path
                                         fill='none'
                                         d='M21.3010502,6.26754455 L36.2110222,32.2534958 L36.2110222,32.2534958 C36.6233051,32.972046 36.3750264,33.8887673 35.6564762,34.3010502 C35.4292805,34.4314084 35.1719094,34.5 34.909972,34.5 L5.09002796,34.5 L5.09002796,34.5 C4.26160084,34.5 3.59002796,33.8284271 3.59002796,33 C3.59002796,32.7380627 3.65861961,32.4806915 3.78897781,32.2534958 L18.6989498,6.26754455 L18.6989498,6.26754455 C19.1112327,5.54899439 20.027954,5.30071571 20.7465042,5.71299859 C20.9772594,5.84539911 21.1686496,6.03678936 21.3010502,6.26754455 Z'
-                                        stroke={ACTIVE_COLOR}
+                                        stroke={this.props.colors.active}
                                         strokeWidth='2.5'
                                     />
                                 </svg>
@@ -376,7 +371,7 @@ class Origami extends React.Component {
                     gridRowEnd: 3,
                     gridColumnStart: 2,
                     gridColumnEnd: 3,
-                    backgroundColor: SIDE_SEPARATOR_COLOR,
+                    backgroundColor: this.props.colors.sideSeparator,
                 }} />
                 <div style={{
                     position: 'relative',
@@ -403,14 +398,14 @@ class Origami extends React.Component {
                     gridRowEnd: 3,
                     gridColumnStart: 4,
                     gridColumnEnd: 5,
-                    backgroundColor: SIDE_SEPARATOR_COLOR,
+                    backgroundColor: this.props.colors.sideSeparator,
                 }} />
                 <div style={{
                     gridRowStart: 2,
                     gridRowEnd: 3,
                     gridColumnStart: 5,
                     gridColumnEnd: 6,
-                    backgroundColor: SIDE_BACKGROUND_COLOR,
+                    backgroundColor: this.props.colors.sideBackground,
                 }}>
                     <Requests
                         height={this.state.height - 40}
@@ -498,6 +493,7 @@ export default connect(
             saveFilename: state.menu.saveFilename,
             version: state.version,
             display: state.menu.display,
+            colors: state.colors,
             state,
         };
     }

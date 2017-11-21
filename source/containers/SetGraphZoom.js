@@ -8,11 +8,6 @@ import {
     acquireMouse,
     releaseMouse,
 } from '../actions/manageMouse'
-import {
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-} from '../constants/styles'
 
 class SetGraphZoom extends React.Component {
 
@@ -38,7 +33,7 @@ class SetGraphZoom extends React.Component {
                     position: 'absolute',
                     top: '18.5px',
                     left: '-5px',
-                    backgroundColor: SIDE_SEPARATOR_COLOR,
+                    backgroundColor: this.props.colors.sideSeparator,
                 }} />
                 <svg
                     style={{
@@ -54,7 +49,7 @@ class SetGraphZoom extends React.Component {
                         key='minimumRefractoryPeriod'
                         points='0 0 0 10 5 20 10 10 10 0'
                         style={{
-                            fill: this.props.mouseOwner === 'SetGraphZoomHorizontallyMovable' ? ACTIVE_COLOR : LINK_COLOR,
+                            fill: this.props.mouseOwner === 'SetGraphZoomHorizontallyMovable' ? this.props.colors.active : this.props.colors.link,
                         }}
                     />
                 </svg>
@@ -70,8 +65,8 @@ class SetGraphZoom extends React.Component {
                 }}>
                     <div style={{
                         display: 'inline-block',
-                        backgroundColor: ACTIVE_COLOR,
-                        color: 'white',
+                        backgroundColor: this.props.colors.active,
+                        color: this.props.colors.background,
                         padding: '5px',
                         fontFamily: 'roboto',
                         fontSize: '14px',
@@ -115,6 +110,7 @@ export default connect(
             xOffset: state.graph.xOffset,
             yOffset: state.graph.yOffset,
             mouseOwner: state.mouseOwner,
+            colors: state.colors,
         }
     }
 )(Radium(SetGraphZoom));

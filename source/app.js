@@ -14,18 +14,22 @@ import {disconnect} from './actions/setConnection'
 import {jsonToState} from './actions/manageMenu'
 import {SCHOLAR_STATUS_IDLE} from './constants/enums'
 
-ipcRenderer.once('startWithState', (event, data) => {
+ipcRenderer.once('startWithState', (event, json, colors) => {
 
     // retrieve the preloaded state
-    const [error, preloadedState] = jsonToState(data, null, null);
-    if (error != null && data != null) {
+    let [error, preloadedState] = jsonToState(json, null, null);
+    if (error != null && json != null) {
         console.error(error);
     }
+    if (preloadedState == null) {
+        preloadedState = {};
+    }
+    preloadedState.colors = JSON.parse(colors);
 
     // create the store
     const store = createStore(
         origamiReducers,
-        preloadedState == null ? {} : preloadedState,
+        preloadedState,
         applyMiddleware(thunk)
     );
 

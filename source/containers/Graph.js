@@ -1,7 +1,7 @@
 import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
-import PropTypes from 'prop-types';
+import PropTypes from 'prop-types'
 import {
     selectPublication,
     unselectPublication,
@@ -16,13 +16,6 @@ import {
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
 } from '../constants/enums'
-import {
-    SECONDARY_CONTENT_COLOR,
-    SIDE_SEPARATOR_COLOR,
-    LINK_COLOR,
-    ACTIVE_COLOR,
-    VALID_COLOR,
-} from '../constants/styles'
 import * as d3 from 'd3'
 
 class Graph extends React.Component {
@@ -202,8 +195,6 @@ class Graph extends React.Component {
 
     restart() {
 
-        console.log('restart(), this.nodes: ', this.nodes); // @DEBUG
-
         // update edges data
         this.d3Edge = this.d3Edge.data(this.edges, edge => `${edge.source} ${edge.target}`);
 
@@ -213,7 +204,7 @@ class Graph extends React.Component {
         // create 'enter' edges
         this.d3Edge = this.d3Edge.enter().append('line')
             .attr('stroke-width', 2)
-            .attr('stroke', SECONDARY_CONTENT_COLOR)
+            .attr('stroke', this.props.colors.secondaryContent)
             .lower()
             .merge(this.d3Edge)
         ;
@@ -235,7 +226,7 @@ class Graph extends React.Component {
             .attr('class', 'locked')
             .attr('fill', 'none')
             .attr('stroke-width', 2)
-            .attr('stroke', SECONDARY_CONTENT_COLOR)
+            .attr('stroke', this.props.colors.secondaryContent)
         ;
         d3NodeGroup.append('circle')
             .attr('r', 20)
@@ -246,7 +237,7 @@ class Graph extends React.Component {
             .attr('alignment-baseline', 'central')
             .attr('font-family', 'roboto')
             .attr('font-size', '20px')
-            .attr('fill', 'white')
+            .attr('fill', this.props.colors.background)
             .style('user-select', 'none')
             .style('pointer-events', 'none')
             .text(node => {
@@ -271,21 +262,21 @@ class Graph extends React.Component {
             .style('cursor', 'pointer')
             .attr('fill', node => (
                 node.selected ?
-                ACTIVE_COLOR
+                this.props.colors.active
                 : (node.isCiter ?
-                    VALID_COLOR
-                    : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? LINK_COLOR : SIDE_SEPARATOR_COLOR)
+                    this.props.colors.valid
+                    : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? this.props.colors.link : this.props.colors.sideSeparator)
                 )
             ))
             .on('mouseover', function(node) {
-                d3.select(this).attr('fill', ACTIVE_COLOR);
+                d3.select(this).attr('fill', this.props.colors.active);
             })
             .on('mouseout', function(node) {
                 d3.select(this).attr('fill', node.selected ?
-                    ACTIVE_COLOR
+                    this.props.colors.active
                     : (node.isCiter ?
-                        VALID_COLOR
-                        : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? LINK_COLOR : SIDE_SEPARATOR_COLOR)
+                        this.props.colors.valid
+                        : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? this.props.colors.link : this.props.colors.sideSeparator)
                     )
                 );
             })
@@ -315,7 +306,7 @@ class Graph extends React.Component {
                             .attr('class', 'locked')
                             .attr('fill', 'none')
                             .attr('stroke-width', 2)
-                            .attr('stroke', SECONDARY_CONTENT_COLOR)
+                            .attr('stroke', this.props.colors.secondaryContent)
                         ;
                     }
                     this.props.dispatch(lockGraphNode(d3.event.subject.doi, d3.event.subject.fx, d3.event.subject.fy));
@@ -429,6 +420,7 @@ export default connect(
             recommandedDois,
             display: state.menu.display,
             sticky: state.graph.sticky,
+            colors: state.colors,
         };
     }
 )(Radium(Graph));
