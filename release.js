@@ -65,7 +65,7 @@ usernameInterface.question('username: ', username => {
             },
             headers: {'user-agent': 'origami'},
             json: {
-                tag_name: version,
+                tag_name: `${version}${prerelease ? '-alpha' : ''}`,
                 draft: true,
                 prerelease: prerelease,
             },
