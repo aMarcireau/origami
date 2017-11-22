@@ -274,14 +274,14 @@ export default connect(
                         ),
                         subtitle: page.type === PAGE_TYPE_INITIALIZE ? 'Initial request' : `${page.number} / ${page.total}`,
                         color: (state.publications.has(page.doi) ?
-                            (state.publications.get(page.doi).selected ? this.props.colors.active : this.props.colors.link)
-                            : this.props.colors.error
+                            (state.publications.get(page.doi).selected ? state.colors.active : state.colors.link)
+                            : state.colors.error
                         ),
                         borderColor: (blocked ?
-                            this.props.colors.error
+                            state.colors.error
                             : (index === 0 && state.scholar.status === SCHOLAR_STATUS_FETCHING ?
-                                this.props.colors.active
-                                : this.props.colors.link
+                                state.colors.active
+                                : state.colors.link
                             )
                         ),
                     };
@@ -294,12 +294,12 @@ export default connect(
                         title: doi,
                         onTitleClick: null,
                         subtitle: 'Validation',
-                        color: this.props.colors.content,
+                        color: state.colors.content,
                         borderColor: (!state.connected ?
-                            this.props.colors.error
+                            state.colors.error
                             : (publication.validating ?
-                                this.props.colors.active
-                                : this.props.colors.link
+                                state.colors.active
+                                : state.colors.link
                             )
                         ),
                     };
@@ -316,12 +316,12 @@ export default connect(
                             }
                         },
                         subtitle: `BibTeX for “${bibtexRequest.doi}”`,
-                        color: state.publications.get(bibtexRequest.doi).selected ? this.props.colors.active : this.props.colors.link,
+                        color: state.publications.get(bibtexRequest.doi).selected ? state.colors.active : state.colors.link,
                         borderColor: (!state.connected ?
-                            this.props.colors.error
+                            state.colors.error
                             : (bibtexRequest.fetching ?
-                                this.props.colors.active
-                                : this.props.colors.link
+                                state.colors.active
+                                : state.colors.link
                             )
                         ),
                     };
@@ -338,12 +338,12 @@ export default connect(
                             }
                         },
                         subtitle: `DOI for “${doiRequest.title}”`,
-                        color: state.publications.get(doiRequest.parentDoi).selected ? this.props.colors.active : this.props.colors.link,
+                        color: state.publications.get(doiRequest.parentDoi).selected ? state.colors.active : state.colors.link,
                         borderColor: (!state.connected ?
-                            this.props.colors.error
+                            state.colors.error
                             : (doiRequest.fetching ?
-                                this.props.colors.active
-                                : this.props.colors.link
+                                state.colors.active
+                                : state.colors.link
                             )
                         ),
                     };
