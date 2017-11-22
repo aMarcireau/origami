@@ -5,6 +5,8 @@ const fs = require('fs');
 const archiver = require('archiver');
 const zlib = require('zlib');
 const urlTemplate = require('url-template');
+const recursive = require(`${__dirname}/recursive`);
+const path = require('path');
 
 const syntax = 'Syntax: node release.js v<major>.<minor>.<patch> [--prerelease]';
 
@@ -78,6 +80,7 @@ usernameInterface.question('username: ', username => {
                 console.error(body);
                 process.exit(1);
             }
+            console.log(`Created the release ${version} (id: ${body.id})`);
             request.get({
                 url: `https://api.github.com/repos/amarcireau/origami/releases/${body.id}`,
                 auth: {
@@ -144,11 +147,39 @@ usernameInterface.question('username: ', username => {
                             });
                             archive.pipe(output);
                             if (matchedConfiguration[1] === 'darwin' || matchedConfiguration[1] === 'mas') {
-                                archive.directory(`${__dirname}/build/${directoryToZip}/Origami.app`, 'Origami.app');
+
+                                // resolve Framework symlinks manually before zipping
+                                try {
+                                    recursive.rmSync(`${__dirname}/build/archives/${directoryToZip}`);
+                                    fs.mkdirSync(`${__dirname}/build/archives`);
+                                } catch (error) {}
+                                try {
+                                    fs.mkdirSync(`${__dirname}/build/archives/${directoryToZip}`);
+                                } catch (error) {}
+
+                                recursive.copyFileSync(
+                                    `${__dirname}/build/${directoryToZip}/Origami.app`,
+                                    `${__dirname}/build/archives/${directoryToZip}/Origami.app`
+                                );
+                                const frameworks = `${__dirname}/build/archives/${directoryToZip}/Origami.app/Contents/Frameworks`;
+                                for (const frameworkFile of fs.readdirSync(frameworks)) {
+                                    if (path.extname(frameworkFile) === '.framework') {
+                                        const framework = `${frameworks}/${frameworkFile}`;
+                                        for (const element of fs.readdirSync(framework)) {
+                                            if (element !== 'Versions') {
+                                                recursive.rmSync(`${framework}/${element}`);
+                                                recursive.copyFileSync(`${framework}/Versions/A/${element}`, `${framework}/${element}`);
+                                            }
+                                        }
+                                        recursive.rmSync(`${framework}/Versions`);
+                                    }
+                                }
+                                archive.directory(`${__dirname}/build/archives/${directoryToZip}/Origami.app`, 'Origami.app');
+                                archive.finalize();
                             } else {
                                 archive.directory(`${__dirname}/build/${directoryToZip}`, 'Origami');
+                                archive.finalize();
                             }
-                            archive.finalize();
                         }
                     }
                 }

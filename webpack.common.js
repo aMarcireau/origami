@@ -1,7 +1,8 @@
 const fs = require('fs');
 const webpack = require('webpack');
 const child_process = require('child_process');
-const packager = require('electron-packager')
+const packager = require('electron-packager');
+const recursive = require(`${__dirname}/recursive`);
 
 module.exports = {
 
@@ -17,9 +18,7 @@ module.exports = {
         try {
             fs.mkdirSync(`${__dirname}/build/origami/fonts`);
         } catch (error) {}
-        for (const fontFileToCopy of fs.readdirSync(`${__dirname}/fonts`)) {
-            fs.copyFileSync(`${__dirname}/fonts/${fontFileToCopy}`, `${__dirname}/build/origami/fonts/${fontFileToCopy}`);
-        }
+        recursive.copyFileSync(`${__dirname}/fonts`, `${__dirname}/build/origami/fonts`);
         fs.copyFileSync(`${__dirname}/icons/origami.png`, `${__dirname}/build/origami/origami.png`);
         fs.copyFileSync(`${__dirname}/build/index.html`, `${__dirname}/build/origami/index.html`);
         child_process.execSync('npm install', {cwd: `${__dirname}/build/origami`}, {stdio: 'inherit'});
