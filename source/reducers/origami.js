@@ -23,6 +23,7 @@ export default function(state, action) {
     if (action.type === RESET) {
         if (action.state == null) {
             state = {
+                colors: state.colors,
                 connected: state.connected,
                 menu: {
                     activeItem: null,
@@ -90,12 +91,5 @@ export default function(state, action) {
             version,
             warnings: (state = {}) => state,
         }),
-
-        // @DEBUG {
-        (state = {}, action) => {
-            console.log('action', action.type, action, 'state', state, 'cookie', document.cookie);
-            return state;
-        },
-        // }
     )(state, action);
 }
