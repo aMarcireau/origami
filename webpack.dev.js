@@ -11,9 +11,18 @@ const watchers = ['main.js', 'package.json'].map(sourceFileToCopy => fs.watch(`$
 module.exports = merge(common.configuration, {
     plugins: [
         function() {
+            this.packaged = false;
             this.plugin('watch-run', (watching, callback) => {
-                watching.compiler.plugin('done', () => {
-                    common.package(false);
+                this.packaged = false;
+                watching.compiler.plugin('after-emit', (compilation, callback) => {
+                    if (this.packaged) {
+                        callback();
+                    } else {
+                        this.packaged = true;
+                        common.package(false, () => {
+                            callback();
+                        });
+                    }
                 });
                 callback();
             });

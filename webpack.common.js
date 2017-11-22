@@ -6,7 +6,7 @@ const packager = require('electron-packager')
 module.exports = {
 
     /// package uses electron-packager to convert the output of webpack to actual apps.
-    package: all => {
+    package: (all, callback) => {
         try {
             fs.mkdirSync(`${__dirname}/build/origami`);
         } catch (error) {}
@@ -37,6 +37,9 @@ module.exports = {
                 console.error(error);
             } else {
                 console.log(appPaths.map(appPath => `Created ${appPath}`).join('\n'));
+            }
+            if (callback) {
+                callback();
             }
         });
     },
