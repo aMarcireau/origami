@@ -43,6 +43,8 @@ class Menu extends React.Component {
                             if (element.onClick != null && element.shortcut != null && element.shortcut === key) {
                                 element.onClick();
                                 event.preventDefault();
+                                this.shiftPressed = false;
+                                this.modifierPressed = false;
                                 return;
                             }
                         }
