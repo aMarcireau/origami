@@ -57,13 +57,15 @@ class Graph extends React.Component {
                 ;
             })
             .on('end', () => {
-                this.props.dispatch(storeGraphNodes(this.nodes.map(node => {
-                    return {
-                        doi: node.doi,
-                        x: node.x,
-                        y: node.y,
-                    };
-                })));
+                if (this.nodes.length > 0) {
+                    this.props.dispatch(storeGraphNodes(this.nodes.map(node => {
+                        return {
+                            doi: node.doi,
+                            x: node.x,
+                            y: node.y,
+                        };
+                    })));
+                }
             })
         ;
         this.d3Node = null;
@@ -73,8 +75,6 @@ class Graph extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-
-        console.log('componentWillReceiveProps()');
 
         // update the dimensions if required
         if (
@@ -258,6 +258,7 @@ class Graph extends React.Component {
             }
             d3.event.stopPropagation();
         });
+        const colors = this.props.colors;
         this.d3Node.selectAll('circle.publication')
             .style('cursor', 'pointer')
             .attr('fill', node => (
@@ -269,14 +270,14 @@ class Graph extends React.Component {
                 )
             ))
             .on('mouseover', function(node) {
-                d3.select(this).attr('fill', this.props.colors.active);
+                d3.select(this).attr('fill', colors.active);
             })
             .on('mouseout', function(node) {
                 d3.select(this).attr('fill', node.selected ?
-                    this.props.colors.active
+                    colors.active
                     : (node.isCiter ?
-                        this.props.colors.valid
-                        : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? this.props.colors.link : this.props.colors.sideSeparator)
+                        colors.valid
+                        : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? colors.link : colors.sideSeparator)
                     )
                 );
             })
