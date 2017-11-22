@@ -6,11 +6,15 @@ module.exports = {
     /// copyFile copies source (either a file or directory) to target (where target is the new filename, not the enclosing directory).
     /// If source is a directory, its contents are recursively copied.
     copyFileSync: (source, target) => {
-        fs.copyFileSync(source, target);
         if (fs.lstatSync(source).isDirectory()) {
+            try {
+                fs.mkdirSync(target);
+            } catch (error) {}
             for (const file of fs.readdirSync(source)) {
                 module.exports.copyFileSync(path.join(source, file), path.join(target, file));
             }
+        } else {
+            fs.copyFileSync(source, target);
         }
     },
 
