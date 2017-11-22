@@ -128,7 +128,10 @@ export default function scholar(
                 return {
                     ...state,
                     pages: state.pages.slice(1),
-                    status: SCHOLAR_STATUS_IDLE,
+                    status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
+                        SCHOLAR_STATUS_UNBLOCKING
+                        : SCHOLAR_STATUS_IDLE
+                    ),
                     beginOfRefractoryPeriod: action.beginOfRefractoryPeriod,
                     endOfRefractoryPeriod: action.endOfRefractoryPeriod,
                 };
@@ -145,7 +148,10 @@ export default function scholar(
                         total: Math.ceil(action.numberOfCiters / 10),
                     }}),
                 ],
-                status: SCHOLAR_STATUS_IDLE,
+                status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
+                    SCHOLAR_STATUS_UNBLOCKING
+                    : SCHOLAR_STATUS_IDLE
+                ),
                 beginOfRefractoryPeriod: action.beginOfRefractoryPeriod,
                 endOfRefractoryPeriod: action.endOfRefractoryPeriod,
             };
@@ -153,7 +159,10 @@ export default function scholar(
             return {
                 ...state,
                 pages: state.pages.slice(1),
-                status: SCHOLAR_STATUS_IDLE,
+                status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
+                    SCHOLAR_STATUS_UNBLOCKING
+                    : SCHOLAR_STATUS_IDLE
+                ),
                 beginOfRefractoryPeriod: action.beginOfRefractoryPeriod,
                 endOfRefractoryPeriod: action.endOfRefractoryPeriod,
             };
@@ -161,7 +170,10 @@ export default function scholar(
             return {
                 ...state,
                 pages: state.pages.slice(1),
-                status: SCHOLAR_STATUS_IDLE,
+                status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
+                    SCHOLAR_STATUS_UNBLOCKING
+                    : SCHOLAR_STATUS_IDLE
+                ),
                 beginOfRefractoryPeriod: action.beginOfRefractoryPeriod,
                 endOfRefractoryPeriod: action.endOfRefractoryPeriod,
             };
@@ -190,21 +202,19 @@ export default function scholar(
                 endOfRefractoryPeriod: null,
                 url: action.url,
             };
-        case UNBLOCKING_SCHOLAR:
-            return {
-                ...state,
-                status: SCHOLAR_STATUS_UNBLOCKING,
-            };
         case UNBLOCK_SCHOLAR:
             return {
                 ...state,
-                status: appState.connected ? SCHOLAR_STATUS_FETCHING : SCHOLAR_STATUS_IDLE,
+                status: SCHOLAR_STATUS_IDLE,
                 url: null,
             };
         case RESET_SCHOLAR:
             return {
                 ...state,
-                status: SCHOLAR_STATUS_IDLE,
+                status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
+                    SCHOLAR_STATUS_UNBLOCKING
+                    : SCHOLAR_STATUS_IDLE
+                ),
                 beginOfRefractoryPeriod: null,
                 endOfRefractoryPeriod: null,
                 url: null,

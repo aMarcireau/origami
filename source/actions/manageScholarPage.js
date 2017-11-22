@@ -12,7 +12,6 @@ import {
     SCHOLAR_PAGE_REFRACTORY_PERIOD_DONE,
     SET_SCHOLAR_PAGE_REFRACTORY_PERIOD,
     BLOCK_SCHOLAR,
-    UNBLOCKING_SCHOLAR,
     UNBLOCK_SCHOLAR,
     RESET_SCHOLAR,
     CHANGE_RECAPTCHA_VISIBILITY,
@@ -108,13 +107,10 @@ export function resolveHtml(url, text) {
                     )
                 ) {
                     ipcRenderer.once('cookies-cleared', () => {
-                        dispatchAndEcho({type: UNBLOCKING_SCHOLAR}, 0);
+                        dispatchAndEcho({type: RESET_SCHOLAR}, 0);
                     });
                     ipcRenderer.send('clear-cookies');
                 } else {
-                    if (blocked) {
-                        dispatch({type: UNBLOCKING_SCHOLAR});
-                    }
                     const refractoryPeriod = Math.floor(
                         Math.random() * (1 + state.scholar.maximumRefractoryPeriod - state.scholar.minimumRefractoryPeriod)
                     ) + state.scholar.minimumRefractoryPeriod;

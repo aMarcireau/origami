@@ -47,32 +47,31 @@ class Recaptcha extends React.Component {
             webview.style.width = '100%';
             webview.style.height = '100%';
             webview.addEventListener('dom-ready', () => {
-
-                webview.openDevTools(); // @DEBUG
-
                 this.container.firstChild.getWebContents().executeJavaScript('document.documentElement.outerHTML').then(text => {
                     nextProps.dispatch(resolveHtml(this.container.firstChild.getURL(), text));
                 });
             });
             this.keepPolling = true;
             const poll = () => {
-                fetch('https://scholar.google.com/favicon.ico', {
-                    method: 'GET',
-                    headers: new Headers({
-                        'pragma': 'no-cache',
-                        'cache-control': 'no-cache',
-                    }),
-                })
-                    .then(response => {
-                        if (this.keepPolling) {
-                            window.setTimeout(poll, 200);
-                        }
+                if (this.keepPolling) {
+                    fetch('https://scholar.google.com/favicon.ico', {
+                        method: 'GET',
+                        headers: new Headers({
+                            'pragma': 'no-cache',
+                            'cache-control': 'no-cache',
+                        }),
                     })
-                    .catch(() => {
-                        this.keepPolling = false;
-                        this.props.dispatch(scholarDisconnect());
-                    })
-                ;
+                        .then(response => {
+                            if (this.keepPolling) {
+                                window.setTimeout(poll, 1000);
+                            }
+                        })
+                        .catch(() => {
+                            this.keepPolling = false;
+                            this.props.dispatch(scholarDisconnect());
+                        })
+                    ;
+                }
             };
             window.setTimeout(poll, 200);
             this.container.appendChild(webview);
