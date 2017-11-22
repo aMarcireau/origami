@@ -427,11 +427,7 @@ function createWindow() {
                     }
                 );
             });
-
             mainWindow.once('ready-to-show', () => {
-
-                mainWindow.openDevTools(); // @DEBUG
-
                 mainWindow.show();
             });
             mainWindow.webContents.once('dom-ready', () => {
@@ -441,7 +437,7 @@ function createWindow() {
                 } else {
                     mainWindow.webContents.send('startWithState', json, colors);
                 }
-            })
+            });
             mainWindow.loadURL(`file://${__dirname}/index.html`);
         });
     });
