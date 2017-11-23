@@ -47,11 +47,12 @@ class GraphWithToolbar extends React.Component {
                             textAlign: 'center',
                             outline: 'none',
                             fontSize: '14px',
-                            color: this.props.colors.link,
+                            color: this.props.isGraphCentered ? this.props.colors.secondaryContent : this.props.colors.link,
                             backgroundColor: this.props.colors.background,
+                            disabled: this.props.isGraphCentered,
                             ':hover': {
-                                cursor: 'pointer',
-                                color: this.props.colors.active,
+                                cursor: this.props.isGraphCentered ? '' : 'pointer',
+                                color: this.props.isGraphCentered ? this.props.colors.secondaryContent : this.props.colors.active,
                             },
                         }}
                         onClick={() => {
@@ -179,6 +180,7 @@ export default connect(
             zoom: state.graph.zoom,
             sticky: state.graph.sticky,
             selectedPublication: selectedPublicationCandidates.length > 0 ? selectedPublicationCandidates[0] : null,
+            isGraphCentered: state.graph.xOffset === 0 && state.graph.yOffset === 0,
             colors: state.colors,
         };
     }
