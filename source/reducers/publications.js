@@ -92,7 +92,7 @@ export default function publications(state = new Map(), action, appState) {
             const newState = new Map(state);
             newState.set(action.doi, {
                 ...state.get(action.doi),
-                title: action.crossrefMessage.title[0],
+                title: action.crossrefMessage.title[0] == null ? '' : action.crossrefMessage.title[0],
                 authors: action.crossrefMessage.author.map(author => `${author.given} ${author.family}`),
                 journal: action.crossrefMessage.publisher,
                 date: action.crossrefMessage.created['date-parts'][0],

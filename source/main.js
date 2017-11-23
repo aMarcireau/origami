@@ -10,7 +10,6 @@ let mainWindow;
 function createWindow() {
     fs.readFile(stateFilename, (jsonError, json) => {
         fs.readFile(colorsFilename, (colorsError, colors) => {
-
             let colorsAreValid = true;
             if (colorsError) {
                 electron.dialog.showErrorBox('Configuration error', `'${__dirname}/colors.json' could not be open for reading`);
