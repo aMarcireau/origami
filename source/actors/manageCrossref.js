@@ -210,44 +210,52 @@ export default function manageCrossref(store) {
                                 null
                             ));
                         } else {
-                            const bestPublicationAndDistance = json.message.items.map((publication, index) => {
-                                return {
-                                    publication,
-                                    distance: (
-                                        levenshteinDistance(
-                                            publication.title[0].toLowerCase(),
-                                            doiRequest.title.toLowerCase()
-                                        )
-                                        + index / json.message.items.length
-                                    ),
-                                };
-                            }).reduce((accumulator, current) => {
-                                if (!accumulator || current.distance < accumulator.distance) {
-                                    return current;
-                                }
-                                return accumulator;
-                            }, null);
-                            if (isOlderThan(
-                                bestPublicationAndDistance.publication.created['date-parts'][0],
-                                state.publications.get(doiRequest.parentDoi).date
-                            )) {
+                            if (json.message.items.length === 0) {
                                 store.dispatch(rejectDoiFromMetadata(
                                     id,
-                                    `A Crossref request for ${doiRequest.parentDoi} returned an article older than the cited one`,
-                                    new Date().getTime()
-                                ));
-                            } else if (bestPublicationAndDistance.distance > 10) {
-                                store.dispatch(rejectDoiFromMetadata(
-                                    id,
-                                    `A Crossref request for ${doiRequest.parentDoi} returned a non-matching title`,
+                                    `A Crossref request for ${doiRequest.parentDoi} returned an empty list`,
                                     new Date().getTime()
                                 ));
                             } else {
-                                store.dispatch(resolveDoiFromMetadata(
-                                    id,
-                                    doiRequest.parentDoi,
-                                    bestPublicationAndDistance.publication
-                                ));
+                                const bestPublicationAndDistance = json.message.items.map((publication, index) => {
+                                    return {
+                                        publication,
+                                        distance: (
+                                            levenshteinDistance(
+                                                publication.title[0].toLowerCase(),
+                                                doiRequest.title.toLowerCase()
+                                            )
+                                            + index / json.message.items.length
+                                        ),
+                                    };
+                                }).reduce((accumulator, current) => {
+                                    if (!accumulator || current.distance < accumulator.distance) {
+                                        return current;
+                                    }
+                                    return accumulator;
+                                }, null);
+                                if (isOlderThan(
+                                    bestPublicationAndDistance.publication.created['date-parts'][0],
+                                    state.publications.get(doiRequest.parentDoi).date
+                                )) {
+                                    store.dispatch(rejectDoiFromMetadata(
+                                        id,
+                                        `A Crossref request for ${doiRequest.parentDoi} returned an article older than the cited one`,
+                                        new Date().getTime()
+                                    ));
+                                } else if (bestPublicationAndDistance.distance > 10) {
+                                    store.dispatch(rejectDoiFromMetadata(
+                                        id,
+                                        `A Crossref request for ${doiRequest.parentDoi} returned a non-matching title`,
+                                        new Date().getTime()
+                                    ));
+                                } else {
+                                    store.dispatch(resolveDoiFromMetadata(
+                                        id,
+                                        doiRequest.parentDoi,
+                                        bestPublicationAndDistance.publication
+                                    ));
+                                }
                             }
                         }
                     })
