@@ -5,87 +5,6 @@ const path = require('path');
 const stateFilename = path.join(__dirname, 'state.json');
 const colorsFilename = path.join(__dirname, 'colors.json');
 
-const menuTemplate = [
-    {
-        label: 'Edit',
-        submenu: [
-            {role: 'undo'},
-            {role: 'redo'},
-            {type: 'separator'},
-            {role: 'cut'},
-            {role: 'copy'},
-            {role: 'paste'},
-            {role: 'pasteandmatchstyle'},
-            {role: 'delete'},
-            {role: 'selectall'},
-        ],
-    },
-    {
-        label: 'View',
-        submenu: [
-            {role: 'toggledevtools'},
-            {type: 'separator'},
-            {role: 'resetzoom'},
-            {role: 'zoomin'},
-            {role: 'zoomout'},
-            {type: 'separator'},
-            {role: 'togglefullscreen'},
-        ],
-    },
-    {
-        role: 'window',
-        submenu: [
-            {role: 'minimize'},
-            {role: 'close'}
-        ],
-    },
-    {
-        role: 'help',
-        submenu: [
-            {
-                label: 'Learn More',
-                click() {
-                    electron.shell.openExternal('https://github.com/aMarcireau/origami');
-                },
-            },
-        ],
-    },
-];
-if (process.platform === 'darwin') {
-    menuTemplate.unshift({
-        label: electron.app.getName(),
-        submenu: [
-            {role: 'about'},
-            {type: 'separator'},
-            {role: 'services', submenu: []},
-            {type: 'separator'},
-            {role: 'hide'},
-            {role: 'hideothers'},
-            {role: 'unhide'},
-            {type: 'separator'},
-            {role: 'quit'},
-        ],
-    });
-    menuTemplate[1].submenu.push(
-        {type: 'separator'},
-        {
-            label: 'Speech',
-            submenu: [
-                {role: 'startspeaking'},
-                {role: 'stopspeaking'},
-            ],
-        }
-    );
-    menuTemplate[3].submenu = [
-        {role: 'close'},
-        {role: 'minimize'},
-        {role: 'zoom'},
-        {type: 'separator'},
-        {role: 'front'},
-    ];
-}
-const menu = electron.Menu.buildFromTemplate(menuTemplate);
-
 let mainWindow;
 
 function createWindow() {
@@ -455,7 +374,79 @@ electron.app.on('ready', () => {
             }
         }
     );
-    electron.Menu.setApplicationMenu(menu);
+    if (process.platform === 'darwin') {
+        electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate([
+            {
+                label: electron.app.getName(),
+                submenu: [
+                    {role: 'about'},
+                    {type: 'separator'},
+                    {role: 'services', submenu: []},
+                    {type: 'separator'},
+                    {role: 'hide'},
+                    {role: 'hideothers'},
+                    {role: 'unhide'},
+                    {type: 'separator'},
+                    {role: 'quit'},
+                ],
+            },
+            {
+                label: 'Edit',
+                submenu: [
+                    {role: 'undo'},
+                    {role: 'redo'},
+                    {type: 'separator'},
+                    {role: 'cut'},
+                    {role: 'copy'},
+                    {role: 'paste'},
+                    {role: 'pasteandmatchstyle'},
+                    {role: 'delete'},
+                    {role: 'selectall'},
+                    {type: 'separator'},
+                    {
+                        label: 'Speech',
+                        submenu: [
+                            {role: 'startspeaking'},
+                            {role: 'stopspeaking'},
+                        ],
+                    },
+                ],
+            },
+            {
+                label: 'View',
+                submenu: [
+                    {role: 'toggledevtools'},
+                    {type: 'separator'},
+                    {role: 'resetzoom'},
+                    {role: 'zoomin'},
+                    {role: 'zoomout'},
+                    {type: 'separator'},
+                    {role: 'togglefullscreen'},
+                ],
+            },
+            {
+                role: 'window',
+                submenu: [
+                    {role: 'close'},
+                    {role: 'minimize'},
+                    {role: 'zoom'},
+                    {type: 'separator'},
+                    {role: 'front'},
+                ],
+            },
+            {
+                role: 'help',
+                submenu: [
+                    {
+                        label: 'Learn More',
+                        click() {
+                            electron.shell.openExternal('https://github.com/aMarcireau/origami');
+                        },
+                    },
+                ],
+            },
+        ]));
+    }
 });
 electron.app.on('ready', createWindow);
 electron.app.on('window-all-closed', () => {
