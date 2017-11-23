@@ -126,6 +126,7 @@ export default function manageCrossref(store) {
                         }
                     })
                 ;
+                break;
             }
         }
         for (const [id, bibtexRequest] of state.bibtexRequests) {
@@ -181,6 +182,7 @@ export default function manageCrossref(store) {
                         store.dispatch(rejectBibtexFromDoiConnection(id));
                     })
                 ;
+                break;
             }
         }
         for (const [id, doiRequest] of state.doiRequests) {
@@ -267,6 +269,7 @@ export default function manageCrossref(store) {
                         }
                     })
                 ;
+                break;
             }
         }
     }
