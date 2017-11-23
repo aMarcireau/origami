@@ -65,6 +65,8 @@ class Warnings extends React.Component {
                                         marginRight: 0,
                                         marginBottom: '6px',
                                         marginLeft: 0,
+                                        height: '16px',
+                                        lineHeight: '16px',
                                     }}>{element.message}</p>
                                     <p style={{
                                         color: this.props.colors.secondaryContent,
@@ -73,6 +75,8 @@ class Warnings extends React.Component {
                                         overflow: 'hidden',
                                         textOverflow: 'ellipsis',
                                         whiteSpace: 'nowrap',
+                                        height: '16px',
+                                        lineHeight: '16px',
                                     }}>{(() => {
                                         const date = new Date(element.timestamp);
                                         return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}, ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;

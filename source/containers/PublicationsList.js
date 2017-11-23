@@ -79,6 +79,8 @@ class PublicationsList extends React.Component {
                                         || Radium.getState(list.state, `${index}-${element.doi}`, ':hover')
                                     ) ? this.props.colors.background : this.props.colors.content,
                                     fontSize: '14px',
+                                    height: '16px',
+                                    lineHeight: '16px',
                                     marginBottom: '6px',
                                     fontFamily: 'roboto',
                                     overflow: 'hidden',
@@ -100,6 +102,8 @@ class PublicationsList extends React.Component {
                                         || Radium.getState(list.state, `${index}-${element.doi}`, ':hover')
                                     ) ? this.props.colors.background : this.props.colors.content,
                                     fontSize: '14px',
+                                    height: '16px',
+                                    lineHeight: '16px',
                                     fontFamily: 'robotoLight',
                                     overflow: 'hidden',
                                     textOverflow: 'ellipsis',

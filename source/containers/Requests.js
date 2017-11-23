@@ -190,6 +190,8 @@ class Requests extends React.Component {
                                                         backgroundColor: this.props.colors.sideBackground,
                                                         color: element.color,
                                                         fontSize: '14px',
+                                                        height: '16px',
+                                                        lineHeight: '16px',
                                                         marginTop: 0,
                                                         marginRight: 0,
                                                         marginBottom: '6px',
@@ -215,6 +217,8 @@ class Requests extends React.Component {
                                                         backgroundColor: this.props.colors.sideBackground,
                                                         color: element.color,
                                                         fontSize: '14px',
+                                                        height: '16px',
+                                                        lineHeight: '16px',
                                                         marginTop: 0,
                                                         marginRight: 0,
                                                         marginBottom: '6px',
@@ -226,6 +230,8 @@ class Requests extends React.Component {
                                             )}
                                             <p style={{
                                                 fontSize: '14px',
+                                                height: '16px',
+                                                lineHeight: '16px',
                                                 color: this.props.colors.secondaryContent,
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',

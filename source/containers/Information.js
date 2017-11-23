@@ -246,6 +246,8 @@ class Information extends React.Component {
                                                 backgroundColor: this.props.colors.sideBackground,
                                                 color: this.props.colors.link,
                                                 fontSize: '14px',
+                                                height: '16px',
+                                                lineHeight: '16px',
                                                 marginTop: 0,
                                                 marginRight: 0,
                                                 marginBottom: '6px',
@@ -264,6 +266,8 @@ class Information extends React.Component {
                                         <p style={{
                                             color: this.props.colors.content,
                                             fontSize: '14px',
+                                            height: '16px',
+                                            lineHeight: '16px',
                                             fontFamily: 'robotoLight',
                                             margin: 0,
                                             overflow: 'hidden',
