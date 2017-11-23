@@ -28,6 +28,8 @@ class Warnings extends React.Component {
                             fontFamily: 'robotoLight',
                             textAlign: 'center',
                             paddingTop: '10px',
+                            paddingRight: '10px',
+                            paddingLeft: '10px',
                         }}>There are no warnings</div>
                     }
                     pageFromElements={(elements, list) => (
@@ -68,6 +70,9 @@ class Warnings extends React.Component {
                                         color: this.props.colors.secondaryContent,
                                         fontSize: '14px',
                                         margin: 0,
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
                                     }}>{(() => {
                                         const date = new Date(element.timestamp);
                                         return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}, ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;

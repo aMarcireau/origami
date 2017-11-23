@@ -138,7 +138,7 @@ class Requests extends React.Component {
                         />
                     )}
                     <div style={{
-                        overflowY: 'scroll',
+                        overflowY: 'auto',
                         height: `${this.props.height - 40 - 3 - (this.props.blocked ? 133 : 0)}px`,
                     }}>
                         <List
@@ -151,6 +151,8 @@ class Requests extends React.Component {
                                     fontFamily: 'robotoLight',
                                     textAlign: 'center',
                                     paddingTop: '10px',
+                                    paddingRight: '10px',
+                                    paddingLeft: '10px',
                                 }}>There are no queued requests</div>
                             }
                             pageFromElements={(elements, list) => (

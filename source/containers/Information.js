@@ -438,6 +438,8 @@ class Information extends React.Component {
                     fontFamily: 'robotoLight',
                     textAlign: 'center',
                     paddingTop: '10px',
+                    paddingRight: '10px',
+                    paddingLeft: '10px',
                 }}>
                     Select a publication to display associated information
                 </div>
