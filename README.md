@@ -24,7 +24,7 @@ Origami is build with [Electron](https://electronjs.org), [React](https://reactj
 Follow these steps to download the source code, edit and build Origami:
 
 1. Install [Node.js](https://nodejs.org).
-2. Clone the repository by running from a terminal `git clone git@github.com:aMarcireau/origami.git`.
+2. Clone the repository by running from a terminal `git clone https://github.com/aMarcireau/origami.git`.
 3. Go to the created *origami* folder and run `npm install`.
 
 For development, run from the *origami* folder the command `npm start`. It will trigger a development build whenever something from the *souce* directory changes.
