@@ -170,7 +170,8 @@ class Graph extends React.Component {
         for (let index = this.nodes.length - 1; index >= 0; --index) {
             if (this.nodes[index].keep) {
                 delete this.nodes[index].keep;
-                this.nodes[index].isCiter = nextProps.doisCitingSelected.has(this.nodes[index].doi);
+                this.nodes[index].isCiting = nextProps.doisCitingSelected.has(this.nodes[index].doi);
+                this.nodes[index].isCited =  nextProps.doisCitedBySelected.has(this.nodes[index].doi);
             } else {
                 updateRequired = true;
                 this.reheatSimulation = true;
@@ -275,9 +276,15 @@ class Graph extends React.Component {
             .attr('fill', node => (
                 node.selected ?
                 this.props.colors.active
-                : (node.isCiter ?
+                : (node.isCiting ?
                     this.props.colors.valid
-                    : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? this.props.colors.link : this.props.colors.sideSeparator)
+                    : (node.isCited ?
+                        this.props.colors.warning
+                        :(node.status === PUBLICATION_STATUS_IN_COLLECTION ?
+                            this.props.colors.link
+                            : this.props.colors.sideSeparator
+                        )
+                    )
                 )
             ))
             .on('mouseover', function(node) {
@@ -286,9 +293,15 @@ class Graph extends React.Component {
             .on('mouseout', function(node) {
                 d3.select(this).attr('fill', node.selected ?
                     colors.active
-                    : (node.isCiter ?
+                    : (node.isCiting ?
                         colors.valid
-                        : (node.status === PUBLICATION_STATUS_IN_COLLECTION ? colors.link : colors.sideSeparator)
+                        : (node.isCited ?
+                            colors.warning
+                            : (node.status === PUBLICATION_STATUS_IN_COLLECTION ?
+                                colors.link
+                                : colors.sideSeparator
+                            )
+                        )
                     )
                 );
             })
@@ -412,7 +425,15 @@ export default connect(
         ).map(
             ([doi, publication]) => {return {...publication, doi}}
         );
-        const selectedPublicationAndDoi = Array.from(state.publications.entries()).find(([doi, publication]) => publication.selected);
+        const selectedDoiAndPublication = Array.from(state.publications.entries()).find(([doi, publication]) => publication.selected);
+        const doisCitedBySelected = new Set(selectedDoiAndPublication ?
+            Array.from(state.publications.entries()).filter(
+                ([doi, publication]) => publication.citers.includes(selectedDoiAndPublication[0])
+            ).map(
+                ([doi, publication]) => doi
+            )
+            : []
+        );
         return {
             zoom: state.graph.zoom,
             xOffset: state.graph.xOffset,
@@ -428,7 +449,8 @@ export default connect(
                     })
                 )
             ),
-            doisCitingSelected: new Set(selectedPublicationAndDoi ? selectedPublicationAndDoi[1].citers : []),
+            doisCitingSelected: new Set(selectedDoiAndPublication ? selectedDoiAndPublication[1].citers : []),
+            doisCitedBySelected,
             recommandedDois,
             display: state.menu.display,
             sticky: state.graph.sticky,
