@@ -6,7 +6,7 @@ Origami is an open-source research tool focused on graphical representations of 
 
 ## Download
 
-Visit the [releases page](https://github.com/aMarcireau/origami/releases) to download Origami for your platform. MacOS users should download *Origami-darwin-x64.zip*.
+Visit the [Releases](https://github.com/aMarcireau/origami/releases)  page to download Origami for your platform. MacOS users should download *Origami-darwin-x64.zip*.
 
 ## Themes
 
@@ -18,6 +18,8 @@ To change the color theme, edit the *colors.json* file with the path:
 The *themes* directory of this repository contains several themes suggestions.
 
 ## Contribute
+
+### Install
 
 Origami is build with [Electron](https://electronjs.org), [React](https://reactjs.org) and [Redux](https://redux.js.org).
 
@@ -32,6 +34,10 @@ For development, run from the *origami* folder the command `npm start`. It will 
 In order to create a new release, run:
 1. `npm run build` to generate production builds for each supported platform
 2. `npm run release -- v<major>.<minor>.<patch> [--prerelease]` to create a new Github release (requires administration rights on this repository).
+
+### Help out
+
+Check the [Projects](https://github.com/aMarcireau/origami/projects) page to see what's urgent or expected by the community.
 
 ## License
 
