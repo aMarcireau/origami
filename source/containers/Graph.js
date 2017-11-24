@@ -236,14 +236,25 @@ class Graph extends React.Component {
             .attr('text-anchor', 'middle')
             .attr('alignment-baseline', 'central')
             .attr('font-family', 'roboto')
-            .attr('font-size', '20px')
+            .attr('font-size', '13px')
             .attr('fill', this.props.colors.background)
             .style('user-select', 'none')
             .style('pointer-events', 'none')
             .text(node => {
-                const firstConsecutivePair = node.title.match(/(?:(?:the|a|an)\s+)?([a-z0-9]{2})/i);
-                const title = firstConsecutivePair ? firstConsecutivePair[1] : node.title;
-                return title.charAt(0).toUpperCase() + title.charAt(1).toLowerCase();
+                let title = '';
+                if (node.authors.length > 0) {
+                    const authorParts = node.authors[0].split(/\s+/);
+                    for (let index = authorParts.length - 1; index >= 0; --index) {
+                        if (authorParts[index] !== '') {
+                            title += authorParts[index].slice(0, 2);
+                            break;
+                        }
+                    }
+                }
+                if (node.date.length > 0) {
+                    title += node.date[0].toString().slice(2, 4);
+                }
+                return title;
             })
         ;
         this.d3Node = d3NodeGroup.merge(this.d3Node);
