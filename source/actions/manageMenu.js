@@ -80,6 +80,7 @@ export function selectListDisplay() {
 
 export function stateToJson(state, expand) {
     return `${JSON.stringify({
+        appVersion: state.appVersion,
         display: state.menu.display,
         doiRequests: Array.from(state.doiRequests.entries()).map(
             ([id, doiRequest]) => {
@@ -113,6 +114,7 @@ export function stateToJson(state, expand) {
 export function jsonToState(json, saveFilename, previousState) {
     try {
         const state = JSON.parse(new TextDecoder('utf-8').decode(json));
+        state.appVersion = previousState ? previousState.appVersion : undefined;
         state.colors = previousState ? previousState.colors : undefined;
         state.connected = previousState ? previousState.connected : undefined;
         state.doiRequests = new Map(state.doiRequests.map(

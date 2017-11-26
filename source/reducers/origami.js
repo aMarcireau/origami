@@ -23,6 +23,7 @@ export default function(state, action) {
     if (action.type === RESET) {
         if (action.state == null) {
             state = {
+                appVersion: state.appVersion,
                 colors: state.colors,
                 connected: state.connected,
                 menu: {
@@ -78,6 +79,7 @@ export default function(state, action) {
             }
         },
         combineReducers({
+            appVersion: (state = '0.0.0') => state,
             bibtexRequests: (state = new Map()) => state,
             colors: (state = {}) => state,
             connected,

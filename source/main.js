@@ -347,12 +347,8 @@ function createWindow() {
                 mainWindow.show();
             });
             mainWindow.webContents.once('dom-ready', () => {
-                mainWindow.setTitle('Untitled — Edited');
-                if (jsonError) {
-                    mainWindow.webContents.send('startWithState', null, colors);
-                } else {
-                    mainWindow.webContents.send('startWithState', json, colors);
-                }
+                mainWindow.setTitle('Untitled');
+                mainWindow.webContents.send('startWithState', jsonError ? null : json, electron.app.getVersion(), colors);
             });
             mainWindow.loadURL(`file://${__dirname}/index.html`);
         });
