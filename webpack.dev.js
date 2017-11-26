@@ -4,10 +4,6 @@ const common = require('./webpack.common');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 
-const watchers = ['main.js', 'package.json'].map(sourceFileToCopy => fs.watch(`${__dirname}/source/${sourceFileToCopy}`, () => {
-    common.package(false);
-}));
-
 module.exports = merge(common.configuration, {
     plugins: [
         function() {
