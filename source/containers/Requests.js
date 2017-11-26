@@ -18,6 +18,8 @@ import {
     PUBLICATION_STATUS_IN_COLLECTION,
     PAGE_TYPE_INITIALIZE,
     PAGE_TYPE_CITERS,
+    PUBLICATION_REQUEST_TYPE_CITER_METADATA,
+    PUBLICATION_REQUEST_TYPE_IMPORTED_METADATA,
     SCHOLAR_STATUS_IDLE,
     SCHOLAR_STATUS_FETCHING,
     SCHOLAR_STATUS_BLOCKED_HIDDEN,
@@ -334,27 +336,40 @@ export default connect(
                         ),
                     };
                 }),
-                ...Array.from(state.doiRequests.entries()).map(([id, doiRequest]) => {
+                ...Array.from(state.publicationRequests.entries()).map(([id, publicationRequest]) => {
                     return {
                         id: `${id}-${state.version}-doi-request`,
-                        title: state.publications.get(doiRequest.parentDoi).title,
-                        onTitleClick: dispatch => {
-                            if (state.publications.get(doiRequest.parentDoi).selected) {
-                                dispatch(unselectPublication());
-                            } else {
-                                dispatch(selectPublication(doiRequest.parentDoi));
-                            }
-                        },
-                        subtitle: `DOI for “${doiRequest.title}”`,
-                        color: state.publications.get(doiRequest.parentDoi).selected ? state.colors.active : state.colors.link,
+                        title: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
+                            state.publications.get(publicationRequest.parentDoi).title
+                            : publicationRequest.title
+                        ),
+                        onTitleClick: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
+                            (dispatch => {
+                                if (state.publications.get(publicationRequest.parentDoi).selected) {
+                                    dispatch(unselectPublication());
+                                } else {
+                                    dispatch(selectPublication(publicationRequest.parentDoi));
+                                }
+                            })
+                            : null
+                        ),
+                        subtitle: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
+                            `DOI for “${publicationRequest.title}”`
+                            : 'Validation'
+                        ),
+                        color: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
+                            state.publications.get(publicationRequest.parentDoi).selected ? state.colors.active : state.colors.link
+                            : null
+                        ),
                         borderColor: (!state.connected ?
                             state.colors.error
-                            : (doiRequest.fetching ?
+                            : (publicationRequest.fetching ?
                                 state.colors.active
                                 : state.colors.link
                             )
                         ),
                     };
+
                 }),
             ],
             hasPages: state.scholar.pages.length > 0,

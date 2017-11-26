@@ -189,7 +189,7 @@ class Origami extends React.Component {
                                         separator: true,
                                     },
                                     {
-                                        name: 'Import publications…',
+                                        name: 'Import JSON…',
                                         onClick: () => {
                                             ipcRenderer.once('imported-publications', (event, cancelled, failed, filename, data) => {
                                                 if (!cancelled) {
@@ -199,7 +199,7 @@ class Origami extends React.Component {
                                                         try {
                                                             const importedState = JSON.parse(data);
                                                             const fetchingDois = new Set([
-                                                                ...importedState.doiRequests.map(([id, doiRequest]) => doiRequest.parentDoi),
+                                                                ...importedState.publicationRequests.map(([id, publicationRequest]) => publicationRequest.parentDoi),
                                                                 ...importedState.scholar.pages.map(page => page.doi),
                                                             ]);
                                                             if (importedState.publications.length > 0) {
@@ -228,6 +228,19 @@ class Origami extends React.Component {
                                             ipcRenderer.send('import-publications');
                                         },
                                         shortcut: 'i',
+                                    },
+                                    {
+                                        name: 'Import BibTeX…',
+                                        onClick: () => {
+                                            ipcRenderer.once('imported-bibtex', (event, cancelled, failed, filename, data) => {
+
+
+
+                                            });
+                                            ipcRenderer.send('import-bibtex');
+                                        },
+                                        shortcut: 'b',
+                                        separator: true,
                                     },
                                     {
                                         name: 'Export BibTeX…',

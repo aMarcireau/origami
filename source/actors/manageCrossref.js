@@ -4,22 +4,25 @@ import {
     rejectBibtexFromDoiConnection,
 } from '../actions/getBibtexFromDoi'
 import {
-    fecthPublicationFromDoi,
+    fetchPublicationFromDoi,
     resolvePublicationFromDoi,
     rejectPublicationFromDoi,
     rejectPublicationFromDoiConnection,
 } from '../actions/getPublicationFromDoi'
 import {
-    fetchDoiFromMetadata,
-    resolveDoiFromMetadata,
-    rejectDoiFromMetadata,
-    rejectDoiFromMetadataConnection,
-} from '../actions/getDoiFromMetadata'
+    fetchPublicationFromMetadata,
+    resolvePublicationFromCiterMetadata,
+    resolvePublicationFromImportedMetadata,
+    rejectPublicationFromMetadata,
+    rejectPublicationFromMetadataConnection,
+} from '../actions/getPublicationFromMetadata'
 import {isOlderThan} from '../actions/managePublication'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
+    PUBLICATION_REQUEST_TYPE_CITER_METADATA,
+    PUBLICATION_REQUEST_TYPE_IMPORTED_METADATA,
 } from '../constants/enums'
 
 function smallestOfThreePlusOne(first, second, third, incrementSecondIfSmallest) {
@@ -185,13 +188,13 @@ export default function manageCrossref(store) {
                 break;
             }
         }
-        for (const [id, doiRequest] of state.doiRequests) {
-            if (!doiRequest.fetching) {
-                store.dispatch(fetchDoiFromMetadata(id));
+        for (const [id, publicationRequest] of state.publicationRequests) {
+            if (!publicationRequest.fetching) {
+                store.dispatch(fetchPublicationFromMetadata(id));
                 fetch(`https://api.crossref.org/works?${[
-                    ...doiRequest.authors.map(author => `query.author=${encodeURIComponent(author)}`),
-                    `query.title=${encodeURIComponent(doiRequest.title)}`,
-                    `filter=from-pub-date:${encodeURIComponent(doiRequest.dateAsString)}`,
+                    ...publicationRequest.authors.map(author => `query.author=${encodeURIComponent(author)}`),
+                    `query.title=${encodeURIComponent(publicationRequest.title)}`,
+                    `filter=from-pub-date:${encodeURIComponent(publicationRequest.dateAsString)}`,
                     'sort=score',
                     'order=desc',
                     'rows=5',
@@ -205,17 +208,17 @@ export default function manageCrossref(store) {
                     .then(response => response.json())
                     .then(json => {
                         const state = store.getState();
-                        if (!state.publications.has(doiRequest.parentDoi)) {
-                            store.dispatch(resolveDoiFromMetadata(
+                        if (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA && !state.publications.has(publicationRequest.parentDoi)) {
+                            store.dispatch(resolvePublicationFromCiterMetadata(
                                 id,
-                                doiRequest.parentDoi,
+                                publicationRequest.parentDoi,
                                 null
                             ));
                         } else {
                             if (json.message.items.length === 0) {
-                                store.dispatch(rejectDoiFromMetadata(
+                                store.dispatch(rejectPublicationFromMetadata(
                                     id,
-                                    `A Crossref request for ${doiRequest.parentDoi} returned an empty list`,
+                                    `The Crossref request for '${publicationRequest.title}' returned an empty list`,
                                     new Date().getTime()
                                 ));
                             } else {
@@ -225,7 +228,7 @@ export default function manageCrossref(store) {
                                         distance: (
                                             levenshteinDistance(
                                                 publication.title[0].toLowerCase(),
-                                                doiRequest.title.toLowerCase()
+                                                publicationRequest.title.toLowerCase()
                                             )
                                             + index / json.message.items.length
                                         ),
@@ -236,36 +239,43 @@ export default function manageCrossref(store) {
                                     }
                                     return accumulator;
                                 }, null);
-                                if (isOlderThan(
+                                if (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA && isOlderThan(
                                     bestPublicationAndDistance.publication.created['date-parts'][0],
-                                    state.publications.get(doiRequest.parentDoi).date
+                                    state.publications.get(publicationRequest.parentDoi).date
                                 )) {
-                                    store.dispatch(rejectDoiFromMetadata(
+                                    store.dispatch(rejectPublicationFromMetadata(
                                         id,
-                                        `A Crossref request for ${doiRequest.parentDoi} returned an article older than the cited one`,
+                                        `The Crossref request for '${publicationRequest.title}' returned an article older than the cited one`,
                                         new Date().getTime()
                                     ));
                                 } else if (bestPublicationAndDistance.distance > 10) {
-                                    store.dispatch(rejectDoiFromMetadata(
+                                    store.dispatch(rejectPublicationFromMetadata(
                                         id,
-                                        `A Crossref request for ${doiRequest.parentDoi} returned a non-matching title`,
+                                        `The Crossref request for '${publicationRequest.title}' returned a non-matching title`,
                                         new Date().getTime()
                                     ));
                                 } else {
-                                    store.dispatch(resolveDoiFromMetadata(
-                                        id,
-                                        doiRequest.parentDoi,
-                                        bestPublicationAndDistance.publication
-                                    ));
+                                    if (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA) {
+                                        store.dispatch(resolvePublicationFromCiterMetadata(
+                                            id,
+                                            publicationRequest.parentDoi,
+                                            bestPublicationAndDistance.publication
+                                        ));
+                                    } else {
+                                        store.dispatch(resolvePublicationFromImportedMetadata(
+                                            id,
+                                            bestPublicationAndDistance.publication
+                                        ));
+                                    }
                                 }
                             }
                         }
                     })
                     .catch(error => {
                         if (error instanceof SyntaxError) {
-                            store.dispatch(rejectDoiFromMetadata(id, `A Crossref request for ${doiRequest.parentDoi} could not be parsed`, new Date().getTime()));
+                            store.dispatch(rejectPublicationFromMetadata(id, `The Crossref request for '${publicationRequest.title}' could not be parsed`, new Date().getTime()));
                         } else {
-                            store.dispatch(rejectDoiFromMetadataConnection(id));
+                            store.dispatch(rejectPublicationFromMetadataConnection(id));
                         }
                     })
                 ;

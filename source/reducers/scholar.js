@@ -90,8 +90,8 @@ export default function scholar(
             for (const page of state.pages) {
                 updatableDois.delete(page.doi);
             }
-            for (const doiRequest of appState.doiRequests.values()) {
-                updatableDois.delete(doiRequest.parentDoi);
+            for (const publicationRequest of appState.publicationRequests.values()) {
+                updatableDois.delete(publicationRequest.parentDoi);
             }
             return {
                 ...state,

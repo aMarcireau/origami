@@ -82,14 +82,14 @@ export function stateToJson(state, expand) {
     return `${JSON.stringify({
         appVersion: state.appVersion,
         display: state.menu.display,
-        doiRequests: Array.from(state.doiRequests.entries()).map(
-            ([id, doiRequest]) => {
-                const savableDoiRequest = {...doiRequest};
+        publicationRequests: Array.from(state.publicationRequests.entries()).map(
+            ([id, publicationRequest]) => {
+                const savableDoiRequest = {...publicationRequest};
                 delete savableDoiRequest.fetching;
                 return [id, savableDoiRequest];
             }
         ).filter(
-            ([id, doiRequest]) => state.publications.has(doiRequest.parentDoi)
+            ([id, publicationRequest]) => state.publications.has(publicationRequest.parentDoi)
         ),
         graph: state.graph,
         saveFilename: expand ? undefined : state.menu.saveFilename,
@@ -117,9 +117,9 @@ export function jsonToState(json, saveFilename, previousState) {
         state.appVersion = previousState ? previousState.appVersion : undefined;
         state.colors = previousState ? previousState.colors : undefined;
         state.connected = previousState ? previousState.connected : undefined;
-        state.doiRequests = new Map(state.doiRequests.map(
-            ([id, doiRequest]) => [id, {
-                ...doiRequest,
+        state.publicationRequests = new Map(state.publicationRequests.map(
+            ([id, publicationRequest]) => [id, {
+                ...publicationRequest,
                 fetching: false,
             }]
         ));

@@ -317,6 +317,34 @@ function createWindow() {
                 );
             });
 
+            /// 'import-bibtex' prompts for a file to open and sends back its contents with 'imported-bibtex'.
+            /// 'imported-bibtex' arguments:
+            ///     cancelled: bool, true if the opening was cancelled
+            ///     failed: bool, true if the opening failed
+            ///     filename: string, the filename used if the opening was not cancelled
+            ///     data: buffer, content of the opened file
+            electron.ipcMain.on('import-bibtex', event => {
+                electron.dialog.showOpenDialog(
+                    mainWindow,
+                    {
+                        filters: [{name: 'BibTeX', extensions: ['bib']}],
+                    },
+                    filePaths => {
+                        if (filePaths == null) {
+                            event.sender.send('imported-bibtex', true, false, null, null);
+                        } else {
+                            fs.readFile(filePaths[0], (error, data) => {
+                                if (error) {
+                                    event.sender.send('imported-bibtex', false , true, filePaths[0], null);
+                                } else {
+                                    event.sender.send('imported-bibtex', false, false, filePaths[0], data);
+                                }
+                            });
+                        }
+                    }
+                );
+            });
+
             /// 'export-bibtex' stores the given data to the given file and sends back 'exported-bibtex'.
             ///     data: string, content to write to the bibtex file
             /// 'exported-bibtex' arguments:
@@ -326,7 +354,7 @@ function createWindow() {
                 electron.dialog.showSaveDialog(
                     mainWindow,
                     {
-                        filters: [{name: 'BibTex', extensions: ['bib']}],
+                        filters: [{name: 'BibTeX', extensions: ['bib']}],
                     },
                     filePaths => {
                         if (filePaths == null) {

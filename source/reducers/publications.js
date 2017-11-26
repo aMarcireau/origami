@@ -11,7 +11,8 @@ import {
     UPDATE_PUBLICATION,
     UPDATE_ALL_PUBLICATIONS,
     RESOLVE_BIBTEX_FROM_DOI,
-    RESOLVE_DOI_FROM_METADATA,
+    RESOLVE_PUBLICATION_FROM_CITER_METADATA,
+    RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
     RESOLVE_IMPORT_PUBLICATIONS,
     STORE_GRAPH_NODES,
     LOCK_GRAPH_NODE,
@@ -200,8 +201,8 @@ export default function publications(state = new Map(), action, appState) {
             for (const bibtexRequest of appState.bibtexRequests.values()) {
                 updatableDois.delete(bibtexRequest.doi);
             }
-            for (const doiRequest of appState.doiRequests.values()) {
-                updatableDois.delete(doiRequest.parentDoi);
+            for (const publicationRequest of appState.publicationRequests.values()) {
+                updatableDois.delete(publicationRequest.parentDoi);
             }
             const newState = new Map(state);
             for (const doi of updatableDois.values()) {
@@ -231,7 +232,7 @@ export default function publications(state = new Map(), action, appState) {
             });
             return newState;
         }
-        case RESOLVE_DOI_FROM_METADATA: {
+        case RESOLVE_PUBLICATION_FROM_CITER_METADATA: {
             if (!state.has(action.parentDoi)) {
                 return state;
             }
@@ -266,6 +267,12 @@ export default function publications(state = new Map(), action, appState) {
                 });
             }
             return newState;
+        }
+        case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA: {
+
+            // @DEV: add the new publication here
+
+            return state;
         }
         case RESOLVE_IMPORT_PUBLICATIONS: {
             const newState = new Map(state);

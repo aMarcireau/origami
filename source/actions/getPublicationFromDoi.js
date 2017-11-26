@@ -14,7 +14,7 @@ export function publicationFromDoi(doi, timestamp) {
     };
 }
 
-export function fecthPublicationFromDoi(doi) {
+export function fetchPublicationFromDoi(doi) {
     return {
         type: FETCH_PUBLICATION_FROM_DOI,
         doi,

@@ -3,7 +3,7 @@ import {
     REJECT_PUBLICATION_FROM_DOI,
     REJECT_SCHOLAR_CITERS_PAGE,
     REJECT_SCHOLAR_CITER_PARSING,
-    REJECT_DOI_FROM_METADATA,
+    REJECT_PUBLICATION_FROM_METADATA,
     REJECT_SAVE,
     REJECT_OPEN,
     REJECT_IMPORT_PUBLICATIONS,
@@ -42,7 +42,7 @@ export default function warnings(state = {list: [], hash: 0}, action, appState) 
             };
         case REJECT_SCHOLAR_CITERS_PAGE:
         case REJECT_SCHOLAR_CITER_PARSING:
-        case REJECT_DOI_FROM_METADATA:
+        case REJECT_PUBLICATION_FROM_METADATA:
             return {
                 ...state,
                 list: [

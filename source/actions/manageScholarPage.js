@@ -1,7 +1,7 @@
 import {ipcRenderer} from 'electron'
 import htmlparser from 'htmlparser2'
 import cssSelect from 'css-select'
-import {doiFromMetadata} from './getDoiFromMetadata'
+import {publicationFromCiterMetadata} from './getPublicationFromMetadata'
 import {
     FETCH_SCHOLAR_PAGE,
     RESOLVE_SCHOLAR_INITIAL_PAGE,
@@ -227,7 +227,7 @@ export function resolveHtml(url, text) {
                                         }
                                         const bytes = new Uint8Array(64);
                                         window.crypto.getRandomValues(bytes);
-                                        dispatch(doiFromMetadata(
+                                        dispatch(publicationFromCiterMetadata(
                                             Array.from(bytes).map(byte => byte.toString(16)).join(''),
                                             state.scholar.pages[0].doi,
                                             titleCandidates[0].children[0].data,
