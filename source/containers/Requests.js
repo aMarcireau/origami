@@ -77,8 +77,8 @@ class Requests extends React.Component {
                                 height: '40px',
                                 textDecoration: 'none',
                                 outline: 'none',
-                                backgroundColor: this.props.colors.sideBackground,
-                                color: this.props.colors.link,
+                                backgroundColor: this.props.colors.error,
+                                color: this.props.colors.sideBackground,
                                 fontSize: '14px',
                                 marginTop: 0,
                                 marginRight: 0,
@@ -86,14 +86,14 @@ class Requests extends React.Component {
                                 marginLeft: 0,
                                 padding: 0,
                                 textAlign: 'center',
-                                ':hover': {
-                                    cursor: 'pointer',
-                                    color: this.props.colors.active,
-                                },
                                 borderTop: 'none',
                                 borderRight: 'none',
                                 borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                                 borderLeft: 'none',
+                                ':hover': {
+                                    cursor: 'pointer',
+                                    backgroundColor: this.props.colors.active,
+                                },
                             }}
                             onClick={() => {
                                 this.props.dispatch(changeRecaptchaVisibility());
