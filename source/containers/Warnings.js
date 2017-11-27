@@ -38,7 +38,7 @@ class Warnings extends React.Component {
                             padding: 0,
                         }}>{elements.map((element, index) => (
                             <li
-                                key={`${index}`}
+                                key={`${index}-${this.props.hash}`}
                                 style={{
                                     borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                                     borderLeft: `solid 3px ${element.level == 'error' ? this.props.colors.error : this.props.colors.warning}`,
@@ -79,7 +79,7 @@ class Warnings extends React.Component {
                                     }}>{element.subtitle}</p>
                                 </div>
                                 <button
-                                    key={`${index}-warnings-remove-button`}
+                                    key={`${index}-${this.props.hash}-warnings-remove-button`}
                                     style={{
                                         position: 'absolute',
                                         right: 0,
@@ -113,7 +113,7 @@ class Warnings extends React.Component {
                                     <svg viewBox="0 0 40 40">
                                         <rect
                                             style={{
-                                                fill: (Radium.getState(list.state, `${index}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
+                                                fill: (Radium.getState(list.state, `${index}-${this.props.hash}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
                                             }}
                                             transform="translate(20.000000, 20.000000) rotate(45.000000) translate(-20.000000, -20.000000)"
                                             x="19"
@@ -123,7 +123,7 @@ class Warnings extends React.Component {
                                         />
                                         <rect
                                             style={{
-                                                fill: (Radium.getState(list.state, `${index}-${element.timestamp}-${element.message}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
+                                                fill: (Radium.getState(list.state, `${index}-${this.props.hash}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
                                             }}
                                             transform="translate(20.000000, 20.000000) rotate(-45.000000) translate(-20.000000, -20.000000)"
                                             x="19"
