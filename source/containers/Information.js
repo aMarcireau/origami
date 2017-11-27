@@ -3,6 +3,7 @@ import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
+import ConfirmationButton from '../components/ConfirmationButton'
 import List from '../components/List'
 import {
     addPublicationToCollection,
@@ -403,38 +404,15 @@ class Information extends React.Component {
             </div>
         ) : (
             <div>
-                {this.props.collectionUpdatable && (
-                    <button
-                        key={`${this.props.hash}-information-update-collection-button`}
-                        style={{
-                            textDecoration: 'none',
-                            paddingTop: '0px',
-                            paddingRight: '6px',
-                            paddingBottom: '0px',
-                            paddingLeft: '6px',
-                            height: '40px',
-                            lineHeight: '40px',
-                            borderTop: 'none',
-                            borderRight: 'none',
-                            borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
-                            borderLeft: 'none',
-                            display: 'block',
-                            textAlign: 'center',
-                            outline: 'none',
-                            fontSize: '14px',
-                            fontFamily: 'robotoLight',
-                            color: this.props.colors.link,
-                            backgroundColor: this.props.colors.sideBackground,
-                            width: '100%',
-                            ':hover': {
-                                cursor: 'pointer',
-                                color: this.props.colors.active,
-                            },
-                        }}
+                {(this.props.numberOfUpdatableDois > 0) && (
+                    <ConfirmationButton
+                        numberOfPublications={this.props.numberOfUpdatableDois}
                         onClick={() => {
                             this.props.dispatch(updateAllPublications(new Date().getTime()));
                         }}
-                    >Update the collection</button>
+                        colors={this.props.colors}
+                        componentKey={`${this.props.hash}-information-update-collection-button`}
+                    />
                 )}
                 <div style={{
                     color: this.props.colors.secondaryContent,
@@ -470,7 +448,7 @@ export default connect(
             return {
                 publication: null,
                 publications: state.publications,
-                collectionUpdatable: updatableDois.size > 0,
+                numberOfUpdatableDois: updatableDois.size,
                 hash: state.tabs.hash,
                 colors: state.colors,
             };
