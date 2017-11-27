@@ -53,9 +53,15 @@ class PublicationsList extends React.Component {
                                     padding: '6px',
                                     backgroundColor: (element.selected ?
                                         this.props.colors.active
-                                        : (element.status === PUBLICATION_STATUS_IN_COLLECTION ?
-                                            this.props.colors.link
-                                            : this.props.colors.background
+                                        : (element.isCiting ?
+                                            this.props.colors.valid
+                                            : (element.isCited ?
+                                                this.props.colors.warning
+                                                : (element.status === PUBLICATION_STATUS_IN_COLLECTION ?
+                                                    this.props.colors.link
+                                                    : this.props.colors.backgroundColor
+                                                )
+                                            )
                                         )
                                     ),
                                     borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
@@ -75,6 +81,8 @@ class PublicationsList extends React.Component {
                                 <div style={{
                                     color: (
                                         element.selected
+                                        || element.isCited
+                                        || element.isCiting
                                         || element.status === PUBLICATION_STATUS_IN_COLLECTION
                                         || Radium.getState(list.state, `${index}-${element.doi}`, ':hover')
                                     ) ? this.props.colors.background : this.props.colors.content,
@@ -98,6 +106,8 @@ class PublicationsList extends React.Component {
                                 <div style={{
                                     color: (
                                         element.selected
+                                        || element.isCited
+                                        || element.isCiting
                                         || element.status === PUBLICATION_STATUS_IN_COLLECTION
                                         || Radium.getState(list.state, `${index}-${element.doi}`, ':hover')
                                     ) ? this.props.colors.background : this.props.colors.content,
@@ -148,10 +158,25 @@ export default connect(
         ).map(
             ([doi, count]) => doi
         ));
+        const selectedDoiAndPublication = Array.from(state.publications.entries()).find(([doi, publication]) => publication.selected);
+        const doisCitingSelected = new Set(selectedDoiAndPublication ? selectedDoiAndPublication[1].citers : []);
+        const doisCitedBySelected = new Set(selectedDoiAndPublication ?
+            Array.from(state.publications.entries()).filter(
+                ([doi, publication]) => publication.citers.includes(selectedDoiAndPublication[0])
+            ).map(
+                ([doi, publication]) => doi
+            )
+            : []
+        );
         const publications = Array.from(state.publications.entries()).filter(
             ([doi, publication]) => publication.status === PUBLICATION_STATUS_IN_COLLECTION || recommandedDois.has(doi)
         ).map(
-            ([doi, publication]) => {return {...publication, doi}}
+            ([doi, publication]) => {return {
+                ...publication,
+                doi,
+                isCiting: doisCitingSelected.has(doi),
+                isCited: doisCitedBySelected.has(doi),
+            }}
         ).sort(
             (firstPublication, secondPublication) => {
                 if (isOlderThan(firstPublication.date, secondPublication.date)) {
@@ -167,7 +192,6 @@ export default connect(
                 return firstPublication.title.localeCompare(secondPublication.title);
             }
         );
-        const selectedPublicationAndDoi = Array.from(state.publications.entries()).find(([doi, publication]) => publication.selected);
         return {
             publications,
             recommandedDois,
