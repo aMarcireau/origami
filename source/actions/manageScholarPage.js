@@ -180,8 +180,8 @@ export function resolveHtml(url, text) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
                                                 doi: state.scholar.pages[0].doi,
-                                                message: `Parsing a citer's title for ${state.scholar.pages[0].doi} failed`,
-                                                timestamp: new Date().getTime(),
+                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                subtitle: 'Tags with the class \'gs_rt\' and link children could not be found',
                                             });
                                             continue;
                                         }
@@ -193,8 +193,8 @@ export function resolveHtml(url, text) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
                                                 doi: state.scholar.pages[0].doi,
-                                                message: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
-                                                timestamp: new Date().getTime(),
+                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                subtitle: 'Tags with the class \'gs_a\' could not be found',
                                             });
                                             continue;
                                         }
@@ -209,19 +209,19 @@ export function resolveHtml(url, text) {
                                                 && child.children.length > 0
                                                 && child.children[0].type === 'text'
                                             ) {
-                                                metadata += child.children[0].data;
+                                                metadata += child.children[0].data.replace(/&nbsp;/g, ' ');
                                             } else {
                                                 metadata = '';
                                                 break;
                                             }
                                         }
-                                        const matchedMetadata = metadata.match(/^\s*(.+?)\s+-\s+([^,]+?)\s*,\s+(\d{4})\s+-\s+([^,]+?)\s*$/);
+                                        const matchedMetadata = metadata.match(/^\s*(.+?)\s+-\s+(.+?)\s*,\s+(\d{4})\s+-\s+(.+?)\s*$/);
                                         if (!matchedMetadata) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
                                                 doi: state.scholar.pages[0].doi,
-                                                message: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
-                                                timestamp: new Date().getTime(),
+                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                subtitle: `Parsing '${metadata}' failed`,
                                             });
                                             continue;
                                         }
@@ -240,8 +240,8 @@ export function resolveHtml(url, text) {
                                     const page = state.scholar.pages[0];
                                     dispatchAndEcho({
                                         type: REJECT_SCHOLAR_CITERS_PAGE,
-                                        message: `No publications found in page ${page.number} / ${page.total} of ${page.doi}`,
-                                        timestamp: new Date().getTime(),
+                                        title: `An empty citers page was retrieved for ${page.doi}`,
+                                        subtitle: `No publications were found in the page ${page.number} / ${page.total}`,
                                     }, refractoryPeriod);
                                 }
                                 break;

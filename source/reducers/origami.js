@@ -92,6 +92,6 @@ export default function(state, action) {
             tabs,
             version,
             warnings: (state = {}) => state,
-        }),
+        })
     )(state, action);
 }

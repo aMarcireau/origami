@@ -117,13 +117,12 @@ export default function manageCrossref(store) {
                         store.dispatch(resolvePublicationFromDoi(
                             doi,
                             json.message,
-                            new Date().getTime(),
                             Array.from(bytes).map(byte => byte.toString(16)).join('')
                         ));
                     })
                     .catch(error => {
                         if (error instanceof SyntaxError) {
-                            store.dispatch(rejectPublicationFromDoi(doi, new Date().getTime()));
+                            store.dispatch(rejectPublicationFromDoi(doi));
                         } else {
                             store.dispatch(rejectPublicationFromDoiConnection(doi));
                         }
@@ -218,8 +217,8 @@ export default function manageCrossref(store) {
                             if (json.message.items.length === 0) {
                                 store.dispatch(rejectPublicationFromMetadata(
                                     id,
-                                    `The Crossref request for '${publicationRequest.title}' returned an empty list`,
-                                    new Date().getTime()
+                                    publicationRequest.title,
+                                    'Corssref returned an empty list'
                                 ));
                             } else {
                                 const bestPublicationAndDistance = json.message.items.map((publication, index) => {
@@ -245,14 +244,14 @@ export default function manageCrossref(store) {
                                 )) {
                                     store.dispatch(rejectPublicationFromMetadata(
                                         id,
-                                        `The Crossref request for '${publicationRequest.title}' returned an article older than the cited one`,
-                                        new Date().getTime()
+                                        publicationRequest.title,
+                                        `The returned article was older than the cited one (${publicationRequest.parentDoi})`
                                     ));
                                 } else if (bestPublicationAndDistance.distance > 10) {
                                     store.dispatch(rejectPublicationFromMetadata(
                                         id,
-                                        `The Crossref request for '${publicationRequest.title}' returned a non-matching title`,
-                                        new Date().getTime()
+                                        publicationRequest.title,
+                                        `The returned title '${bestPublicationAndDistance.publication.title[0]}' did not match the given one`
                                     ));
                                 } else {
                                     if (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA) {
@@ -262,9 +261,13 @@ export default function manageCrossref(store) {
                                             bestPublicationAndDistance.publication
                                         ));
                                     } else {
+                                        const bytes = new Uint8Array(64);
+                                        window.crypto.getRandomValues(bytes);
                                         store.dispatch(resolvePublicationFromImportedMetadata(
                                             id,
-                                            bestPublicationAndDistance.publication
+                                            bestPublicationAndDistance.publication,
+                                            new Date().getTime(),
+                                            Array.from(bytes).map(byte => byte.toString(16)).join('')
                                         ));
                                     }
                                 }
@@ -273,7 +276,11 @@ export default function manageCrossref(store) {
                     })
                     .catch(error => {
                         if (error instanceof SyntaxError) {
-                            store.dispatch(rejectPublicationFromMetadata(id, `The Crossref request for '${publicationRequest.title}' could not be parsed`, new Date().getTime()));
+                            store.dispatch(rejectPublicationFromMetadata(
+                                id,
+                                publicationRequest.title,
+                                `Parsing failed: ${error.message}`
+                            ));
                         } else {
                             store.dispatch(rejectPublicationFromMetadataConnection(id));
                         }

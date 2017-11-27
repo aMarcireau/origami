@@ -45,20 +45,22 @@ export function resolvePublicationFromCiterMetadata(id, parentDoi, crossrefMessa
     }
 }
 
-export function resolvePublicationFromImportedMetadata(id, crossrefMessage) {
+export function resolvePublicationFromImportedMetadata(id, crossrefMessage, timestamp, bibtexRequestId) {
     return {
         type: RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
         id,
         crossrefMessage,
+        timestamp,
+        bibtexRequestId,
     }
 }
 
-export function rejectPublicationFromMetadata(id, message, timestamp) {
+export function rejectPublicationFromMetadata(id, title, message) {
     return {
         type: REJECT_PUBLICATION_FROM_METADATA,
         id,
+        title,
         message,
-        timestamp,
     };
 }
 

@@ -17,6 +17,7 @@ import {
     RESET_SCHOLAR,
     CHANGE_RECAPTCHA_VISIBILITY,
     SCHOLAR_DISCONNECT,
+    RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
 } from '../constants/actionTypes'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
@@ -55,6 +56,19 @@ export default function scholar(
                     type: PAGE_TYPE_INITIALIZE,
                     doi: action.doi,
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(action.doi)}`,
+                }],
+            };
+        case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA:
+            const doi = action.crossrefMessage.DOI.toLowerCase();
+            if (appState.publications.has(doi) && appState.publications.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
+                return state;
+            }
+            return {
+                ...state,
+                pages: [...state.pages, {
+                    type: PAGE_TYPE_INITIALIZE,
+                    doi: doi,
+                    url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
                 }],
             };
         case REMOVE_PUBLICATION:

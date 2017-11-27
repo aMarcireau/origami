@@ -44,6 +44,10 @@ export default function publications(state = new Map(), action, appState) {
             const newState = new Map(state);
             newState.set(doi, {
                 status: PUBLICATION_STATUS_UNVALIDATED,
+                title: null,
+                authors: null,
+                journal: null,
+                date: null,
                 citers: [],
                 updated: null,
                 selected: false,
@@ -242,19 +246,25 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     ...newState.get(doi),
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given} ${author.family}`),
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
                 });
             } else {
                 newState.set(doi, {
+                    status: PUBLICATION_STATUS_DEFAULT,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given} ${author.family}`),
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
-                    status: PUBLICATION_STATUS_DEFAULT,
                     citers: [],
                     updated: null,
+                    selected: false,
+                    validating: false,
+                    bibtex: null,
+                    x: null,
+                    y: null,
+                    locked: false,
                 });
             }
             if (!newState.get(action.parentDoi).citers.includes(doi)) {
@@ -269,10 +279,39 @@ export default function publications(state = new Map(), action, appState) {
             return newState;
         }
         case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA: {
-
-            // @DEV: add the new publication here
-
-            return state;
+            const doi = action.crossrefMessage.DOI.toLowerCase();
+            if (state.has(doi) && state.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
+                return state;
+            }
+            const newState = new Map(state);
+            if (state.has(doi)) {
+                newState.set(doi, {
+                    ...newState.get(doi),
+                    status: PUBLICATION_STATUS_IN_COLLECTION,
+                    title: action.crossrefMessage.title[0],
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    journal: action.crossrefMessage.publisher,
+                    date: action.crossrefMessage.created['date-parts'][0],
+                    updated: action.timestamp,
+                });
+            } else {
+                newState.set(doi, {
+                    status: PUBLICATION_STATUS_IN_COLLECTION,
+                    title: action.crossrefMessage.title[0],
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    journal: action.crossrefMessage.publisher,
+                    date: action.crossrefMessage.created['date-parts'][0],
+                    citers: [],
+                    updated: action.timestamp,
+                    selected: false,
+                    validating: false,
+                    bibtex: null,
+                    x: null,
+                    y: null,
+                    locked: false,
+                });
+            }
+            return newState;
         }
         case RESOLVE_IMPORT_PUBLICATIONS: {
             const newState = new Map(state);

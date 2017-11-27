@@ -21,21 +21,19 @@ export function fetchPublicationFromDoi(doi) {
     };
 }
 
-export function resolvePublicationFromDoi(doi, crossrefMessage, timestamp, bibtexRequestId) {
+export function resolvePublicationFromDoi(doi, crossrefMessage, bibtexRequestId) {
     return {
         type: RESOLVE_PUBLICATION_FROM_DOI,
         doi,
         crossrefMessage,
-        timestamp,
         bibtexRequestId,
     };
 }
 
-export function rejectPublicationFromDoi(doi, timestamp) {
+export function rejectPublicationFromDoi(doi) {
     return {
         type: REJECT_PUBLICATION_FROM_DOI,
-        doi,
-        timestamp,
+        doi
     };
 }
 

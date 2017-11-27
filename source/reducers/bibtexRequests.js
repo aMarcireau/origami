@@ -5,6 +5,7 @@ import {
     RESOLVE_BIBTEX_FROM_DOI,
     REJECT_BIBTEX_FROM_DOI_CONNECTION,
     REMOVE_PUBLICATION,
+    RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
 } from '../constants/actionTypes'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
@@ -32,6 +33,18 @@ export default function bibtexRequests(state = new Map(), action, appState) {
             const newState = new Map(state);
             newState.set(action.bibtexRequestId, {
                 doi: action.doi,
+                fetching: false,
+            });
+            return newState;
+        }
+        case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA: {
+            const doi = action.crossrefMessage.DOI.toLowerCase();
+            if (appState.publications.has(doi) && appState.publications.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
+                return state;
+            }
+            const newState = new Map(state);
+            newState.set(action.bibtexRequestId, {
+                doi,
                 fetching: false,
             });
             return newState;

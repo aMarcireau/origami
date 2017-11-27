@@ -1,5 +1,6 @@
 import {
     RESOLVE_IMPORT_PUBLICATIONS,
+    RESOLVE_IMPORT_BIBTEX,
     SELECT_GRAPH_DISPLAY,
     SELECT_LIST_DISPLAY,
     PUBLICATION_FROM_DOI,
@@ -38,6 +39,7 @@ import {
 export default function menu(state = 0, action) {
     switch (action.type) {
         case RESOLVE_IMPORT_PUBLICATIONS:
+        case RESOLVE_IMPORT_BIBTEX:
         case SELECT_GRAPH_DISPLAY:
         case SELECT_LIST_DISPLAY:
         case PUBLICATION_FROM_DOI:
