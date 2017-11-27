@@ -40,7 +40,7 @@ usernameInterface.question('username: ', username => {
             json: {
                 tag_name: `v${version}`,
                 draft: true,
-                prerelease: prerelease,
+                prerelease: false,
             },
         }, (error, httpIncomingMessage, body) => {
             if (error) {
