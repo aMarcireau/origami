@@ -102,7 +102,7 @@ export default function manageCrossref(store) {
     if (state.connected) {
         for (const [doi, publication] of state.publications.entries()) {
             if (publication.status === PUBLICATION_STATUS_UNVALIDATED && !publication.validating) {
-                store.dispatch(fecthPublicationFromDoi(doi));
+                store.dispatch(fetchPublicationFromDoi(doi));
                 fetch(`http://api.crossref.org/works/${doi}`)
                     .then(response => {
                         if (!response.ok) {
