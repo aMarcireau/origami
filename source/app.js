@@ -14,7 +14,7 @@ import {disconnect} from './actions/setConnection'
 import {jsonToState} from './actions/manageMenu'
 import {SCHOLAR_STATUS_IDLE} from './constants/enums'
 
-ipcRenderer.once('startWithState', (event, json, colors) => {
+ipcRenderer.once('startWithState', (event, json, appVersion, colors) => {
 
     // retrieve the preloaded state
     let [error, preloadedState] = jsonToState(json, null, null);
@@ -24,6 +24,7 @@ ipcRenderer.once('startWithState', (event, json, colors) => {
     if (preloadedState == null) {
         preloadedState = {};
     }
+    preloadedState.appVersion = appVersion;
     preloadedState.colors = JSON.parse(colors);
 
     // create the store

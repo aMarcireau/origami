@@ -21,10 +21,13 @@ import {
     rejectOpen,
     resolveImportPublications,
     rejectImportPublications,
+    resolveImportBibtex,
+    rejectImportBibtex,
     selectGraphDisplay,
     selectListDisplay,
     stateToJson,
     jsonToState,
+    bibtexToPublications,
 } from '../actions/manageMenu'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
@@ -116,11 +119,11 @@ class Origami extends React.Component {
                                                             }
                                                             if (!cancelledOpen) {
                                                                 if (openFailed) {
-                                                                    this.props.dispatch(rejectOpen(openFilename, new Date().getTime()));
+                                                                    this.props.dispatch(rejectOpen(openFilename, 'The file could not be open for reading'));
                                                                 } else {
                                                                     const [error, newState] = jsonToState(data, openFilename, this.props.state);
                                                                     if (error) {
-                                                                        this.props.dispatch(rejectOpen(openFilename, new Date().getTime()));
+                                                                        this.props.dispatch(rejectOpen(openFilename, `Parsing failed: ${error.message}`));
                                                                     } else {
                                                                         this.props.dispatch(reset(newState));
                                                                     }
@@ -134,11 +137,11 @@ class Origami extends React.Component {
                                                 ipcRenderer.once('opened', (event, cancelled, failed, filename, data) => {
                                                     if (!cancelled) {
                                                         if (failed) {
-                                                            this.props.dispatch(rejectOpen(filename, new Date().getTime()));
+                                                            this.props.dispatch(rejectOpen(filename, 'The file could not be open for reading'));
                                                         } else {
                                                             const [error, newState] = jsonToState(data, filename, this.props.state);
                                                             if (error) {
-                                                                this.props.dispatch(rejectOpen(filename, new Date().getTime()));
+                                                                this.props.dispatch(rejectOpen(filename, `Parsing failed: ${error.message}`));
                                                             } else {
                                                                 this.props.dispatch(reset(newState));
                                                             }
@@ -189,17 +192,17 @@ class Origami extends React.Component {
                                         separator: true,
                                     },
                                     {
-                                        name: 'Import publications…',
+                                        name: 'Import JSON…',
                                         onClick: () => {
                                             ipcRenderer.once('imported-publications', (event, cancelled, failed, filename, data) => {
                                                 if (!cancelled) {
                                                     if (failed) {
-                                                        this.props.dispatch(rejectImportPublications(filename, new Date().getTime()));
+                                                        this.props.dispatch(rejectImportPublications(filename, 'The file could not be open for reading'));
                                                     } else {
                                                         try {
                                                             const importedState = JSON.parse(data);
                                                             const fetchingDois = new Set([
-                                                                ...importedState.doiRequests.map(([id, doiRequest]) => doiRequest.parentDoi),
+                                                                ...importedState.publicationRequests.map(([id, publicationRequest]) => publicationRequest.parentDoi),
                                                                 ...importedState.scholar.pages.map(page => page.doi),
                                                             ]);
                                                             if (importedState.publications.length > 0) {
@@ -220,7 +223,7 @@ class Origami extends React.Component {
                                                             }
                                                         } catch(error) {
                                                             console.error(error);
-                                                            this.props.dispatch(rejectImportPublications(filename, new Date().getTime()));
+                                                            this.props.dispatch(rejectImportPublications(filename, `Parsing failed: ${error.message}`));
                                                         }
                                                     }
                                                 }
@@ -228,6 +231,35 @@ class Origami extends React.Component {
                                             ipcRenderer.send('import-publications');
                                         },
                                         shortcut: 'i',
+                                    },
+                                    {
+                                        name: 'Import BibTeX…',
+                                        onClick: () => {
+                                            ipcRenderer.once('imported-bibtex', (event, cancelled, failed, filename, data) => {
+                                                if (!cancelled) {
+                                                    if (failed) {
+                                                        this.props.dispatch(rejectImportBibtex(filename, 'The file could not be open for reading'));
+                                                    } else {
+                                                        const [error, publications] = bibtexToPublications(data);
+                                                        if (error) {
+                                                            this.props.dispatch(rejectImportBibtex(filename, `Parsing failed: ${error.message}`));
+                                                        } else if (publications.length > 0) {
+                                                            this.props.dispatch(resolveImportBibtex(publications.map(publication => {
+                                                                const bytes = new Uint8Array(64);
+                                                                window.crypto.getRandomValues(bytes);
+                                                                return {
+                                                                    ...publication,
+                                                                    id: Array.from(bytes).map(byte => byte.toString(16)).join(''),
+                                                                };
+                                                            })));
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                            ipcRenderer.send('import-bibtex');
+                                        },
+                                        shortcut: 'b',
+                                        separator: true,
                                     },
                                     {
                                         name: 'Export BibTeX…',

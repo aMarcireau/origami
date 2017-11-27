@@ -14,28 +14,26 @@ export function publicationFromDoi(doi, timestamp) {
     };
 }
 
-export function fecthPublicationFromDoi(doi) {
+export function fetchPublicationFromDoi(doi) {
     return {
         type: FETCH_PUBLICATION_FROM_DOI,
         doi,
     };
 }
 
-export function resolvePublicationFromDoi(doi, crossrefMessage, timestamp, bibtexRequestId) {
+export function resolvePublicationFromDoi(doi, crossrefMessage, bibtexRequestId) {
     return {
         type: RESOLVE_PUBLICATION_FROM_DOI,
         doi,
         crossrefMessage,
-        timestamp,
         bibtexRequestId,
     };
 }
 
-export function rejectPublicationFromDoi(doi, timestamp) {
+export function rejectPublicationFromDoi(doi) {
     return {
         type: REJECT_PUBLICATION_FROM_DOI,
-        doi,
-        timestamp,
+        doi
     };
 }
 

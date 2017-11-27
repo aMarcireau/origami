@@ -464,8 +464,8 @@ export default connect(
             for (const page of state.scholar.pages) {
                 updatableDois.delete(page.doi);
             }
-            for (const doiRequest of state.doiRequests.values()) {
-                updatableDois.delete(doiRequest.parentDoi);
+            for (const publicationRequest of state.publicationRequests.values()) {
+                updatableDois.delete(publicationRequest.parentDoi);
             }
             return {
                 publication: null,
@@ -483,8 +483,8 @@ export default connect(
                 && state.scholar.pages.every(
                     page => page.doi !== doiAndPublication[0]
                 )
-                && Array.from(state.doiRequests.values()).every(
-                    doiRequest => doiRequest.parentDoi !== doiAndPublication[0]
+                && Array.from(state.publicationRequests.values()).every(
+                    publicationRequest => publicationRequest.parentDoi !== doiAndPublication[0]
                 )
             ),
             publications: state.publications,

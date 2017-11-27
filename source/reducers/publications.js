@@ -11,7 +11,8 @@ import {
     UPDATE_PUBLICATION,
     UPDATE_ALL_PUBLICATIONS,
     RESOLVE_BIBTEX_FROM_DOI,
-    RESOLVE_DOI_FROM_METADATA,
+    RESOLVE_PUBLICATION_FROM_CITER_METADATA,
+    RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
     RESOLVE_IMPORT_PUBLICATIONS,
     STORE_GRAPH_NODES,
     LOCK_GRAPH_NODE,
@@ -43,6 +44,10 @@ export default function publications(state = new Map(), action, appState) {
             const newState = new Map(state);
             newState.set(doi, {
                 status: PUBLICATION_STATUS_UNVALIDATED,
+                title: null,
+                authors: null,
+                journal: null,
+                date: null,
                 citers: [],
                 updated: null,
                 selected: false,
@@ -200,8 +205,8 @@ export default function publications(state = new Map(), action, appState) {
             for (const bibtexRequest of appState.bibtexRequests.values()) {
                 updatableDois.delete(bibtexRequest.doi);
             }
-            for (const doiRequest of appState.doiRequests.values()) {
-                updatableDois.delete(doiRequest.parentDoi);
+            for (const publicationRequest of appState.publicationRequests.values()) {
+                updatableDois.delete(publicationRequest.parentDoi);
             }
             const newState = new Map(state);
             for (const doi of updatableDois.values()) {
@@ -231,7 +236,7 @@ export default function publications(state = new Map(), action, appState) {
             });
             return newState;
         }
-        case RESOLVE_DOI_FROM_METADATA: {
+        case RESOLVE_PUBLICATION_FROM_CITER_METADATA: {
             if (!state.has(action.parentDoi)) {
                 return state;
             }
@@ -241,19 +246,25 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     ...newState.get(doi),
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given} ${author.family}`),
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
                 });
             } else {
                 newState.set(doi, {
+                    status: PUBLICATION_STATUS_DEFAULT,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given} ${author.family}`),
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
-                    status: PUBLICATION_STATUS_DEFAULT,
                     citers: [],
                     updated: null,
+                    selected: false,
+                    validating: false,
+                    bibtex: null,
+                    x: null,
+                    y: null,
+                    locked: false,
                 });
             }
             if (!newState.get(action.parentDoi).citers.includes(doi)) {
@@ -263,6 +274,41 @@ export default function publications(state = new Map(), action, appState) {
                         ...newState.get(action.parentDoi).citers,
                         doi,
                     ],
+                });
+            }
+            return newState;
+        }
+        case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA: {
+            const doi = action.crossrefMessage.DOI.toLowerCase();
+            if (state.has(doi) && state.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
+                return state;
+            }
+            const newState = new Map(state);
+            if (state.has(doi)) {
+                newState.set(doi, {
+                    ...newState.get(doi),
+                    status: PUBLICATION_STATUS_IN_COLLECTION,
+                    title: action.crossrefMessage.title[0],
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    journal: action.crossrefMessage.publisher,
+                    date: action.crossrefMessage.created['date-parts'][0],
+                    updated: action.timestamp,
+                });
+            } else {
+                newState.set(doi, {
+                    status: PUBLICATION_STATUS_IN_COLLECTION,
+                    title: action.crossrefMessage.title[0],
+                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    journal: action.crossrefMessage.publisher,
+                    date: action.crossrefMessage.created['date-parts'][0],
+                    citers: [],
+                    updated: action.timestamp,
+                    selected: false,
+                    validating: false,
+                    bibtex: null,
+                    x: null,
+                    y: null,
+                    locked: false,
                 });
             }
             return newState;

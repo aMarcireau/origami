@@ -4,22 +4,25 @@ import {
     rejectBibtexFromDoiConnection,
 } from '../actions/getBibtexFromDoi'
 import {
-    fecthPublicationFromDoi,
+    fetchPublicationFromDoi,
     resolvePublicationFromDoi,
     rejectPublicationFromDoi,
     rejectPublicationFromDoiConnection,
 } from '../actions/getPublicationFromDoi'
 import {
-    fetchDoiFromMetadata,
-    resolveDoiFromMetadata,
-    rejectDoiFromMetadata,
-    rejectDoiFromMetadataConnection,
-} from '../actions/getDoiFromMetadata'
+    fetchPublicationFromMetadata,
+    resolvePublicationFromCiterMetadata,
+    resolvePublicationFromImportedMetadata,
+    rejectPublicationFromMetadata,
+    rejectPublicationFromMetadataConnection,
+} from '../actions/getPublicationFromMetadata'
 import {isOlderThan} from '../actions/managePublication'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
+    PUBLICATION_REQUEST_TYPE_CITER_METADATA,
+    PUBLICATION_REQUEST_TYPE_IMPORTED_METADATA,
 } from '../constants/enums'
 
 function smallestOfThreePlusOne(first, second, third, incrementSecondIfSmallest) {
@@ -114,13 +117,12 @@ export default function manageCrossref(store) {
                         store.dispatch(resolvePublicationFromDoi(
                             doi,
                             json.message,
-                            new Date().getTime(),
                             Array.from(bytes).map(byte => byte.toString(16)).join('')
                         ));
                     })
                     .catch(error => {
                         if (error instanceof SyntaxError) {
-                            store.dispatch(rejectPublicationFromDoi(doi, new Date().getTime()));
+                            store.dispatch(rejectPublicationFromDoi(doi));
                         } else {
                             store.dispatch(rejectPublicationFromDoiConnection(doi));
                         }
@@ -185,13 +187,13 @@ export default function manageCrossref(store) {
                 break;
             }
         }
-        for (const [id, doiRequest] of state.doiRequests) {
-            if (!doiRequest.fetching) {
-                store.dispatch(fetchDoiFromMetadata(id));
+        for (const [id, publicationRequest] of state.publicationRequests) {
+            if (!publicationRequest.fetching) {
+                store.dispatch(fetchPublicationFromMetadata(id));
                 fetch(`https://api.crossref.org/works?${[
-                    ...doiRequest.authors.map(author => `query.author=${encodeURIComponent(author)}`),
-                    `query.title=${encodeURIComponent(doiRequest.title)}`,
-                    `filter=from-pub-date:${encodeURIComponent(doiRequest.dateAsString)}`,
+                    ...publicationRequest.authors.map(author => `query.author=${encodeURIComponent(author)}`),
+                    `query.title=${encodeURIComponent(publicationRequest.title)}`,
+                    `filter=from-pub-date:${encodeURIComponent(publicationRequest.dateAsString)}`,
                     'sort=score',
                     'order=desc',
                     'rows=5',
@@ -205,18 +207,18 @@ export default function manageCrossref(store) {
                     .then(response => response.json())
                     .then(json => {
                         const state = store.getState();
-                        if (!state.publications.has(doiRequest.parentDoi)) {
-                            store.dispatch(resolveDoiFromMetadata(
+                        if (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA && !state.publications.has(publicationRequest.parentDoi)) {
+                            store.dispatch(resolvePublicationFromCiterMetadata(
                                 id,
-                                doiRequest.parentDoi,
+                                publicationRequest.parentDoi,
                                 null
                             ));
                         } else {
                             if (json.message.items.length === 0) {
-                                store.dispatch(rejectDoiFromMetadata(
+                                store.dispatch(rejectPublicationFromMetadata(
                                     id,
-                                    `A Crossref request for ${doiRequest.parentDoi} returned an empty list`,
-                                    new Date().getTime()
+                                    publicationRequest.title,
+                                    'Corssref returned an empty list'
                                 ));
                             } else {
                                 const bestPublicationAndDistance = json.message.items.map((publication, index) => {
@@ -225,7 +227,7 @@ export default function manageCrossref(store) {
                                         distance: (
                                             levenshteinDistance(
                                                 publication.title[0].toLowerCase(),
-                                                doiRequest.title.toLowerCase()
+                                                publicationRequest.title.toLowerCase()
                                             )
                                             + index / json.message.items.length
                                         ),
@@ -236,36 +238,51 @@ export default function manageCrossref(store) {
                                     }
                                     return accumulator;
                                 }, null);
-                                if (isOlderThan(
+                                if (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA && isOlderThan(
                                     bestPublicationAndDistance.publication.created['date-parts'][0],
-                                    state.publications.get(doiRequest.parentDoi).date
+                                    state.publications.get(publicationRequest.parentDoi).date
                                 )) {
-                                    store.dispatch(rejectDoiFromMetadata(
+                                    store.dispatch(rejectPublicationFromMetadata(
                                         id,
-                                        `A Crossref request for ${doiRequest.parentDoi} returned an article older than the cited one`,
-                                        new Date().getTime()
+                                        publicationRequest.title,
+                                        `The returned article was older than the cited one (${publicationRequest.parentDoi})`
                                     ));
                                 } else if (bestPublicationAndDistance.distance > 10) {
-                                    store.dispatch(rejectDoiFromMetadata(
+                                    store.dispatch(rejectPublicationFromMetadata(
                                         id,
-                                        `A Crossref request for ${doiRequest.parentDoi} returned a non-matching title`,
-                                        new Date().getTime()
+                                        publicationRequest.title,
+                                        `The returned title '${bestPublicationAndDistance.publication.title[0]}' did not match the given one`
                                     ));
                                 } else {
-                                    store.dispatch(resolveDoiFromMetadata(
-                                        id,
-                                        doiRequest.parentDoi,
-                                        bestPublicationAndDistance.publication
-                                    ));
+                                    if (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA) {
+                                        store.dispatch(resolvePublicationFromCiterMetadata(
+                                            id,
+                                            publicationRequest.parentDoi,
+                                            bestPublicationAndDistance.publication
+                                        ));
+                                    } else {
+                                        const bytes = new Uint8Array(64);
+                                        window.crypto.getRandomValues(bytes);
+                                        store.dispatch(resolvePublicationFromImportedMetadata(
+                                            id,
+                                            bestPublicationAndDistance.publication,
+                                            new Date().getTime(),
+                                            Array.from(bytes).map(byte => byte.toString(16)).join('')
+                                        ));
+                                    }
                                 }
                             }
                         }
                     })
                     .catch(error => {
                         if (error instanceof SyntaxError) {
-                            store.dispatch(rejectDoiFromMetadata(id, `A Crossref request for ${doiRequest.parentDoi} could not be parsed`, new Date().getTime()));
+                            store.dispatch(rejectPublicationFromMetadata(
+                                id,
+                                publicationRequest.title,
+                                `Parsing failed: ${error.message}`
+                            ));
                         } else {
-                            store.dispatch(rejectDoiFromMetadataConnection(id));
+                            store.dispatch(rejectPublicationFromMetadataConnection(id));
                         }
                     })
                 ;

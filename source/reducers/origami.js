@@ -1,7 +1,7 @@
 import {combineReducers} from 'redux'
 import bibtexRequests from './bibtexRequests'
 import connected from './connected'
-import doiRequests from './doiRequests'
+import publicationRequests from './publicationRequests'
 import graph from './graph'
 import menu from './menu'
 import mouseOwner from './mouseOwner'
@@ -23,6 +23,7 @@ export default function(state, action) {
     if (action.type === RESET) {
         if (action.state == null) {
             state = {
+                appVersion: state.appVersion,
                 colors: state.colors,
                 connected: state.connected,
                 menu: {
@@ -68,7 +69,7 @@ export default function(state, action) {
         (state = {}, action) => {
             return {
                 ...state,
-                doiRequests: doiRequests(state.doiRequests, action, state),
+                publicationRequests: publicationRequests(state.publicationRequests, action, state),
             }
         },
         (state = {}, action) => {
@@ -78,10 +79,11 @@ export default function(state, action) {
             }
         },
         combineReducers({
+            appVersion: (state = '0.0.0') => state,
             bibtexRequests: (state = new Map()) => state,
             colors: (state = {}) => state,
             connected,
-            doiRequests: (state = new Map()) => state,
+            publicationRequests: (state = new Map()) => state,
             graph,
             menu,
             mouseOwner,
@@ -90,6 +92,6 @@ export default function(state, action) {
             tabs,
             version,
             warnings: (state = {}) => state,
-        }),
+        })
     )(state, action);
 }

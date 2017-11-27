@@ -8,36 +8,7 @@ const urlTemplate = require('url-template');
 const recursive = require(`${__dirname}/recursive`);
 const path = require('path');
 
-const syntax = 'Syntax: node release.js v<major>.<minor>.<patch> [--prerelease]';
-
-if (process.argv.length !== 3 && process.argv.length !== 4) {
-    console.error(`Unexpected number of arguments. ${syntax}`);
-    process.exit(1);
-}
-
-let prerelease;
-let version;
-if (process.argv.length === 3) {
-    prerelease = false;
-    version = process.argv[2];
-} else {
-    if (process.argv[2] === '--prerelease') {
-        prerelease = true;
-        version = process.argv[3];
-    } else if (process.argv[3] === '--prerelease') {
-        prerelease = true;
-        version = process.argv[2];
-    } else {
-        console.error(`Two arguments were provided, but none is '--prerelease'. ${syntax}`);
-        process.exit(1);
-    }
-}
-
-const matchedVersion = /^v([1-9]\d*|\d)\.([1-9]\d*|\d)\.([1-9]\d*|\d)$/.exec(version);
-if (matchedVersion == null) {
-    console.error(`Unexpected version format. ${syntax}`);
-    process.exit(1);
-}
+const version = JSON.parse(fs.readFileSync(`${__dirname}/source/package.json`)).version;
 
 const usernameInterface = readline.createInterface({
     input: process.stdin,
@@ -67,7 +38,7 @@ usernameInterface.question('username: ', username => {
             },
             headers: {'user-agent': 'origami'},
             json: {
-                tag_name: `${version}${prerelease ? '-alpha' : ''}`,
+                tag_name: `v${version}`,
                 draft: true,
                 prerelease: prerelease,
             },
@@ -80,7 +51,7 @@ usernameInterface.question('username: ', username => {
                 console.error(body);
                 process.exit(1);
             }
-            console.log(`Created the release ${version} (id: ${body.id})`);
+            console.log(`Created the release v${version} (id: ${body.id})`);
             request.get({
                 url: `https://api.github.com/repos/amarcireau/origami/releases/${body.id}`,
                 auth: {

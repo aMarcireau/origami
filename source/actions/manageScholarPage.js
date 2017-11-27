@@ -1,7 +1,7 @@
 import {ipcRenderer} from 'electron'
 import htmlparser from 'htmlparser2'
 import cssSelect from 'css-select'
-import {doiFromMetadata} from './getDoiFromMetadata'
+import {publicationFromCiterMetadata} from './getPublicationFromMetadata'
 import {
     FETCH_SCHOLAR_PAGE,
     RESOLVE_SCHOLAR_INITIAL_PAGE,
@@ -180,8 +180,8 @@ export function resolveHtml(url, text) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
                                                 doi: state.scholar.pages[0].doi,
-                                                message: `Parsing a citer's title for ${state.scholar.pages[0].doi} failed`,
-                                                timestamp: new Date().getTime(),
+                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                subtitle: 'Tags with the class \'gs_rt\' and link children could not be found',
                                             });
                                             continue;
                                         }
@@ -193,8 +193,8 @@ export function resolveHtml(url, text) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
                                                 doi: state.scholar.pages[0].doi,
-                                                message: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
-                                                timestamp: new Date().getTime(),
+                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                subtitle: 'Tags with the class \'gs_a\' could not be found',
                                             });
                                             continue;
                                         }
@@ -209,25 +209,25 @@ export function resolveHtml(url, text) {
                                                 && child.children.length > 0
                                                 && child.children[0].type === 'text'
                                             ) {
-                                                metadata += child.children[0].data;
+                                                metadata += child.children[0].data.replace(/&nbsp;/g, ' ');
                                             } else {
                                                 metadata = '';
                                                 break;
                                             }
                                         }
-                                        const matchedMetadata = metadata.match(/^\s*(.+?)\s+-\s+([^,]+?)\s*,\s+(\d{4})\s+-\s+([^,]+?)\s*$/);
+                                        const matchedMetadata = metadata.match(/^\s*(.+?)\s+-\s+(.+?)\s*,\s+(\d{4})\s+-\s+(.+?)\s*$/);
                                         if (!matchedMetadata) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
                                                 doi: state.scholar.pages[0].doi,
-                                                message: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
-                                                timestamp: new Date().getTime(),
+                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                subtitle: `Parsing '${metadata}' failed`,
                                             });
                                             continue;
                                         }
                                         const bytes = new Uint8Array(64);
                                         window.crypto.getRandomValues(bytes);
-                                        dispatch(doiFromMetadata(
+                                        dispatch(publicationFromCiterMetadata(
                                             Array.from(bytes).map(byte => byte.toString(16)).join(''),
                                             state.scholar.pages[0].doi,
                                             titleCandidates[0].children[0].data,
@@ -240,8 +240,8 @@ export function resolveHtml(url, text) {
                                     const page = state.scholar.pages[0];
                                     dispatchAndEcho({
                                         type: REJECT_SCHOLAR_CITERS_PAGE,
-                                        message: `No publications found in page ${page.number} / ${page.total} of ${page.doi}`,
-                                        timestamp: new Date().getTime(),
+                                        title: `An empty citers page was retrieved for ${page.doi}`,
+                                        subtitle: `No publications were found in the page ${page.number} / ${page.total}`,
                                     }, refractoryPeriod);
                                 }
                                 break;

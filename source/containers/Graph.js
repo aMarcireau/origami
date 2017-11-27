@@ -426,14 +426,6 @@ export default connect(
             ([doi, publication]) => {return {...publication, doi}}
         );
         const selectedDoiAndPublication = Array.from(state.publications.entries()).find(([doi, publication]) => publication.selected);
-        const doisCitedBySelected = new Set(selectedDoiAndPublication ?
-            Array.from(state.publications.entries()).filter(
-                ([doi, publication]) => publication.citers.includes(selectedDoiAndPublication[0])
-            ).map(
-                ([doi, publication]) => doi
-            )
-            : []
-        );
         return {
             zoom: state.graph.zoom,
             xOffset: state.graph.xOffset,
@@ -450,7 +442,14 @@ export default connect(
                 )
             ),
             doisCitingSelected: new Set(selectedDoiAndPublication ? selectedDoiAndPublication[1].citers : []),
-            doisCitedBySelected,
+            doisCitedBySelected: new Set(selectedDoiAndPublication ?
+                Array.from(state.publications.entries()).filter(
+                    ([doi, publication]) => publication.citers.includes(selectedDoiAndPublication[0])
+                ).map(
+                    ([doi, publication]) => doi
+                )
+                : []
+            ),
             recommandedDois,
             display: state.menu.display,
             sticky: state.graph.sticky,

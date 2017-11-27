@@ -2,7 +2,6 @@ import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import {pad} from '../actions/managePublication'
 import {
     removeWarning,
     removeAllWarnings,
@@ -39,7 +38,7 @@ class Warnings extends React.Component {
                             padding: 0,
                         }}>{elements.map((element, index) => (
                             <li
-                                key={`${index}-${element.timestamp}-${element.message}`}
+                                key={`${index}`}
                                 style={{
                                     borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
                                     borderLeft: `solid 3px ${element.level == 'error' ? this.props.colors.error : this.props.colors.warning}`,
@@ -67,7 +66,7 @@ class Warnings extends React.Component {
                                         marginLeft: 0,
                                         height: '16px',
                                         lineHeight: '16px',
-                                    }}>{element.message}</p>
+                                    }}>{element.title}</p>
                                     <p style={{
                                         color: this.props.colors.secondaryContent,
                                         fontSize: '14px',
@@ -77,13 +76,10 @@ class Warnings extends React.Component {
                                         whiteSpace: 'nowrap',
                                         height: '16px',
                                         lineHeight: '16px',
-                                    }}>{(() => {
-                                        const date = new Date(element.timestamp);
-                                        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}, ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
-                                    })()}</p>
+                                    }}>{element.subtitle}</p>
                                 </div>
                                 <button
-                                    key={`${index}-${element.timestamp}-${element.message}-warnings-remove-button`}
+                                    key={`${index}-warnings-remove-button`}
                                     style={{
                                         position: 'absolute',
                                         right: 0,
@@ -117,7 +113,7 @@ class Warnings extends React.Component {
                                     <svg viewBox="0 0 40 40">
                                         <rect
                                             style={{
-                                                fill: (Radium.getState(list.state, `${index}-${element.timestamp}-${element.message}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
+                                                fill: (Radium.getState(list.state, `${index}-warnings-remove-button`, ':hover') ? this.props.colors.error : this.props.colors.link),
                                             }}
                                             transform="translate(20.000000, 20.000000) rotate(45.000000) translate(-20.000000, -20.000000)"
                                             x="19"
