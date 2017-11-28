@@ -103,10 +103,16 @@ class Graph extends React.Component {
                 if (publication.doi === node.doi) {
                     node.keep = true;
                     found = true;
-                    if (publication.status !== node.status || publication.selected !== node.selected || publication.locked !== node.locked) {
+                    if (
+                        publication.status !== node.status
+                        || publication.selected !== node.selected
+                        || nextProps.knownDois.has(publication.doi) !== node.known
+                        || publication.locked !== node.locked
+                    ) {
                         updateRequired = true;
                         node.status = publication.status;
                         node.selected = publication.selected;
+                        node.known = nextProps.knownDois.has(node.doi);
                         if (node.locked && !publication.locked) {
                             node.fx = null;
                             node.fy = null;
@@ -164,6 +170,7 @@ class Graph extends React.Component {
                     }
                 }
                 publication.keep = true;
+                publication.known = nextProps.knownDois.has(publication.doi);
                 this.nodes.push(publication);
             }
         }
@@ -230,7 +237,6 @@ class Graph extends React.Component {
             .attr('stroke', this.props.colors.secondaryContent)
         ;
         d3NodeGroup.append('circle')
-            .attr('r', 20)
             .attr('class', 'publication')
         ;
         d3NodeGroup.append('text')
@@ -287,6 +293,9 @@ class Graph extends React.Component {
                     )
                 )
             ))
+            .attr('r', node => node.known ? '20' : '19')
+            .attr('stroke', this.props.colors.active)
+            .attr('stroke-width', node => node.known ? '0' : '2')
             .on('mouseover', function(node) {
                 d3.select(this).attr('fill', colors.active);
             })
@@ -451,6 +460,7 @@ export default connect(
                 : []
             ),
             recommandedDois,
+            knownDois: state.knownDois,
             display: state.menu.display,
             sticky: state.graph.sticky,
             colors: state.colors,

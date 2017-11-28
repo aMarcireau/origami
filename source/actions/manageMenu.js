@@ -100,6 +100,7 @@ export function stateToJson(state, expand) {
     return `${JSON.stringify({
         appVersion: state.appVersion,
         display: state.menu.display,
+        knownDois: Array.from(state.knownDois),
         publicationRequests: Array.from(state.publicationRequests.entries()).map(
             ([id, publicationRequest]) => {
                 const savableDoiRequest = {...publicationRequest};
@@ -135,6 +136,7 @@ export function jsonToState(json, saveFilename, previousState) {
         state.appVersion = previousState ? previousState.appVersion : undefined;
         state.colors = previousState ? previousState.colors : undefined;
         state.connected = previousState ? previousState.connected : undefined;
+        state.knownDois = new Set(state.knownDois);
         state.publicationRequests = new Map(state.publicationRequests.map(
             ([id, publicationRequest]) => [id, {
                 ...publicationRequest,
