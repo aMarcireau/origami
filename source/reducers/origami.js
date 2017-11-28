@@ -1,6 +1,7 @@
 import {combineReducers} from 'redux'
 import bibtexRequests from './bibtexRequests'
 import connected from './connected'
+import knownDois from './knownDois'
 import publicationRequests from './publicationRequests'
 import graph from './graph'
 import menu from './menu'
@@ -83,6 +84,7 @@ export default function(state, action) {
             bibtexRequests: (state = new Map()) => state,
             colors: (state = {}) => state,
             connected,
+            knownDois,
             publicationRequests: (state = new Map()) => state,
             graph,
             menu,

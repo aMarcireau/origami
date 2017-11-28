@@ -50,7 +50,10 @@ class PublicationsList extends React.Component {
                                 style={{
                                     width: '100%',
                                     height: '50px',
-                                    padding: '6px',
+                                    paddingTop: '6px',
+                                    paddingRight: '6px',
+                                    paddingBottom: '6px',
+                                    paddingLeft: element.isKnown ? '6px' : '4px',
                                     backgroundColor: (element.selected ?
                                         this.props.colors.active
                                         : (element.isCiting ?
@@ -65,6 +68,7 @@ class PublicationsList extends React.Component {
                                         )
                                     ),
                                     borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
+                                    borderLeft: element.isKnown ? 'none': `2px solid ${this.props.colors.active}`,
                                     cursor: 'pointer',
                                     ':hover': {
                                         backgroundColor: this.props.colors.active,
@@ -176,6 +180,7 @@ export default connect(
                 doi,
                 isCiting: doisCitingSelected.has(doi),
                 isCited: doisCitedBySelected.has(doi),
+                isKnown: state.knownDois.has(doi),
             }}
         ).sort(
             (firstPublication, secondPublication) => {
