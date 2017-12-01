@@ -86,7 +86,6 @@ class GraphWithToolbar extends React.Component {
                     xOffset={0}
                     yOffset={0}
                 />
-
                 <div style={{
                     position: 'absolute',
                     width: '100%',

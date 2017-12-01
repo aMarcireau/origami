@@ -387,6 +387,7 @@ class Graph extends React.Component {
             })
         ;
         this.svg.call(this.zoom);
+        this.zoom.scaleTo(this.svg,  2 ** (this.props.zoom / 20));
         this.d3Node = this.svg.selectAll('.node');
         this.d3Edge = this.svg.selectAll('.edge');
         this.simulation.alpha(0);
