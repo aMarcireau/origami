@@ -267,7 +267,17 @@ class Origami extends React.Component {
                                             ipcRenderer.send('export-bibtex', Array.from(this.props.state.publications.entries()).filter(
                                                 ([doi, publication]) => publication.bibtex != null
                                             ).map(
-                                                ([doi, publication]) => publication.bibtex
+                                                ([doi, publication]) => {
+                                                    const match = /@\w+\s*{\s*([^,]+?)\s*,/.exec(publication.bibtex);
+                                                    return [
+                                                        match ? match[1] : '',
+                                                        publication.bibtex,
+                                                    ];
+                                                }
+                                            ).sort(
+                                                ([firstKey], [secondKey]) => firstKey.localeCompare(secondKey)
+                                            ).map(
+                                                ([key, bibtex]) => bibtex
                                             ).join('\n'));
                                         },
                                         shortcut: 'e',
