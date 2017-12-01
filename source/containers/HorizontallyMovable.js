@@ -1,5 +1,4 @@
 import React from 'react'
-import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import {
@@ -123,4 +122,4 @@ export default connect(
             mouseOwner: state.mouseOwner,
         };
     }
-)(Radium(HorizontallyMovable));
+)(HorizontallyMovable);

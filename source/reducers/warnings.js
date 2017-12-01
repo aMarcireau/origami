@@ -1,5 +1,5 @@
 import {
-    RESOLVE_PUBLICATION_FROM_DOI,
+    PUBLICATION_FROM_DOI,
     REJECT_PUBLICATION_FROM_DOI,
     REJECT_SCHOLAR_CITERS_PAGE,
     REJECT_SCHOLAR_CITER_PARSING,
@@ -11,11 +11,17 @@ import {
     REMOVE_WARNING,
     REMOVE_ALL_WARNINGS,
 } from '../constants/actionTypes'
+import {
+    PUBLICATION_STATUS_UNVALIDATED,
+    PUBLICATION_STATUS_DEFAULT,
+    PUBLICATION_STATUS_IN_COLLECTION,
+} from '../constants/enums'
 
 export default function warnings(state = {list: [], hash: 0}, action, appState) {
     switch (action.type) {
-        case RESOLVE_PUBLICATION_FROM_DOI:
-            if (!appState.publications.has(action.doi) || !appState.publications.get(action.doi).isInCollection) {
+        case PUBLICATION_FROM_DOI: {
+            const doi = action.doi.toLowerCase();
+            if (!appState.publications.has(doi) || appState.publications.get(doi).status === PUBLICATION_STATUS_DEFAULT) {
                 return state;
             }
             return {
@@ -23,13 +29,14 @@ export default function warnings(state = {list: [], hash: 0}, action, appState) 
                 list: [
                     {
                         title: 'The publication was not added to the collection',
-                        subtitle: `${action.doi} is already in the collection`,
+                        subtitle: `${doi} is already in the collection`,
                         level: 'warning',
                     },
                     ...state.list,
                 ],
                 hash: state.hash + 1,
             };
+        }
         case REJECT_PUBLICATION_FROM_DOI:
             return {
                 ...state,

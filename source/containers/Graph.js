@@ -1,5 +1,4 @@
 import React from 'react'
-import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import {
@@ -41,6 +40,10 @@ class Graph extends React.Component {
         this.svg = null;
         this.nodes = [];
         this.edges = [];
+        this.d3Node = null;
+        this.d3Edge = null;
+        this.zoom = null;
+        this.reheatSimulation = false;
         this.simulation = d3.forceSimulation(this.nodes)
             .stop()
             .force('link', d3.forceLink(this.edges).distance(80).strength(1).id(node => node.doi))
@@ -68,10 +71,6 @@ class Graph extends React.Component {
                 }
             })
         ;
-        this.d3Node = null;
-        this.d3Edge = null;
-        this.zoom = null;
-        this.reheatSimulation = false;
     }
 
     componentWillReceiveProps(nextProps) {
@@ -466,4 +465,4 @@ export default connect(
             colors: state.colors,
         };
     }
-)(Radium(Graph));
+)(Graph);
