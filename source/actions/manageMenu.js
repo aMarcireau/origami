@@ -222,12 +222,10 @@ export function bibtexToPublications(bibtex) {
             ++position;
             switch (status) {
                 case 'root':
-                    if (character === '%') {
-                        status = 'comment';
-                    } else if (character === '@') {
+                    if (character === '@') {
                         status = 'type';
                     } else if (/\S/.test(character)) {
-                        throwError(character);
+                        status = 'comment';
                     }
                     break;
                 case 'comment':

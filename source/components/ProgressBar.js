@@ -1,5 +1,4 @@
 import React from 'react'
-import Radium from 'radium'
 import PropTypes from 'prop-types'
 
 class ProgressBar extends React.Component {
@@ -45,4 +44,4 @@ class ProgressBar extends React.Component {
     }
 }
 
-export default Radium(ProgressBar);
+export default ProgressBar;

@@ -76,7 +76,7 @@ class AddDoi extends React.Component {
                         },
                     }}
                     onClick={() => {
-                        this.props.dispatch(publicationFromDoi(this.state.value.match(doiPattern)[1]));
+                        this.props.dispatch(publicationFromDoi(this.state.value.match(doiPattern)[1], new Date().getTime()));
                         this.setState({valid: false, value: ''});
                     }}
                 >

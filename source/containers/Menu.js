@@ -1,5 +1,4 @@
 import React from 'react'
-import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import MenuItem from '../containers/MenuItem'
@@ -122,4 +121,4 @@ export default connect(
             isMenuOpen: state.menu.activeItem != null,
         };
     }
-)(Radium(Menu));
+)(Menu);

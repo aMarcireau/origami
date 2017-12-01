@@ -113,4 +113,4 @@ export default connect(
             url: state.scholar.url,
         };
     }
-)(Radium(Recaptcha));
+)(Recaptcha);

@@ -7,13 +7,13 @@ const recursive = require(`${__dirname}/recursive`);
 module.exports = {
 
     /// package uses electron-packager to convert the output of webpack to actual apps.
-    package: (all, callback) => {
+    package: (production, callback) => {
         try {
             fs.mkdirSync(`${__dirname}/build/origami`);
         } catch (error) {}
-        for (const sourceFileToCopy of ['main.js', 'package.json']) {
-            fs.copyFileSync(`${__dirname}/source/${sourceFileToCopy}`, `${__dirname}/build/origami/${sourceFileToCopy}`);
-        }
+        fs.copyFileSync(`${__dirname}/source/package.json`, `${__dirname}/build/origami/package.json`);
+        fs.writeFileSync(`${__dirname}/build/origami/main.js`, `process.env.ORIGAMI_ENV = '${production ? 'production' : 'development'}';\n`);
+        fs.appendFileSync(`${__dirname}/build/origami/main.js`, fs.readFileSync(`${__dirname}/source/main.js`));
         fs.copyFileSync(`${__dirname}/themes/default.json`, `${__dirname}/build/origami/colors.json`);
         try {
             fs.mkdirSync(`${__dirname}/build/origami/fonts`);
@@ -24,7 +24,7 @@ module.exports = {
         child_process.execSync('npm install', {cwd: `${__dirname}/build/origami`}, {stdio: 'inherit'});
         packager({
             dir: `${__dirname}/build/origami`,
-            all: all,
+            all: production,
             out: `${__dirname}/build`,
             overwrite: true,
             icon: `${__dirname}/icons/origami`,
@@ -59,7 +59,7 @@ module.exports = {
                     exclude: /node_modules/,
                     query: {
                         presets: [
-                            ['env', {'targets': {'electron': '1.7.6', 'browsers': 'last 2 versions'}}],
+                            ['env', {'targets': {'electron': '1.7.6'}}],
                             'react',
                         ],
                         plugins: [

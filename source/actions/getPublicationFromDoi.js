@@ -21,12 +21,13 @@ export function fetchPublicationFromDoi(doi) {
     };
 }
 
-export function resolvePublicationFromDoi(doi, crossrefMessage, bibtexRequestId) {
+export function resolvePublicationFromDoi(doi, crossrefMessage, bibtexRequestId, timestamp) {
     return {
         type: RESOLVE_PUBLICATION_FROM_DOI,
         doi,
         crossrefMessage,
         bibtexRequestId,
+        timestamp,
     };
 }
 

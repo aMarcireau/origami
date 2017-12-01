@@ -117,7 +117,8 @@ export default function manageCrossref(store) {
                         store.dispatch(resolvePublicationFromDoi(
                             doi,
                             json.message,
-                            Array.from(bytes).map(byte => byte.toString(16)).join('')
+                            Array.from(bytes).map(byte => byte.toString(16)).join(''),
+                            new Date().getTime()
                         ));
                     })
                     .catch(error => {
