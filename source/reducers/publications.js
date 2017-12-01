@@ -24,6 +24,7 @@ import {
     PUBLICATION_STATUS_IN_COLLECTION,
     PAGE_TYPE_INITIALIZE,
 } from '../constants/enums'
+import {isOlderThan} from '../actions/managePublication'
 
 export default function publications(state = new Map(), action, appState) {
     switch (action.type) {
@@ -112,7 +113,10 @@ export default function publications(state = new Map(), action, appState) {
                     }
                 ),
                 journal: action.crossrefMessage.publisher,
-                date: action.crossrefMessage.created['date-parts'][0],
+                date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
+                    action.crossrefMessage.created['date-parts'][0]
+                    : action.crossrefMessage.issued['date-parts'][0]
+                ),
                 status: PUBLICATION_STATUS_IN_COLLECTION,
                 updated: action.timestamp,
                 validating: false,
@@ -273,7 +277,10 @@ export default function publications(state = new Map(), action, appState) {
                         }
                     ),
                     journal: action.crossrefMessage.publisher,
-                    date: action.crossrefMessage.created['date-parts'][0],
+                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
+                        action.crossrefMessage.created['date-parts'][0]
+                        : action.crossrefMessage.issued['date-parts'][0]
+                    ),
                 });
             } else {
                 newState.set(doi, {
@@ -293,7 +300,10 @@ export default function publications(state = new Map(), action, appState) {
                         }
                     ),
                     journal: action.crossrefMessage.publisher,
-                    date: action.crossrefMessage.created['date-parts'][0],
+                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
+                        action.crossrefMessage.created['date-parts'][0]
+                        : action.crossrefMessage.issued['date-parts'][0]
+                    ),
                     citers: [],
                     updated: null,
                     selected: false,
@@ -340,7 +350,10 @@ export default function publications(state = new Map(), action, appState) {
                         }
                     ),
                     journal: action.crossrefMessage.publisher,
-                    date: action.crossrefMessage.created['date-parts'][0],
+                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
+                        action.crossrefMessage.created['date-parts'][0]
+                        : action.crossrefMessage.issued['date-parts'][0]
+                    ),
                     updated: action.timestamp,
                 });
             } else {
@@ -361,7 +374,10 @@ export default function publications(state = new Map(), action, appState) {
                         }
                     ),
                     journal: action.crossrefMessage.publisher,
-                    date: action.crossrefMessage.created['date-parts'][0],
+                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
+                        action.crossrefMessage.created['date-parts'][0]
+                        : action.crossrefMessage.issued['date-parts'][0]
+                    ),
                     citers: [],
                     updated: action.timestamp,
                     selected: false,
