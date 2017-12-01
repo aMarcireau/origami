@@ -98,7 +98,19 @@ export default function publications(state = new Map(), action, appState) {
             newState.set(action.doi, {
                 ...state.get(action.doi),
                 title: action.crossrefMessage.title[0] == null ? '' : action.crossrefMessage.title[0],
-                authors: action.crossrefMessage.author.map(author => `${author.given} ${author.family}`),
+                authors: action.crossrefMessage.author.filter(
+                    author => author.given != null || author.family != null
+                ).map(
+                    author => {
+                        if (author.given == null) {
+                            return author.family;
+                        }
+                        if (author.family == null) {
+                            return author.given;
+                        }
+                        return `${author.given} ${author.family}`;
+                    }
+                ),
                 journal: action.crossrefMessage.publisher,
                 date: action.crossrefMessage.created['date-parts'][0],
                 status: PUBLICATION_STATUS_IN_COLLECTION,
@@ -247,7 +259,19 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     ...newState.get(doi),
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    authors: action.crossrefMessage.author.filter(
+                        author => author.given != null || author.family != null
+                    ).map(
+                        author => {
+                            if (author.given == null) {
+                                return author.family;
+                            }
+                            if (author.family == null) {
+                                return author.given;
+                            }
+                            return `${author.given} ${author.family}`;
+                        }
+                    ),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
                 });
@@ -255,7 +279,19 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     status: PUBLICATION_STATUS_DEFAULT,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    authors: action.crossrefMessage.author.filter(
+                        author => author.given != null || author.family != null
+                    ).map(
+                        author => {
+                            if (author.given == null) {
+                                return author.family;
+                            }
+                            if (author.family == null) {
+                                return author.given;
+                            }
+                            return `${author.given} ${author.family}`;
+                        }
+                    ),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
                     citers: [],
@@ -290,7 +326,19 @@ export default function publications(state = new Map(), action, appState) {
                     ...newState.get(doi),
                     status: PUBLICATION_STATUS_IN_COLLECTION,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    authors: action.crossrefMessage.author.filter(
+                        author => author.given != null || author.family != null
+                    ).map(
+                        author => {
+                            if (author.given == null) {
+                                return author.family;
+                            }
+                            if (author.family == null) {
+                                return author.given;
+                            }
+                            return `${author.given} ${author.family}`;
+                        }
+                    ),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
                     updated: action.timestamp,
@@ -299,7 +347,19 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     status: PUBLICATION_STATUS_IN_COLLECTION,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.map(author => `${author.given ? `${author.given} ` : ''}${author.family}`),
+                    authors: action.crossrefMessage.author.filter(
+                        author => author.given != null || author.family != null
+                    ).map(
+                        author => {
+                            if (author.given == null) {
+                                return author.family;
+                            }
+                            if (author.family == null) {
+                                return author.given;
+                            }
+                            return `${author.given} ${author.family}`;
+                        }
+                    ),
                     journal: action.crossrefMessage.publisher,
                     date: action.crossrefMessage.created['date-parts'][0],
                     citers: [],
