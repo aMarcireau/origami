@@ -201,7 +201,7 @@ export function resolveHtml(url, text) {
                                         let metadata = '';
                                         for (let child of metadataCandidates[0].children) {
                                             if (child.type === 'text') {
-                                                metadata += child.data;
+                                                metadata += child.data.replace(/&nbsp;/g, ' ');
                                             } else if (
                                                 child.type === 'tag'
                                                 && child.name === 'a'
