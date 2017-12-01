@@ -94,6 +94,12 @@ export default function(state, action) {
             tabs,
             version,
             warnings: (state = {}) => state,
-        })
+        }),
+        (state = {}, action) => {
+            if (process.env.ORIGAMI_ENV === 'development') {
+                console.log(action.type, action, state);
+            }
+            return state;
+        }
     )(state, action);
 }
