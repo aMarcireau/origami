@@ -66,6 +66,7 @@ class Warnings extends React.Component {
                                         marginLeft: 0,
                                         height: '16px',
                                         lineHeight: '16px',
+                                        userSelect: 'text',
                                     }}>{element.title}</p>
                                     <p style={{
                                         color: this.props.colors.secondaryContent,
@@ -76,6 +77,7 @@ class Warnings extends React.Component {
                                         whiteSpace: 'nowrap',
                                         height: '16px',
                                         lineHeight: '16px',
+                                        userSelect: 'text',
                                     }}>{element.subtitle}</p>
                                 </div>
                                 <button
