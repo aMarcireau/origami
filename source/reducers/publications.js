@@ -144,17 +144,18 @@ export default function publications(state = new Map(), action, appState) {
             if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
                 return state;
             }
+            const doisToRemove = new Set([
+                ...state.get(action.doi).citers.filter(citer => state.get(citer).status === PUBLICATION_STATUS_DEFAULT),
+                action.doi,
+            ]);
             const newState = new Map(state);
             newState.set(action.doi, {
                 ...state.get(action.doi),
                 status: PUBLICATION_STATUS_DEFAULT,
                 bibtex: null,
                 locked: false,
+                citers: [],
             });
-            const doisToRemove = new Set([
-                ...state.get(action.doi).citers.filter(citer => state.get(citer).status === PUBLICATION_STATUS_DEFAULT),
-                action.doi,
-            ]);
             for (const publication of newState.values()) {
                 if (publication.status === PUBLICATION_STATUS_IN_COLLECTION) {
                     for (const citer of publication.citers) {

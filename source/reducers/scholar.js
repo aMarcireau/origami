@@ -3,6 +3,7 @@ import {
     REMOVE_PUBLICATION,
     UPDATE_PUBLICATION,
     UPDATE_ALL_PUBLICATIONS,
+    PUBLICATION_FROM_DOI,
     RESOLVE_PUBLICATION_FROM_DOI,
     FETCH_SCHOLAR_PAGE,
     RESOLVE_SCHOLAR_INITIAL_PAGE,
@@ -58,7 +59,7 @@ export default function scholar(
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(action.doi)}`,
                 }],
             };
-        case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA:
+        case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA: {
             const doi = action.crossrefMessage.DOI.toLowerCase();
             if (appState.publications.has(doi) && appState.publications.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
                 return state;
@@ -71,6 +72,7 @@ export default function scholar(
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
                 }],
             };
+        }
         case REMOVE_PUBLICATION:
             return {
                 ...state,
@@ -120,6 +122,20 @@ export default function scholar(
                     }),
                 ],
             }
+        case PUBLICATION_FROM_DOI: {
+            const doi = action.doi.toLowerCase();
+            if (!appState.publications.has(doi) || appState.publications.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
+                return state;
+            }
+            return {
+                ...state,
+                pages: [...state.pages, {
+                    type: PAGE_TYPE_INITIALIZE,
+                    doi,
+                    url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
+                }],
+            };
+        }
         case RESOLVE_PUBLICATION_FROM_DOI:
             if (!appState.publications.has(action.doi) || appState.publications.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED) {
                 return state;
