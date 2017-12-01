@@ -433,64 +433,10 @@ electron.app.on('ready', () => {
             },
             {
                 label: 'View',
-                submenu: [
+                submenu: process.env.ORIGAMI_ENV === 'development' ? [
                     {role: 'toggledevtools'},
                     {role: 'togglefullscreen'},
-                ],
-            },
-            {
-                role: 'window',
-                submenu: [
-                    {role: 'close'},
-                    {role: 'minimize'},
-                    {role: 'zoom'},
-                    {type: 'separator'},
-                    {role: 'front'},
-                ],
-            },
-            {
-                role: 'help',
-                submenu: [
-                    {
-                        label: 'Learn More',
-                        click() {
-                            electron.shell.openExternal('https://github.com/aMarcireau/origami');
-                        },
-                    },
-                ],
-            },
-        ]));
-    } else {
-        electron.Menu.setApplicationMenu(electron.Menu.buildFromTemplate([
-            {
-                label: electron.app.getName(),
-                submenu: [
-                    {role: 'about'},
-                    {type: 'separator'},
-                    {role: 'hide'},
-                    {role: 'hideothers'},
-                    {role: 'unhide'},
-                    {type: 'separator'},
-                    {role: 'quit'},
-                ],
-            },
-            {
-                label: 'Edit',
-                submenu: [
-                    {role: 'undo'},
-                    {role: 'redo'},
-                    {type: 'separator'},
-                    {role: 'cut'},
-                    {role: 'copy'},
-                    {role: 'paste'},
-                    {role: 'delete'},
-                    {role: 'selectall'},
-                ],
-            },
-            {
-                label: 'View',
-                submenu: [
-                    {role: 'toggledevtools'},
+                ] : [
                     {role: 'togglefullscreen'},
                 ],
             },
