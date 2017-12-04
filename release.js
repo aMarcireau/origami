@@ -35,9 +35,9 @@ if (!semverMatch) {
     process.exit(1);
 }
 const version = {
-    major: semverMatch[1],
-    minor: semverMatch[2],
-    patch: semverMatch[3],
+    major: parseInt(semverMatch[1]),
+    minor: parseInt(semverMatch[2]),
+    patch: parseInt(semverMatch[3]),
     identifier: semverMatch[4] ? semverMatch[4] : null,
 };
 
@@ -167,9 +167,9 @@ usernameInterface.question('username: ', username => {
                                                         const releaseSemverMatch = semver.exec(release.tag_name);
                                                         if (releaseSemverMatch) {
                                                             const releaseVersion = {
-                                                                major: releaseSemverMatch[1],
-                                                                minor: releaseSemverMatch[2],
-                                                                patch: releaseSemverMatch[3],
+                                                                major: parseInt(releaseSemverMatch[1]),
+                                                                minor: parseInt(releaseSemverMatch[2]),
+                                                                patch: parseInt(releaseSemverMatch[3]),
                                                                 identifier: releaseSemverMatch[4] ? releaseSemverMatch[4] : null,
                                                             };
                                                             if (release.draft) {
@@ -206,7 +206,7 @@ usernameInterface.question('username: ', username => {
                                                                 || areEqual(version, releaseVersion)
                                                             ) {
                                                                 console.log(`${release.tag_name} (${release.id}) is greater than or identical to the current version: skipping automatic operations`);
-                                                            } else if (release.assets.length > 0) {
+                                                            } else {
                                                                 releasesAndVersionsToPurge.push({
                                                                     release: release,
                                                                     version: releaseVersion,
@@ -262,7 +262,7 @@ usernameInterface.question('username: ', username => {
                                                         previousMajorVersion && areEqual(previousMajorVersion, releaseAndVersion.version)
                                                         || previousMinorVersion && areEqual(previousMinorVersion, releaseAndVersion.version)
                                                     ) {
-                                                        console.log(`${releaseAndVersion.release.tag_name} (${releaseAndVersion.release.id}) was not purged (previous ${areEqual(previousMajorVersion, releaseAndVersion.version) ? 'major' : 'minor'})`);
+                                                        console.log(`${releaseAndVersion.release.tag_name} (${releaseAndVersion.release.id}) was not purged (previous ${previousMajorVersion && areEqual(previousMajorVersion, releaseAndVersion.version) ? 'major' : 'minor'})`);
                                                         continue;
                                                     }
                                                     for (const asset of releaseAndVersion.release.assets) {
