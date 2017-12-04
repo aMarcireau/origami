@@ -416,13 +416,9 @@ electron.app.on('ready', () => {
             {
                 label: 'Edit',
                 submenu: [
-                    {role: 'undo'},
-                    {role: 'redo'},
-                    {type: 'separator'},
                     {role: 'cut'},
                     {role: 'copy'},
                     {role: 'paste'},
-                    {role: 'pasteandmatchstyle'},
                     {role: 'delete'},
                     {role: 'selectall'},
                     {type: 'separator'},
@@ -437,13 +433,10 @@ electron.app.on('ready', () => {
             },
             {
                 label: 'View',
-                submenu: [
+                submenu: process.env.ORIGAMI_ENV === 'development' ? [
                     {role: 'toggledevtools'},
-                    {type: 'separator'},
-                    {role: 'resetzoom'},
-                    {role: 'zoomin'},
-                    {role: 'zoomout'},
-                    {type: 'separator'},
+                    {role: 'togglefullscreen'},
+                ] : [
                     {role: 'togglefullscreen'},
                 ],
             },

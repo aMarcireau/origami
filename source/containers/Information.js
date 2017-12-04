@@ -78,37 +78,40 @@ class Information extends React.Component {
                     textAlign: 'left',
                     userSelect: 'text',
                 }}>{this.props.publication.date.map(part => pad(part)).join('-')}</p>
-                <button
-                    style={{
-                        textDecoration: 'none',
-                        paddingTop: '10px',
-                        paddingRight: '6px',
-                        paddingBottom: '10px',
-                        paddingLeft: '6px',
-                        borderTop: 'none',
-                        borderRight: 'none',
-                        borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
-                        borderLeft: 'none',
-                        display: 'inline-block',
-                        textAlign: 'left',
-                        outline: 'none',
-                        fontSize: '14px',
-                        fontFamily: 'robotoLight',
-                        color: this.props.colors.link,
-                        backgroundColor: this.props.colors.sideBackground,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        width: '100%',
-                        ':hover': {
-                            cursor: 'pointer',
-                            color: this.props.colors.active,
-                        },
-                    }}
-                    onClick={() => {
-                        shell.openExternal(`https://doi.org/${this.props.doi}`);
-                    }}
-                >{this.props.doi}</button>
+                <div style={{
+                    width: '100%',
+                    borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
+                }}>
+                    <button
+                        style={{
+                            textDecoration: 'none',
+                            paddingTop: '10px',
+                            paddingRight: '6px',
+                            paddingBottom: '10px',
+                            paddingLeft: '6px',
+                            border: 'none',
+                            display: 'inline-block',
+                            textAlign: 'left',
+                            outline: 'none',
+                            fontSize: '14px',
+                            fontFamily: 'robotoLight',
+                            color: this.props.colors.link,
+                            backgroundColor: this.props.colors.sideBackground,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            maxWidth: '100%',
+                            userSelect: 'text',
+                            ':hover': {
+                                cursor: 'pointer',
+                                color: this.props.colors.active,
+                            },
+                        }}
+                        onClick={() => {
+                            shell.openExternal(`https://doi.org/${this.props.doi}`);
+                        }}
+                    >{this.props.doi}</button>
+                </div>
                 {this.props.publication.citers.length > 0 &&
                     <h2 style={{
                         color: this.props.colors.content,
