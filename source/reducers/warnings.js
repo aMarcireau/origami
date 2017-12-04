@@ -7,6 +7,8 @@ import {
     REJECT_SAVE,
     REJECT_OPEN,
     REJECT_IMPORT_PUBLICATIONS,
+    RESOLVE_IMPORT_DOIS,
+    REJECT_IMPORT_DOIS,
     REJECT_IMPORT_BIBTEX,
     REMOVE_WARNING,
     REMOVE_ALL_WARNINGS,
@@ -16,6 +18,7 @@ import {
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
 } from '../constants/enums'
+import {doiPattern} from '../actions/managePublication'
 
 export default function warnings(state = {list: [], hash: 0}, action, appState) {
     switch (action.type) {
@@ -108,7 +111,7 @@ export default function warnings(state = {list: [], hash: 0}, action, appState) 
                 ...state,
                 list: [
                     {
-                        title: `Importing JSON from '${action.filename}' failed`,
+                        title: `Importing from save from '${action.filename}' failed`,
                         subtitle: action.message,
                         level: 'error',
                     },
@@ -116,7 +119,36 @@ export default function warnings(state = {list: [], hash: 0}, action, appState) 
                 ],
                 hash: state.hash + 1,
             };
-
+        case RESOLVE_IMPORT_DOIS: {
+            const newState = {
+                ...state,
+                list: [...state.list],
+                hash: state.hash + 1,
+            };
+            for (const rawDoi of action.dois) {
+                if (!doiPattern.test(rawDoi)) {
+                    newState.list.push({
+                        title: 'Importing one of the DOIs failed',
+                        subtitle: `'${rawDoi}' does not match the expected format`,
+                        level: 'warning',
+                    });
+                }
+            }
+            return newState;
+        }
+        case REJECT_IMPORT_DOIS:
+            return {
+                ...state,
+                list: [
+                    {
+                        title: `Importing DOIs from '${action.filename}' failed`,
+                        subtitle: action.message,
+                        level: 'error',
+                    },
+                    ...state.list,
+                ],
+                hash: state.hash + 1,
+            };
         case REJECT_IMPORT_BIBTEX:
             return {
                 ...state,

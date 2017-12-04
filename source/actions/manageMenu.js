@@ -9,6 +9,8 @@ import {
     REJECT_OPEN,
     RESOLVE_IMPORT_PUBLICATIONS,
     REJECT_IMPORT_PUBLICATIONS,
+    RESOLVE_IMPORT_DOIS,
+    REJECT_IMPORT_DOIS,
     RESOLVE_IMPORT_BIBTEX,
     REJECT_IMPORT_BIBTEX,
     SELECT_GRAPH_DISPLAY,
@@ -68,6 +70,22 @@ export function resolveImportPublications(publications) {
 export function rejectImportPublications(filename, message) {
     return {
         type: REJECT_IMPORT_PUBLICATIONS,
+        filename,
+        message,
+    };
+}
+
+export function resolveImportDois(dois, timestamp) {
+    return {
+        type: RESOLVE_IMPORT_DOIS,
+        dois,
+        timestamp,
+    };
+}
+
+export function rejectImportDois(filename, message) {
+    return {
+        type: REJECT_IMPORT_DOIS,
         filename,
         message,
     };

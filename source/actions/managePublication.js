@@ -78,3 +78,5 @@ export function isOlderThan(firstDate, secondDate) {
 export function pad(number) {
     return (number < 10 ? '0' + number.toString() : number.toString());
 }
+
+export const doiPattern = /^\s*(?:https?:\/\/doi\.org\/)?(10\.[0-9]{4,}(?:\.[0-9]+)*\/(?:(?![%"#? ])\S)+)\s*$/;

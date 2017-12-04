@@ -317,6 +317,34 @@ function createWindow() {
                 );
             });
 
+            /// 'import-dois' prompts for a file to open and sends back its contents with 'imported-dois'.
+            /// 'imported-dois' arguments:
+            ///     cancelled: bool, true if the opening was cancelled
+            ///     failed: bool, true if the opening failed
+            ///     filename: string, the filename used if the opening was not cancelled
+            ///     data: buffer, content of the opened file
+            electron.ipcMain.on('import-dois', event => {
+                electron.dialog.showOpenDialog(
+                    mainWindow,
+                    {
+                        filters: [{name: 'JSON', extensions: ['json']}],
+                    },
+                    filePaths => {
+                        if (filePaths == null) {
+                            event.sender.send('imported-dois', true, false, null, null);
+                        } else {
+                            fs.readFile(filePaths[0], (error, data) => {
+                                if (error) {
+                                    event.sender.send('imported-dois', false , true, filePaths[0], null);
+                                } else {
+                                    event.sender.send('imported-dois', false, false, filePaths[0], data);
+                                }
+                            });
+                        }
+                    }
+                );
+            });
+
             /// 'import-bibtex' prompts for a file to open and sends back its contents with 'imported-bibtex'.
             /// 'imported-bibtex' arguments:
             ///     cancelled: bool, true if the opening was cancelled

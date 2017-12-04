@@ -22,6 +22,8 @@ import {
     rejectOpen,
     resolveImportPublications,
     rejectImportPublications,
+    resolveImportDois,
+    rejectImportDois,
     resolveImportBibtex,
     rejectImportBibtex,
     selectGraphDisplay,
@@ -193,7 +195,7 @@ class Origami extends React.Component {
                                         separator: true,
                                     },
                                     {
-                                        name: 'Import JSON…',
+                                        name: 'Import from save…',
                                         onClick: () => {
                                             ipcRenderer.once('imported-publications', (event, cancelled, failed, filename, data) => {
                                                 if (!cancelled) {
@@ -260,6 +262,32 @@ class Origami extends React.Component {
                                             ipcRenderer.send('import-bibtex');
                                         },
                                         shortcut: 'b',
+                                    },
+                                    {
+                                        name: 'Import DOIs…',
+                                        onClick: () => {
+                                            ipcRenderer.once('imported-dois', (event, cancelled, failed, filename, data) => {
+                                                if (!cancelled) {
+                                                    if (failed) {
+                                                        this.props.dispatch(rejectImportDois(filename, 'The file could not be open for reading'));
+                                                    } else {
+                                                        try {
+                                                            const dois = JSON.parse(data);
+                                                            if (dois.constructor === Array) {
+                                                                this.props.dispatch(resolveImportDois(dois, new Date().getTime()));
+                                                            } else {
+                                                                this.props.dispatch(rejectImportDois(filename, 'The file does not contain a JSON array'));
+                                                            }
+                                                        } catch(error) {
+                                                            console.error(error);
+                                                            this.props.dispatch(rejectImportDois(filename, `Parsing failed: ${error.message}`));
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                            ipcRenderer.send('import-dois');
+                                        },
+                                        shortcut: 'd',
                                         separator: true,
                                     },
                                     {

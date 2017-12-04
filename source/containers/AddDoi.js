@@ -2,8 +2,7 @@ import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
 import {publicationFromDoi} from '../actions/getPublicationFromDoi'
-
-const doiPattern = /^\s*(?:https?:\/\/doi\.org\/)?(10\.[0-9]{4,}(?:\.[0-9]+)*\/(?:(?![%"#? ])\S)+)\s*$/;
+import {doiPattern} from '../actions/managePublication'
 
 class AddDoi extends React.Component {
 
