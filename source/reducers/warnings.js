@@ -125,8 +125,25 @@ export default function warnings(state = {list: [], hash: 0}, action, appState) 
                 list: [...state.list],
                 hash: state.hash + 1,
             };
+            const foundDois = new Set();
+            const warnedDois = new Set();
             for (const rawDoi of action.dois) {
-                if (!doiPattern.test(rawDoi)) {
+                const match = doiPattern.exec(rawDoi);
+                if (match) {
+                    const doi = match[1].toLowerCase();
+                    if (foundDois.has(doi)) {
+                        if (!warnedDois.has(doi)) {
+                            warnedDois.add(doi);
+                            newState.list.push({
+                                title: 'There are identical DOIs in the list',
+                                subtitle: `'${doi}' appears at least twice`,
+                                level: 'warning',
+                            });
+                        }
+                    } else {
+                        foundDois.add(doi);
+                    }
+                } else {
                     newState.list.push({
                         title: 'Importing one of the DOIs failed',
                         subtitle: `'${rawDoi}' does not match the expected format`,
