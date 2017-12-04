@@ -279,10 +279,15 @@ export default function scholar(
                 ...state,
                 pages: [...state.pages],
             };
+            const foundDois = new Set();
             for (const rawDoi of action.dois) {
                 const match = doiPattern.exec(rawDoi);
                 if (match) {
                     const doi = match[1].toLowerCase();
+                    if (foundDois.has(doi)) {
+                        continue;
+                    }
+                    foundDois.add(doi);
                     if (appState.publications.has(doi) && appState.publications.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
                         continue;
                     }
