@@ -1,6 +1,12 @@
 import {
+    REJECT_SAVE,
+    REJECT_OPEN,
     RESOLVE_IMPORT_PUBLICATIONS,
+    REJECT_IMPORT_PUBLICATIONS,
+    RESOLVE_IMPORT_DOIS,
+    REJECT_IMPORT_DOIS,
     RESOLVE_IMPORT_BIBTEX,
+    REJECT_IMPORT_BIBTEX,
     SELECT_GRAPH_DISPLAY,
     SELECT_LIST_DISPLAY,
     PUBLICATION_FROM_DOI,
@@ -38,8 +44,14 @@ import {
 
 export default function menu(state = 0, action) {
     switch (action.type) {
+        case REJECT_SAVE:
+        case REJECT_OPEN:
         case RESOLVE_IMPORT_PUBLICATIONS:
+        case REJECT_IMPORT_PUBLICATIONS:
+        case RESOLVE_IMPORT_DOIS:
+        case REJECT_IMPORT_DOIS:
         case RESOLVE_IMPORT_BIBTEX:
+        case REJECT_IMPORT_BIBTEX:
         case SELECT_GRAPH_DISPLAY:
         case SELECT_LIST_DISPLAY:
         case PUBLICATION_FROM_DOI:

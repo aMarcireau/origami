@@ -3,6 +3,7 @@ import {
     REJECT_SAVE,
     REJECT_OPEN,
     REJECT_IMPORT_PUBLICATIONS,
+    REJECT_IMPORT_DOIS,
     REJECT_IMPORT_BIBTEX,
     SELECT_TAB,
     UPDATE_ALL_PUBLICATIONS,
@@ -19,6 +20,7 @@ export default function tabs(state = {index: 0, hash: 0}, action) {
         case REJECT_SAVE:
         case REJECT_OPEN:
         case REJECT_IMPORT_PUBLICATIONS:
+        case REJECT_IMPORT_DOIS:
         case REJECT_IMPORT_BIBTEX:
         case REJECT_PUBLICATION_FROM_DOI:
             return {

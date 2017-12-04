@@ -19,6 +19,7 @@ import {
     CHANGE_RECAPTCHA_VISIBILITY,
     SCHOLAR_DISCONNECT,
     RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
+    RESOLVE_IMPORT_DOIS,
 } from '../constants/actionTypes'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
@@ -32,6 +33,7 @@ import {
     SCHOLAR_STATUS_BLOCKED_VISIBLE,
     SCHOLAR_STATUS_UNBLOCKING,
 } from '../constants/enums'
+import {doiPattern} from '../actions/managePublication'
 
 export default function scholar(
     state = {
@@ -272,6 +274,27 @@ export default function scholar(
                 };
             }
             return state;
+        case RESOLVE_IMPORT_DOIS: {
+            const newState = {
+                ...state,
+                pages: [...state.pages],
+            };
+            for (const rawDoi of action.dois) {
+                const match = doiPattern.exec(rawDoi);
+                if (match) {
+                    const doi = match[1].toLowerCase();
+                    if (appState.publications.has(doi) && appState.publications.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
+                        continue;
+                    }
+                    newState.pages.push({
+                        type: PAGE_TYPE_INITIALIZE,
+                        doi,
+                        url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
+                    });
+                }
+            }
+            return newState;
+        }
         default:
             return state;
     }

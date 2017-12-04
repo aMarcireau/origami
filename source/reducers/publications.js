@@ -14,6 +14,7 @@ import {
     RESOLVE_PUBLICATION_FROM_CITER_METADATA,
     RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
     RESOLVE_IMPORT_PUBLICATIONS,
+    RESOLVE_IMPORT_DOIS,
     STORE_GRAPH_NODES,
     LOCK_GRAPH_NODE,
     RELEASE_GRAPH_NODE,
@@ -24,7 +25,10 @@ import {
     PUBLICATION_STATUS_IN_COLLECTION,
     PAGE_TYPE_INITIALIZE,
 } from '../constants/enums'
-import {isOlderThan} from '../actions/managePublication'
+import {
+    isOlderThan,
+    doiPattern,
+} from '../actions/managePublication'
 
 export default function publications(state = new Map(), action, appState) {
     switch (action.type) {
@@ -417,6 +421,42 @@ export default function publications(state = new Map(), action, appState) {
             }
             for (const doi of doisToRemove.values()) {
                 newState.delete(doi);
+            }
+            return newState;
+        }
+        case RESOLVE_IMPORT_DOIS: {
+            const newState = new Map(state);
+            for (const rawDoi of action.dois) {
+                const match = doiPattern.exec(rawDoi);
+                if (match) {
+                    const doi = match[1].toLowerCase();
+                    if (state.has(doi)) {
+                        if (state.get(doi).status === PUBLICATION_STATUS_DEFAULT) {
+                            const newState = new Map(state);
+                            newState.set(doi, {
+                                ...state.get(doi),
+                                status: PUBLICATION_STATUS_IN_COLLECTION,
+                                updated: action.timestamp,
+                            });
+                        }
+                    } else {
+                        newState.set(doi, {
+                            status: PUBLICATION_STATUS_UNVALIDATED,
+                            title: null,
+                            authors: null,
+                            journal: null,
+                            date: null,
+                            citers: [],
+                            updated: null,
+                            selected: false,
+                            validating: false,
+                            bibtex: null,
+                            x: null,
+                            y: null,
+                            locked: false,
+                        });
+                    }
+                }
             }
             return newState;
         }

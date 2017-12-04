@@ -227,8 +227,8 @@ usernameInterface.question('username: ', username => {
                                                             && releaseAndVersion.version.minor < version.minor - 1
                                                         )
                                                         || (
-                                                            releaseAndVersion.version.major === releaseAndVersion.major
-                                                            && releaseAndVersion.version.minor === releaseAndVersion.minor
+                                                            releaseAndVersion.version.major === version.major
+                                                            && releaseAndVersion.version.minor === version.minor
                                                         )
                                                     ) {
                                                         continue;
@@ -255,6 +255,8 @@ usernameInterface.question('username: ', username => {
                                                         continue;
                                                     }
                                                 }
+                                                console.log(previousMajorVersion == null ? 'There is no previous major version' : `Previous major version preserved: v${previousMajorVersion.major}.${previousMajorVersion.minor}.${previousMajorVersion.patch}`);
+                                                console.log(previousMinorVersion == null ? 'There is no previous minor version' : `Previous minor version preserved: v${previousMinorVersion.major}.${previousMinorVersion.minor}.${previousMinorVersion.patch}`);
                                                 for (const releaseAndVersion of releasesAndVersionsToPurge) {
                                                     if (
                                                         previousMajorVersion && areEqual(previousMajorVersion, releaseAndVersion.version)
@@ -263,7 +265,6 @@ usernameInterface.question('username: ', username => {
                                                         console.log(`${releaseAndVersion.release.tag_name} (${releaseAndVersion.release.id}) was not purged (previous ${areEqual(previousMajorVersion, releaseAndVersion.version) ? 'major' : 'minor'})`);
                                                         continue;
                                                     }
-
                                                     for (const asset of releaseAndVersion.release.assets) {
                                                         request.delete({
                                                             url: `https://api.github.com/repos/amarcireau/origami/releases/assets/${asset.id}`,
