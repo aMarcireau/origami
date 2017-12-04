@@ -125,6 +125,7 @@ export function stateToJson(state, expand) {
             minimumRefractoryPeriod: state.scholar.minimumRefractoryPeriod,
             maximumRefractoryPeriod: state.scholar.maximumRefractoryPeriod,
         },
+        search: state.search,
         tabs: state.tabs.index,
         warnings: state.warnings.list,
     }, null, expand ? '    ' : null)}${expand ? '\n' : ''}`;

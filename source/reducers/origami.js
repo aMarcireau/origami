@@ -8,6 +8,7 @@ import menu from './menu'
 import mouseOwner from './mouseOwner'
 import publications from './publications'
 import scholar from './scholar'
+import search from './search'
 import tabs from './tabs'
 import version from './version'
 import warnings from './warnings'
@@ -91,6 +92,7 @@ export default function(state, action) {
             mouseOwner,
             publications: (state = new Map()) => state,
             scholar: (state = {}) => state,
+            search,
             tabs,
             version,
             warnings: (state = {}) => state,

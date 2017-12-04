@@ -12,6 +12,7 @@ import {
     updateAllPublications,
     removePublication,
     pad,
+    isOlderThan,
 } from '../actions/managePublication'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
@@ -130,13 +131,23 @@ class Information extends React.Component {
                     <List
                         elementsPerPage={10}
                         elements={this.props.publication.citers.map(citer => {
-                                return {
-                                    ...this.props.publications.get(citer),
-                                    doi: citer,
-                                };
-                        }).sort(
-                            (first, second) => first.title.localeCompare(second.title)
-                        )}
+                            return {
+                                ...this.props.publications.get(citer),
+                                doi: citer,
+                            };
+                        }).sort((firstPublication, secondPublication) => {
+                            if (isOlderThan(firstPublication.date, secondPublication.date)) {
+                                return 1;
+                            } else if (isOlderThan(secondPublication.date, firstPublication.date)) {
+                                return -1;
+                            }
+                            if (firstPublication.date.length < secondPublication.date.length) {
+                                return 1;
+                            } else if (firstPublication.date.length > secondPublication.date.length) {
+                                return -1;
+                            }
+                            return firstPublication.title.localeCompare(secondPublication.title);
+                        })}
                         emptyContent={
                             <div style={{
                                 color: this.props.colors.secondaryContent,
