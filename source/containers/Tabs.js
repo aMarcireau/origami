@@ -2,7 +2,7 @@ import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import {selectInformationTab, selectWarningsTab} from '../actions/selectTab'
+import {selectTab} from '../actions/selectTab'
 
 const liStyle = {
     width: '40px',
@@ -35,7 +35,7 @@ class Tabs extends React.Component {
                     : <li
                         key={`${this.props.hash}-${index}`}
                         onClick={() => {
-                            this.props.dispatch(index === 0 ? selectInformationTab() : selectWarningsTab());
+                            this.props.dispatch(selectTab(index));
                         }}
                         style={[liStyle, {
                             ':hover': {

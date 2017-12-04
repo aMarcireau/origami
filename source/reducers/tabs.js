@@ -4,16 +4,16 @@ import {
     REJECT_OPEN,
     REJECT_IMPORT_PUBLICATIONS,
     REJECT_IMPORT_BIBTEX,
-    SELECT_INFORMATION_TAB,
-    SELECT_WARNINGS_TAB,
+    SELECT_TAB,
     UPDATE_ALL_PUBLICATIONS,
+    SELECT_PUBLICATION,
 } from '../constants/actionTypes'
 
-export default function tabs (state = {index: 0, hash: 0}, action) {
+export default function tabs(state = {index: 0, hash: 0}, action) {
     switch (action.type) {
-        case SELECT_INFORMATION_TAB:
+        case SELECT_TAB:
             return {
-                index: 0,
+                index: action.index,
                 hash: state.hash + 1,
             };
         case REJECT_SAVE:
@@ -21,14 +21,18 @@ export default function tabs (state = {index: 0, hash: 0}, action) {
         case REJECT_IMPORT_PUBLICATIONS:
         case REJECT_IMPORT_BIBTEX:
         case REJECT_PUBLICATION_FROM_DOI:
-        case SELECT_WARNINGS_TAB:
             return {
-                index: 1,
+                index: 2,
                 hash: state.hash + 1,
             };
         case UPDATE_ALL_PUBLICATIONS:
             return {
                 ...state,
+                hash: state.hash + 1,
+            };
+        case SELECT_PUBLICATION:
+            return {
+                index: 0,
                 hash: state.hash + 1,
             };
         default:

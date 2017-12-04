@@ -25,8 +25,7 @@ import {
     REJECT_PUBLICATION_FROM_METADATA,
     REMOVE_WARNING,
     REMOVE_ALL_WARNINGS,
-    SELECT_INFORMATION_TAB,
-    SELECT_WARNINGS_TAB,
+    SELECT_TAB,
     SET_GRAPH_THRESHOLD,
     SET_GRAPH_ZOOM_AND_OFFSET,
     ENABLE_STICKY_GRAPH,
@@ -34,6 +33,7 @@ import {
     STORE_GRAPH_NODES,
     LOCK_GRAPH_NODE,
     RELEASE_GRAPH_NODE,
+    SET_SEARCH,
 } from '../constants/actionTypes'
 
 export default function menu(state = 0, action) {
@@ -64,8 +64,7 @@ export default function menu(state = 0, action) {
         case REJECT_PUBLICATION_FROM_METADATA:
         case REMOVE_WARNING:
         case REMOVE_ALL_WARNINGS:
-        case SELECT_INFORMATION_TAB:
-        case SELECT_WARNINGS_TAB:
+        case SELECT_TAB:
         case SET_GRAPH_THRESHOLD:
         case SET_GRAPH_ZOOM_AND_OFFSET:
         case ENABLE_STICKY_GRAPH:
@@ -73,6 +72,7 @@ export default function menu(state = 0, action) {
         case STORE_GRAPH_NODES:
         case LOCK_GRAPH_NODE:
         case RELEASE_GRAPH_NODE:
+        case SET_SEARCH:
             return state + 1;
         default:
             return state;

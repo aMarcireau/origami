@@ -9,6 +9,7 @@ import Information from './Information'
 import Menu from './Menu'
 import PublicationsList from './PublicationsList'
 import Requests from './Requests'
+import Search from './Search'
 import SetGraphThreshold from './SetGraphThreshold'
 import SetRefractoryPeriod from './SetRefractoryPeriod'
 import Tabs from './Tabs'
@@ -371,6 +372,27 @@ class Origami extends React.Component {
                             }
                         >
                             <Information style={{
+                                height: `${this.state.height - 120}px`,
+                                overflowY: 'auto',
+                            }} />
+                        </Tab>
+                        <Tab
+                            icon={
+                                <svg viewBox='0 0 40 40'>
+                                    <circle fill='none' stroke={this.props.colors.link} strokeWidth='1.5' cx='20' cy='20' r='14.5' />
+                                    <circle fill='none' stroke={this.props.colors.link} strokeWidth='2' cx='17.5' cy='17.5' r='4' />
+                                    <path fill='none' stroke={this.props.colors.link} strokeWidth='2' strokeLinecap='square' d='M20.5,20.5 L26,26' />
+                                </svg>
+                            }
+                            activeIcon={
+                                <svg viewBox='0 0 40 40'>
+                                    <circle fill='none' stroke={this.props.colors.active} strokeWidth='2.5' cx='20' cy='20' r='14.5' />
+                                    <circle fill='none' stroke={this.props.colors.active} strokeWidth='2' cx='17.5' cy='17.5' r='4' />
+                                    <path fill='none' stroke={this.props.colors.active} strokeWidth='2' strokeLinecap='square' d='M20.5,20.5 L26,26' />
+                                </svg>
+                            }
+                        >
+                            <Search style={{
                                 height: `${this.state.height - 120}px`,
                                 overflowY: 'auto',
                             }} />

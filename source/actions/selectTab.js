@@ -1,12 +1,10 @@
 import {
-    SELECT_INFORMATION_TAB,
-    SELECT_WARNINGS_TAB,
+    SELECT_TAB,
 } from '../constants/actionTypes'
 
-export function selectInformationTab() {
-    return {type: SELECT_INFORMATION_TAB};
-}
-
-export function selectWarningsTab() {
-    return {type: SELECT_WARNINGS_TAB};
+export function selectTab(index) {
+    return {
+        type: SELECT_TAB,
+        index,
+    };
 }
