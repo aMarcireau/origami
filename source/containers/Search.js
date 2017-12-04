@@ -113,7 +113,7 @@ class Search extends React.Component {
                                         <svg viewBox="0 0 40 40">
                                             <rect
                                                 style={{
-                                                    fill: (Radium.getState(list.state, `${this.props.hash}-${element.updated}-${index}-${element.doi}-add-button`, ':hover') ? this.props.colors.valid : this.props.colors.link),
+                                                    fill: (Radium.getState(list.state, `${this.props.hash}-${index}-${element.doi}-add-button`, ':hover') ? this.props.colors.valid : this.props.colors.link),
                                                 }}
                                                 x="10"
                                                 y="19"
@@ -122,7 +122,7 @@ class Search extends React.Component {
                                             />
                                             <rect
                                                 style={{
-                                                    fill: (Radium.getState(list.state, `${this.props.hash}-${element.updated}-${index}-${element.doi}-add-button`, ':hover') ? this.props.colors.valid : this.props.colors.link),
+                                                    fill: (Radium.getState(list.state, `${this.props.hash}-${index}-${element.doi}-add-button`, ':hover') ? this.props.colors.valid : this.props.colors.link),
                                                 }}
                                                 x="19"
                                                 y="10"
