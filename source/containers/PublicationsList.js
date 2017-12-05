@@ -5,9 +5,11 @@ import PropTypes from 'prop-types'
 import List from '../components/List'
 import {
     isOlderThan,
+    pad,
+} from '../libraries/utilities'
+import {
     selectPublication,
     unselectPublication,
-    pad,
 } from '../actions/managePublication'
 import {
     PUBLICATION_STATUS_UNVALIDATED,

@@ -2,7 +2,7 @@ import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
 import {publicationFromDoi} from '../actions/getPublicationFromDoi'
-import {doiPattern} from '../actions/managePublication'
+import {doiPattern} from '../libraries/utilities'
 
 class AddDoi extends React.Component {
 

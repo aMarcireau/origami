@@ -28,7 +28,7 @@ import {
 import {
     isOlderThan,
     doiPattern,
-} from '../actions/managePublication'
+} from '../libraries/utilities'
 
 export default function publications(state = new Map(), action, appState) {
     switch (action.type) {

@@ -16,7 +16,10 @@ import {
     rejectPublicationFromMetadata,
     rejectPublicationFromMetadataConnection,
 } from '../actions/getPublicationFromMetadata'
-import {isOlderThan} from '../actions/managePublication'
+import {
+    isOlderThan,
+    levenshteinDistance,
+} from '../libraries/utilities'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
@@ -24,78 +27,6 @@ import {
     PUBLICATION_REQUEST_TYPE_CITER_METADATA,
     PUBLICATION_REQUEST_TYPE_IMPORTED_METADATA,
 } from '../constants/enums'
-
-function smallestOfThreePlusOne(first, second, third, incrementSecondIfSmallest) {
-    return (first < second || third < second ?
-        (first > third ? third + 1 : first + 1)
-        : (incrementSecondIfSmallest ? second : second + 1)
-    );
-}
-
-function levenshteinDistance(first, second) {
-    if (first === second) {
-        return 0;
-    }
-    if (first.length > second.length) {
-        [first, second] = [second, first];
-    }
-    let firstLength = first.length;
-    let secondLength = second.length;
-    while (firstLength > 0 && (first.charCodeAt(firstLength - 1) === second.charCodeAt(secondLength - 1))) {
-        firstLength--;
-        secondLength--;
-    }
-    let offset = 0;
-    while (offset < firstLength && (first.charCodeAt(offset) === second.charCodeAt(offset))) {
-        offset++;
-    }
-    firstLength -= offset;
-    secondLength -= offset;
-    if (firstLength === 0 || secondLength === 1) {
-        return secondLength;
-    }
-    const distances = new Array(firstLength << 1);
-    for (let y = 0; y < firstLength;) {
-        distances[firstLength + y] = first.charCodeAt(offset + y);
-        distances[y] = ++y;
-    }
-    let temporary0;
-    let temporary1;
-    let temporary2;
-    let temporary3;
-    let result;
-    let x;
-    for (x = 0; (x + 3) < secondLength;) {
-        let secondX0 = second.charCodeAt(offset + (temporary0 = x));
-        let secondX1 = second.charCodeAt(offset + (temporary1 = x + 1));
-        let secondX2 = second.charCodeAt(offset + (temporary2 = x + 2));
-        let secondX3 = second.charCodeAt(offset + (temporary3 = x + 3));
-        result = (x += 4);
-        for (let y = 0; y < firstLength;) {
-            let firstY = first.charCodeAt(offset + y);
-            let distanceY = distances[y];
-            temporary0 = smallestOfThreePlusOne(distanceY, temporary0, temporary1, secondX0 === firstY);
-            temporary1 = smallestOfThreePlusOne(temporary0, temporary1, temporary2, secondX1 === firstY);
-            temporary2 = smallestOfThreePlusOne(temporary1, temporary2, temporary3, secondX2 === firstY);
-            result = smallestOfThreePlusOne(temporary2, temporary3, result, secondX3 === firstY);
-            distances[y++] = result;
-            temporary3 = temporary2;
-            temporary2 = temporary1;
-            temporary1 = temporary0;
-            temporary0 = distanceY;
-        }
-    }
-    for (; x < secondLength;) {
-        let secondX0 = second.charCodeAt(offset + (temporary0 = x));
-        result = ++x;
-        for (let y = 0; y < firstLength; y++) {
-            let distanceY = distances[y];
-            distances[y] = result = smallestOfThreePlusOne(distanceY, temporary0, result, secondX0 === distances[firstLength + y]);
-            temporary0 = distanceY;
-        }
-    }
-    return result;
-}
 
 export default function manageCrossref(store) {
     const state = store.getState();
