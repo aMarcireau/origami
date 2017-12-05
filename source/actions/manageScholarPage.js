@@ -2,6 +2,7 @@ import {ipcRenderer} from 'electron'
 import htmlparser from 'htmlparser2'
 import cssSelect from 'css-select'
 import {publicationFromCiterMetadata} from './getPublicationFromMetadata'
+import {levenshteinDistance} from '../libraries/utilities'
 import {
     FETCH_SCHOLAR_PAGE,
     RESOLVE_SCHOLAR_INITIAL_PAGE,
@@ -55,9 +56,9 @@ export function scholarDisconnect() {
 const firstCategoryRecaptchaQuery = cssSelect.compile('#gs_captcha_c');
 const secondCategoryRecaptchaQuery = cssSelect.compile('.g-recaptcha');
 const titleQuery = cssSelect.compile('head title');
-const citersLinkCandidatesQuery = cssSelect.compile('.gs_r.gs_or.gs_scl:first-child .gs_fl a');
 const publicationsQuery = cssSelect.compile('.gs_r.gs_or.gs_scl .gs_ri');
 const titleFromPublicationQuery = cssSelect.compile('.gs_rt a');
+const citersLinkFromPublicationQuery = cssSelect.compile('.gs_fl a');
 const metadataFromPublicationQuery = cssSelect.compile('.gs_a');
 
 export function resolveHtml(url, text) {
@@ -134,34 +135,63 @@ export function resolveHtml(url, text) {
                     } else {
                         switch (state.scholar.pages[0].type) {
                             case PAGE_TYPE_INITIALIZE: {
-                                const citersLinkCandidates = cssSelect(citersLinkCandidatesQuery, dom);
-                                let found = false;
-                                for (let citersLinkCandidate of citersLinkCandidates) {
+                                const publications = cssSelect(publicationsQuery, dom);
+                                const candidates = [];
+                                for (const publication of publications) {
+                                    const titleCandidates = cssSelect(titleFromPublicationQuery, publication);
                                     if (
-                                        citersLinkCandidate.children
-                                        && citersLinkCandidate.children.length > 0
-                                        && citersLinkCandidate.children[0].type === 'text'
-                                        && citersLinkCandidate.attribs
-                                        && citersLinkCandidate.attribs.href
+                                        titleCandidates.length === 0
+                                        || !titleCandidates[0].children
+                                        || titleCandidates[0].children.length === 0
+                                        || titleCandidates[0].children[0].type !== 'text'
                                     ) {
-                                        const numberOfCitersMatch = citersLinkCandidate.children[0].data.match(/^Cited by (\d+)$/);
-                                        const scholarIdMatch = citersLinkCandidate.attribs.href.match(/^\/scholar\?cites=(\d+)/);
-                                        if (numberOfCitersMatch && scholarIdMatch) {
-                                            dispatchAndEcho({
-                                                type: RESOLVE_SCHOLAR_INITIAL_PAGE,
-                                                numberOfCiters: Math.min(parseInt(numberOfCitersMatch[1]), 999),
-                                                scholarId: scholarIdMatch[1],
-                                            }, refractoryPeriod);
-                                            found = true;
-                                            break;
+                                        continue;
+                                    }
+                                    for (let citersLinkCandidate of cssSelect(citersLinkFromPublicationQuery, publication)) {
+                                        if (
+                                            citersLinkCandidate.children
+                                            && citersLinkCandidate.children.length > 0
+                                            && citersLinkCandidate.children[0].type === 'text'
+                                            && citersLinkCandidate.attribs
+                                            && citersLinkCandidate.attribs.href
+                                        ) {
+                                            const numberOfCitersMatch = citersLinkCandidate.children[0].data.match(/^Cited by (\d+)$/);
+                                            const scholarIdMatch = citersLinkCandidate.attribs.href.match(/^\/scholar\?cites=(\d+)/);
+                                            if (numberOfCitersMatch && scholarIdMatch) {
+                                                candidates.push({
+                                                    title: titleCandidates[0].children[0].data,
+                                                    numberOfCiters: Math.min(parseInt(numberOfCitersMatch[1]), 999),
+                                                    scholarId: scholarIdMatch[1],
+                                                });
+                                                break;
+                                            }
                                         }
                                     }
                                 }
-                                if (!found) {
+                                if (candidates.length === 0) {
                                     dispatchAndEcho({
                                         type: RESOLVE_SCHOLAR_INITIAL_PAGE,
                                         numberOfCiters: 0,
                                         scholarId: null,
+                                    }, refractoryPeriod);
+                                } else {
+                                    const bestCandidate = candidates.reduce((best, candidate) => {
+                                        const distance = levenshteinDistance(
+                                            candidate.title,
+                                            state.publications.get(state.scholar.pages[0].doi).title
+                                        );
+                                        if (!best || distance < best.distance) {
+                                            return {
+                                                ...candidate,
+                                                distance,
+                                            };
+                                        }
+                                        return best;
+                                    }, null);
+                                    dispatchAndEcho({
+                                        type: RESOLVE_SCHOLAR_INITIAL_PAGE,
+                                        numberOfCiters: bestCandidate.numberOfCiters,
+                                        scholarId: bestCandidate.scholarId,
                                     }, refractoryPeriod);
                                 }
                                 break;
@@ -169,7 +199,7 @@ export function resolveHtml(url, text) {
                             case PAGE_TYPE_CITERS: {
                                 const publications = cssSelect(publicationsQuery, dom);
                                 if (publications.length > 0) {
-                                    for (let publication of publications) {
+                                    for (const publication of publications) {
                                         const titleCandidates = cssSelect(titleFromPublicationQuery, publication);
                                         if (
                                             titleCandidates.length === 0
