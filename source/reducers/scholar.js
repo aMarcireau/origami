@@ -33,7 +33,7 @@ import {
     SCHOLAR_STATUS_BLOCKED_VISIBLE,
     SCHOLAR_STATUS_UNBLOCKING,
 } from '../constants/enums'
-import {doiPattern} from '../actions/managePublication'
+import {doiPattern} from '../libraries/utilities'
 
 export default function scholar(
     state = {

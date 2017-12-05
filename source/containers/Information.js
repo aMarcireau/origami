@@ -6,13 +6,15 @@ import PropTypes from 'prop-types'
 import ConfirmationButton from '../components/ConfirmationButton'
 import List from '../components/List'
 import {
+    isOlderThan,
+    pad,
+} from '../libraries/utilities'
+import {
     addPublicationToCollection,
     selectPublication,
     updatePublication,
     updateAllPublications,
     removePublication,
-    pad,
-    isOlderThan,
 } from '../actions/managePublication'
 import {
     PUBLICATION_STATUS_UNVALIDATED,

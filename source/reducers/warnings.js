@@ -18,7 +18,7 @@ import {
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
 } from '../constants/enums'
-import {doiPattern} from '../actions/managePublication'
+import {doiPattern} from '../libraries/utilities'
 
 export default function warnings(state = {list: [], hash: 0}, action, appState) {
     switch (action.type) {

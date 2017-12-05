@@ -28,7 +28,7 @@ import {
 import {
     isOlderThan,
     doiPattern,
-} from '../actions/managePublication'
+} from '../libraries/utilities'
 
 export default function publications(state = new Map(), action, appState) {
     switch (action.type) {
@@ -103,7 +103,7 @@ export default function publications(state = new Map(), action, appState) {
             newState.set(action.doi, {
                 ...state.get(action.doi),
                 title: action.crossrefMessage.title[0] == null ? '' : action.crossrefMessage.title[0],
-                authors: action.crossrefMessage.author.filter(
+                authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
                     author => author.given != null || author.family != null
                 ).map(
                     author => {
@@ -267,7 +267,7 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     ...newState.get(doi),
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.filter(
+                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
                         author => author.given != null || author.family != null
                     ).map(
                         author => {
@@ -290,7 +290,7 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     status: PUBLICATION_STATUS_DEFAULT,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.filter(
+                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
                         author => author.given != null || author.family != null
                     ).map(
                         author => {
@@ -340,7 +340,7 @@ export default function publications(state = new Map(), action, appState) {
                     ...newState.get(doi),
                     status: PUBLICATION_STATUS_IN_COLLECTION,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.filter(
+                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
                         author => author.given != null || author.family != null
                     ).map(
                         author => {
@@ -364,7 +364,7 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     status: PUBLICATION_STATUS_IN_COLLECTION,
                     title: action.crossrefMessage.title[0],
-                    authors: action.crossrefMessage.author.filter(
+                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
                         author => author.given != null || author.family != null
                     ).map(
                         author => {
