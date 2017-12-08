@@ -1,6 +1,6 @@
 {
     "name": "Origami",
-    "version": "0.7.2",
+    "version": "0.7.3",
     "main": "main.js",
     "private": true,
     "devDependencies": {
