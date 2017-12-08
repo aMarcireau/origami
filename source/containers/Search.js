@@ -4,11 +4,11 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import {setSearch} from '../actions/manageSearch'
 import List from '../components/List'
-import {addPublicationToCollection} from '../actions/managePublication'
 import {
     selectPublication,
-    isOlderThan,
-} from '../libraries/utilities'
+    addPublicationToCollection,
+} from '../actions/managePublication'
+import {isOlderThan} from '../libraries/utilities'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
