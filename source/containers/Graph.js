@@ -71,26 +71,13 @@ class Graph extends React.Component {
                 }
             })
         ;
+        this.inhibited = false;
+        this.inhibitedProps = null;
     }
 
-    componentWillReceiveProps(nextProps) {
-
-        // update the dimensions if required
-        if (
-            nextProps.width != this.props.width
-            || nextProps.height != this.props.height
-            || nextProps.zoom != this.props.zoom
-            || nextProps.xOffset != this.props.xOffset
-            || nextProps.yOffset != this.props.yOffset
-        ) {
-            this.svg.attr('width', nextProps.width);
-            this.svg.attr('height', nextProps.height);
-            this.svg.attr('viewBox', Graph.viewBoxFromProps(nextProps));
-            this.zoom.scaleTo(this.svg, 2 ** (nextProps.zoom / 20));
-        }
-
-        // update the nodes and edges if required
-        // the simulation is reheated if the number of nodes or edges changes
+    /// update modifies the nodes and edges if required.
+    /// the simulation is reheated if the number of nodes or edges changes
+    update(nextProps) {
         let updateRequired = false;
         const zoomRatio = 1 / (2 ** (nextProps.zoom / 2));
         const zoomedWidth = nextProps.width * zoomRatio;
@@ -198,6 +185,39 @@ class Graph extends React.Component {
         } else if (updateRequired) {
             this.restart();
         }
+    }
+
+    /// debouncedUpdate triggers an update if enough time elapsed.
+    debouncedUpdate(nextProps) {
+        if (this.inhibited) {
+            this.inhibitedProps = nextProps;
+        } else {
+            this.update(nextProps);
+            this.inhibited = true;
+            this.timeout = window.setTimeout(() => {
+                this.inhibited = false;
+                if (this.inhibitedProps) {
+                    this.debouncedUpdate(this.inhibitedProps);
+                    this.inhibitedProps = null;
+                }
+            }, 100);
+        }
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (
+            nextProps.width != this.props.width
+            || nextProps.height != this.props.height
+            || nextProps.zoom != this.props.zoom
+            || nextProps.xOffset != this.props.xOffset
+            || nextProps.yOffset != this.props.yOffset
+        ) {
+            this.svg.attr('width', nextProps.width);
+            this.svg.attr('height', nextProps.height);
+            this.svg.attr('viewBox', Graph.viewBoxFromProps(nextProps));
+            this.zoom.scaleTo(this.svg, 2 ** (nextProps.zoom / 20));
+        }
+        this.debouncedUpdate(nextProps);
     }
 
     restart() {
