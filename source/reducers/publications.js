@@ -231,18 +231,23 @@ export default function publications(state = new Map(), action, appState) {
             }
             const newState = new Map(state);
             for (const doi of updatableDois.values()) {
-                const publication = {
+                newState.set(doi, {
                     ...newState.get(doi),
                     updated: action.timestamp,
                     bibtex: null,
-                };
+                    citers: [],
+                });
+            }
+            const citers = new Set();
+            for (const publication of newState.values()) {
                 for (const citer of publication.citers) {
-                    if (newState.get(citer).status !== PUBLICATION_STATUS_IN_COLLECTION) {
-                        newState.delete(citer);
-                    }
+                    citers.add(citer);
                 }
-                publication.citers = [];
-                newState.set(doi, publication);
+            }
+            for (const [doi, publication] of newState.entries()) {
+                if (publication.status === PUBLICATION_STATUS_DEFAULT && !citers.has(doi)) {
+                    newState.delete(doi);
+                }
             }
             return newState;
         }
