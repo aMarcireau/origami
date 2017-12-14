@@ -392,6 +392,11 @@ class Graph extends React.Component {
                 this.svg.style('cursor', 'default');
             })
         );
+        this.svg.on('click', () => {
+            if (this.props.hasSelected) {
+                this.props.dispatch(unselectPublication());
+            }
+        });
         this.zoom = d3.zoom()
             .scaleExtent([2 ** (-50 / 20), 2 ** (50 / 20)])
             .on('zoom', () => {
@@ -484,6 +489,7 @@ export default connect(
             display: state.menu.display,
             sticky: state.graph.sticky,
             colors: state.colors,
+            hasSelected: selectedDoiAndPublication ? true : false,
         };
     }
 )(Graph);
