@@ -7,12 +7,11 @@ import {
     UPDATE_ALL_PUBLICATIONS,
 } from '../constants/actionTypes'
 
-export function addPublicationToCollection(doi, timestamp, bibtexRequestId) {
+export function addPublicationToCollection(doi, timestamp) {
     return {
         type: ADD_PUBLICATION_TO_COLLECTION,
         doi,
-        timestamp,
-        bibtexRequestId,
+        timestamp
     };
 }
 

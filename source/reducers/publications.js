@@ -1,9 +1,7 @@
 import {
     PUBLICATION_FROM_DOI,
-    FETCH_PUBLICATION_FROM_DOI,
     RESOLVE_PUBLICATION_FROM_DOI,
     REJECT_PUBLICATION_FROM_DOI,
-    REJECT_PUBLICATION_FROM_DOI_CONNECTION,
     ADD_PUBLICATION_TO_COLLECTION,
     SELECT_PUBLICATION,
     UNSELECT_PUBLICATION,
@@ -23,7 +21,10 @@ import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
-    PAGE_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_INITIALIZE,
+    CROSSREF_REQUEST_TYPE_VALIDATION,
+    CROSSREF_REQUEST_TYPE_CITER_METADATA,
+    CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
 } from '../constants/enums'
 import {
     isOlderThan,
@@ -56,7 +57,6 @@ export default function publications(state = new Map(), action, appState) {
                 citers: [],
                 updated: null,
                 selected: false,
-                validating: false,
                 bibtex: null,
                 x: null,
                 y: null,
@@ -64,35 +64,12 @@ export default function publications(state = new Map(), action, appState) {
             });
             return newState;
         }
-        case FETCH_PUBLICATION_FROM_DOI: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED) {
-                return state;
-            }
-            const newState = new Map(state);
-            newState.set(action.doi, {
-                ...state.get(action.doi),
-                validating: true,
-            });
-            return newState;
-        }
-
         case REJECT_PUBLICATION_FROM_DOI: {
             if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED) {
                 return state;
             }
             const newState = new Map(state);
             newState.delete(action.doi);
-            return newState;
-        }
-        case REJECT_PUBLICATION_FROM_DOI_CONNECTION: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED) {
-                return state;
-            }
-            const newState = new Map(state);
-            newState.set(action.doi, {
-                ...state.get(action.doi),
-                validating: false,
-            });
             return newState;
         }
         case RESOLVE_PUBLICATION_FROM_DOI: {
@@ -123,7 +100,6 @@ export default function publications(state = new Map(), action, appState) {
                 ),
                 status: PUBLICATION_STATUS_IN_COLLECTION,
                 updated: action.timestamp,
-                validating: false,
             });
             return newState;
         }
@@ -218,16 +194,18 @@ export default function publications(state = new Map(), action, appState) {
             ).map(
                 ([doi, publication]) => doi
             ));
-            for (const page of appState.scholar.pages) {
-                if (page.type !== PAGE_TYPE_INITIALIZE) {
-                    updatableDois.delete(page.doi);
+            for (const request of appState.scholar.requests) {
+                if (request.type !== SCHOLAR_REQUEST_TYPE_INITIALIZE) {
+                    updatableDois.delete(request.doi);
                 }
             }
-            for (const bibtexRequest of appState.bibtexRequests.values()) {
-                updatableDois.delete(bibtexRequest.doi);
+            for (const crossrefRequest of appState.crossref.requests.values()) {
+                if (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA) {
+                    updatableDois.delete(crossrefRequest.parentDoi);
+                }
             }
-            for (const publicationRequest of appState.publicationRequests.values()) {
-                updatableDois.delete(publicationRequest.parentDoi);
+            for (const doiRequest of appState.doi.requests) {
+                updatableDois.delete(doiRequest.doi);
             }
             const newState = new Map(state);
             for (const doi of updatableDois.values()) {
@@ -316,7 +294,6 @@ export default function publications(state = new Map(), action, appState) {
                     citers: [],
                     updated: null,
                     selected: false,
-                    validating: false,
                     bibtex: null,
                     x: null,
                     y: null,
@@ -390,7 +367,6 @@ export default function publications(state = new Map(), action, appState) {
                     citers: [],
                     updated: action.timestamp,
                     selected: false,
-                    validating: false,
                     bibtex: null,
                     x: null,
                     y: null,
@@ -439,6 +415,7 @@ export default function publications(state = new Map(), action, appState) {
                     if (foundDois.has(doi)) {
                         continue;
                     }
+                    foundDois.add(doi);
                     if (state.has(doi)) {
                         if (state.get(doi).status === PUBLICATION_STATUS_DEFAULT) {
                             const newState = new Map(state);
@@ -459,7 +436,6 @@ export default function publications(state = new Map(), action, appState) {
                         citers: [],
                         updated: null,
                         selected: false,
-                        validating: false,
                         bibtex: null,
                         x: null,
                         y: null,

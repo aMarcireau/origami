@@ -1,17 +1,17 @@
 import {ipcRenderer} from 'electron'
 import htmlparser from 'htmlparser2'
 import cssSelect from 'css-select'
-import {publicationFromCiterMetadata} from './getPublicationFromMetadata'
+import {publicationFromCiterMetadata} from './manageCrossref'
 import {levenshteinDistance} from '../libraries/utilities'
 import {
-    FETCH_SCHOLAR_PAGE,
-    RESOLVE_SCHOLAR_INITIAL_PAGE,
-    RESOLVE_SCHOLAR_CITERS_PAGE,
-    REJECT_SCHOLAR_CITERS_PAGE,
+    FETCH_SCHOLAR_REQUEST,
+    RESOLVE_SCHOLAR_INITIAL_REQUEST,
+    RESOLVE_SCHOLAR_CITERS_REQUEST,
+    REJECT_SCHOLAR_CITERS_REQUEST,
     REJECT_SCHOLAR_CITER_PARSING,
     REJECT_SCHOLAR_CONNECTION,
-    SCHOLAR_PAGE_REFRACTORY_PERIOD_DONE,
-    SET_SCHOLAR_PAGE_REFRACTORY_PERIOD,
+    SCHOLAR_REQUEST_REFRACTORY_PERIOD_DONE,
+    SET_SCHOLAR_REQUEST_REFRACTORY_PERIOD,
     BLOCK_SCHOLAR,
     UNBLOCK_SCHOLAR,
     RESET_SCHOLAR,
@@ -19,23 +19,23 @@ import {
     SCHOLAR_DISCONNECT,
 } from '../constants/actionTypes'
 import {
-    PAGE_TYPE_INITIALIZE,
-    PAGE_TYPE_CITERS,
+    SCHOLAR_REQUEST_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_CITERS,
     SCHOLAR_STATUS_BLOCKED_HIDDEN,
     SCHOLAR_STATUS_BLOCKED_VISIBLE,
 } from '../constants/enums'
 
-export function fetchScholarPage() {
-    return {type: FETCH_SCHOLAR_PAGE};
+export function fetchScholarRequest() {
+    return {type: FETCH_SCHOLAR_REQUEST};
 }
 
 export function rejectScholarConnection() {
     return {type: REJECT_SCHOLAR_CONNECTION};
 }
 
-export function setPageRefractoryPeriod(minimum, maximum) {
+export function setScholarRequestRefractoryPeriod(minimum, maximum) {
     return {
-        type: SET_SCHOLAR_PAGE_REFRACTORY_PERIOD,
+        type: SET_SCHOLAR_REQUEST_REFRACTORY_PERIOD,
         minimum,
         maximum,
     };
@@ -73,7 +73,7 @@ export function resolveHtml(url, text) {
                 });
             }
             setTimeout(() => {
-                dispatch({type: SCHOLAR_PAGE_REFRACTORY_PERIOD_DONE});
+                dispatch({type: SCHOLAR_REQUEST_REFRACTORY_PERIOD_DONE});
             }, refractoryPeriod);
         }
         new Promise((resolve, reject) => {
@@ -115,26 +115,26 @@ export function resolveHtml(url, text) {
                     const refractoryPeriod = Math.floor(
                         Math.random() * (1 + state.scholar.maximumRefractoryPeriod - state.scholar.minimumRefractoryPeriod)
                     ) + state.scholar.minimumRefractoryPeriod;
-                    if (!state.publications.has(state.scholar.pages[0].doi)) {
-                        switch (state.scholar.pages[0].type) {
-                            case PAGE_TYPE_INITIALIZE:
+                    if (!state.publications.has(state.scholar.requests[0].doi)) {
+                        switch (state.scholar.requests[0].type) {
+                            case SCHOLAR_REQUEST_TYPE_INITIALIZE:
                                 dispatchAndEcho({
-                                    type: RESOLVE_SCHOLAR_INITIAL_PAGE,
+                                    type: RESOLVE_SCHOLAR_INITIAL_REQUEST,
                                     numberOfCiters: 0,
                                     scholarId: null,
                                 }, refractoryPeriod);
                                 break;
-                            case PAGE_TYPE_CITERS:
-                                dispatchAndEcho({type: RESOLVE_SCHOLAR_CITERS_PAGE}, refractoryPeriod);
+                            case SCHOLAR_REQUEST_TYPE_CITERS:
+                                dispatchAndEcho({type: RESOLVE_SCHOLAR_CITERS_REQUEST}, refractoryPeriod);
                                 break;
                             default:
-                                console.error(`Unexpected page type ${state.scholar.pages[0].type}`);
+                                console.error(`Unexpected Scholar request type ${state.scholar.requests[0].type}`);
                                 dispatchAndEcho(null, refractoryPeriod);
                                 break;
                         }
                     } else {
-                        switch (state.scholar.pages[0].type) {
-                            case PAGE_TYPE_INITIALIZE: {
+                        switch (state.scholar.requests[0].type) {
+                            case SCHOLAR_REQUEST_TYPE_INITIALIZE: {
                                 const publications = cssSelect(publicationsQuery, dom);
                                 const candidates = [];
                                 for (const publication of publications) {
@@ -170,7 +170,7 @@ export function resolveHtml(url, text) {
                                 }
                                 if (candidates.length === 0) {
                                     dispatchAndEcho({
-                                        type: RESOLVE_SCHOLAR_INITIAL_PAGE,
+                                        type: RESOLVE_SCHOLAR_INITIAL_REQUEST,
                                         numberOfCiters: 0,
                                         scholarId: null,
                                     }, refractoryPeriod);
@@ -178,7 +178,7 @@ export function resolveHtml(url, text) {
                                     const bestCandidate = candidates.reduce((best, candidate) => {
                                         const distance = levenshteinDistance(
                                             candidate.title,
-                                            state.publications.get(state.scholar.pages[0].doi).title
+                                            state.publications.get(state.scholar.requests[0].doi).title
                                         );
                                         if (!best || distance < best.distance) {
                                             return {
@@ -189,14 +189,14 @@ export function resolveHtml(url, text) {
                                         return best;
                                     }, null);
                                     dispatchAndEcho({
-                                        type: RESOLVE_SCHOLAR_INITIAL_PAGE,
+                                        type: RESOLVE_SCHOLAR_INITIAL_REQUEST,
                                         numberOfCiters: bestCandidate.numberOfCiters,
                                         scholarId: bestCandidate.scholarId,
                                     }, refractoryPeriod);
                                 }
                                 break;
                             }
-                            case PAGE_TYPE_CITERS: {
+                            case SCHOLAR_REQUEST_TYPE_CITERS: {
                                 const publications = cssSelect(publicationsQuery, dom);
                                 if (publications.length > 0) {
                                     for (const publication of publications) {
@@ -209,8 +209,8 @@ export function resolveHtml(url, text) {
                                         ) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
-                                                doi: state.scholar.pages[0].doi,
-                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                doi: state.scholar.requests[0].doi,
+                                                title: `Parsing a citer's metadata for ${state.scholar.requests[0].doi} failed`,
                                                 subtitle: 'Tags with the class \'gs_rt\' and link children could not be found',
                                             });
                                             continue;
@@ -222,8 +222,8 @@ export function resolveHtml(url, text) {
                                         ) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
-                                                doi: state.scholar.pages[0].doi,
-                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                doi: state.scholar.requests[0].doi,
+                                                title: `Parsing a citer's metadata for ${state.scholar.requests[0].doi} failed`,
                                                 subtitle: 'Tags with the class \'gs_a\' could not be found',
                                             });
                                             continue;
@@ -249,35 +249,32 @@ export function resolveHtml(url, text) {
                                         if (!matchedMetadata) {
                                             dispatch({
                                                 type: REJECT_SCHOLAR_CITER_PARSING,
-                                                doi: state.scholar.pages[0].doi,
-                                                title: `Parsing a citer's metadata for ${state.scholar.pages[0].doi} failed`,
+                                                doi: state.scholar.requests[0].doi,
+                                                title: `Parsing a citer's metadata for ${state.scholar.requests[0].doi} failed`,
                                                 subtitle: `Parsing '${metadata}' failed`,
                                             });
                                             continue;
                                         }
-                                        const bytes = new Uint8Array(64);
-                                        window.crypto.getRandomValues(bytes);
                                         dispatch(publicationFromCiterMetadata(
-                                            Array.from(bytes).map(byte => byte.toString(16)).join(''),
-                                            state.scholar.pages[0].doi,
+                                            state.scholar.requests[0].doi,
                                             titleCandidates[0].children[0].data,
                                             matchedMetadata[1].replace(/\s*&hellip;\s*$/, '').split(/\s*,\s*/),
                                             matchedMetadata[3]
                                         ));
                                     }
-                                    dispatchAndEcho({type: RESOLVE_SCHOLAR_CITERS_PAGE}, refractoryPeriod);
+                                    dispatchAndEcho({type: RESOLVE_SCHOLAR_CITERS_REQUEST}, refractoryPeriod);
                                 } else {
-                                    const page = state.scholar.pages[0];
+                                    const request = state.scholar.requests[0];
                                     dispatchAndEcho({
-                                        type: REJECT_SCHOLAR_CITERS_PAGE,
-                                        title: `An empty citers page was retrieved for ${page.doi}`,
-                                        subtitle: `No publications were found in the page ${page.number} / ${page.total}`,
+                                        type: REJECT_SCHOLAR_CITERS_REQUEST,
+                                        title: `An empty citers page was retrieved for ${request.doi}`,
+                                        subtitle: `No publications were found in the page ${request.number} / ${request.total}`,
                                     }, refractoryPeriod);
                                 }
                                 break;
                             }
                             default: {
-                                console.error(`Unexpected page type ${state.scholar.pages[0].type}`);
+                                console.error(`Unexpected page type ${state.scholar.requests[0].type}`);
                                 dispatchAndEcho(null, refractoryPeriod);
                                 break;
                             }

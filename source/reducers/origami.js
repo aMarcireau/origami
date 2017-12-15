@@ -1,8 +1,8 @@
 import {combineReducers} from 'redux'
-import bibtexRequests from './bibtexRequests'
 import connected from './connected'
+import crossref from './crossref'
+import doi from './doi'
 import knownDois from './knownDois'
-import publicationRequests from './publicationRequests'
 import graph from './graph'
 import menu from './menu'
 import mouseOwner from './mouseOwner'
@@ -54,39 +54,39 @@ export default function(state, action) {
             return {
                 ...state,
                 warnings: warnings(state.warnings, action, state),
-            }
+            };
+        },
+        (state = {}, action) => {
+            return {
+                ...state,
+                crossref: crossref(state.crossref, action, state),
+            };
+        },
+        (state = {}, action) => {
+            return {
+                ...state,
+                doi: doi(state.doi, action, state),
+            };
         },
         (state = {}, action) => {
             return {
                 ...state,
                 scholar: scholar(state.scholar, action, state),
-            }
-        },
-        (state = {}, action) => {
-            return {
-                ...state,
-                bibtexRequests: bibtexRequests(state.bibtexRequests, action, state),
-            }
-        },
-        (state = {}, action) => {
-            return {
-                ...state,
-                publicationRequests: publicationRequests(state.publicationRequests, action, state),
-            }
+            };
         },
         (state = {}, action) => {
             return {
                 ...state,
                 publications: publications(state.publications, action, state),
-            }
+            };
         },
         combineReducers({
             appVersion: (state = '0.0.0') => state,
-            bibtexRequests: (state = new Map()) => state,
             colors: (state = {}) => state,
             connected,
+            crossref: (state = {}) => state,
+            doi: (state = {}) => state,
             knownDois,
-            publicationRequests: (state = new Map()) => state,
             graph,
             menu,
             mouseOwner,

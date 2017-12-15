@@ -6,7 +6,7 @@ import {
     resolveHtml,
     unblockScholar,
     scholarDisconnect,
-} from '../actions/manageScholarPage'
+} from '../actions/manageScholar'
 import {
     SCHOLAR_STATUS_IDLE,
     SCHOLAR_STATUS_FETCHING,

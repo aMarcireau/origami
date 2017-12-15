@@ -101,12 +101,9 @@ class Search extends React.Component {
                                             },
                                         }}
                                         onClick={() => {
-                                            const bytes = new Uint8Array(64);
-                                            window.crypto.getRandomValues(bytes);
                                             this.props.dispatch(addPublicationToCollection(
                                                 element.doi,
-                                                new Date().getTime(),
-                                                Array.from(bytes).map(byte => byte.toString(16)).join('')
+                                                new Date().getTime()
                                             ));
                                         }}
                                     >
@@ -209,6 +206,7 @@ export default connect(
                             regex.test(publication.title)
                             || regex.test(publication.journal)
                             || publication.authors.some(author => regex.test(author))
+                            || regex.test(doi)
                         )
                     ) {
                         publications.push({

@@ -3,23 +3,25 @@ import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import Recaptcha from './Recaptcha'
+import crossrefQueue from '../queues/crossrefQueue'
+import doiQueue from '../queues/doiQueue'
+import scholarQueue from '../queues/scholarQueue'
 import {
     selectPublication,
     unselectPublication,
 } from '../actions/managePublication'
-import {
-    changeRecaptchaVisibility,
-} from '../actions/manageScholarPage'
+import {changeRecaptchaVisibility} from '../actions/manageScholar'
 import List from '../components/List'
 import ProgressBar from '../components/ProgressBar'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
-    PAGE_TYPE_INITIALIZE,
-    PAGE_TYPE_CITERS,
-    PUBLICATION_REQUEST_TYPE_CITER_METADATA,
-    PUBLICATION_REQUEST_TYPE_IMPORTED_METADATA,
+    SCHOLAR_REQUEST_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_CITERS,
+    CROSSREF_REQUEST_TYPE_VALIDATION,
+    CROSSREF_REQUEST_TYPE_CITER_METADATA,
+    CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
     SCHOLAR_STATUS_IDLE,
     SCHOLAR_STATUS_FETCHING,
     SCHOLAR_STATUS_BLOCKED_HIDDEN,
@@ -257,6 +259,116 @@ class Requests extends React.Component {
     }
 }
 
+function scholarRequestToRequest(scholarRequest, state, fetching, blocked) {
+    return {
+        id: `${scholarRequest.doi}-${scholarRequest.url}-${state.version}-scholar-request`,
+        title: state.publications.has(scholarRequest.doi) ? state.publications.get(scholarRequest.doi).title : 'Request cancelled',
+        onTitleClick: (state.publications.has(scholarRequest.doi) ?
+            (
+                dispatch => {
+                    if (state.publications.get(scholarRequest.doi).selected) {
+                        dispatch(unselectPublication());
+                    } else {
+                        dispatch(selectPublication(scholarRequest.doi));
+                    }
+                }
+            )
+            : null
+        ),
+        subtitle: scholarRequest.type === SCHOLAR_REQUEST_TYPE_INITIALIZE ? 'Initial request' : `${scholarRequest.number} / ${scholarRequest.total}`,
+        color: (state.publications.has(scholarRequest.doi) ?
+            (state.publications.get(scholarRequest.doi).selected ? state.colors.active : state.colors.link)
+            : state.colors.error
+        ),
+        borderColor: (blocked ?
+            state.colors.error
+            : (fetching ?
+                state.colors.active
+                : state.colors.link
+            )
+        ),
+    };
+}
+
+function crossrefRequestToRequest(crossrefRequest, state, fetching) {
+    switch (crossrefRequest.type) {
+        case CROSSREF_REQUEST_TYPE_VALIDATION:
+            return {
+                id: `${crossrefRequest.doi}-${state.version}-publication`,
+                title: crossrefRequest.doi,
+                onTitleClick: null,
+                subtitle: 'Validation',
+                color: state.colors.content,
+                borderColor: (!state.connected ?
+                    state.colors.error
+                    : (fetching ?
+                        state.colors.active
+                        : state.colors.link
+                    )
+                ),
+            };
+        case CROSSREF_REQUEST_TYPE_CITER_METADATA:
+        case CROSSREF_REQUEST_TYPE_IMPORTED_METADATA:
+            return {
+                id: `${crossrefRequest.title}-${state.version}-crossref-request`,
+                title: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
+                    state.publications.get(crossrefRequest.parentDoi).title
+                    : crossrefRequest.title
+                ),
+                onTitleClick: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
+                    (dispatch => {
+                        if (state.publications.get(crossrefRequest.parentDoi).selected) {
+                            dispatch(unselectPublication());
+                        } else {
+                            dispatch(selectPublication(crossrefRequest.parentDoi));
+                        }
+                    })
+                    : null
+                ),
+                subtitle: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
+                    `DOI for “${crossrefRequest.title}”`
+                    : 'Validation'
+                ),
+                color: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
+                    state.publications.get(crossrefRequest.parentDoi).selected ? state.colors.active : state.colors.link
+                    : null
+                ),
+                borderColor: (!state.connected ?
+                    state.colors.error
+                    : (fetching ?
+                        state.colors.active
+                        : state.colors.link
+                    )
+                ),
+            };
+        default:
+            throw new Error(`Unknown Crossref request type '${crossrefRequest.type}'`);
+    }
+}
+
+function doiRequestToRequest(doiRequest, state, fetching) {
+    return {
+        id: `${doiRequest.id}-${state.version}-doi-request`,
+        title: state.publications.get(doiRequest.doi).title,
+        onTitleClick: dispatch => {
+            if (state.publications.get(doiRequest.doi).selected) {
+                dispatch(unselectPublication());
+            } else {
+                dispatch(selectPublication(doiRequest.doi));
+            }
+        },
+        subtitle: `BibTeX for “${doiRequest.doi}”`,
+        color: state.publications.get(doiRequest.doi).selected ? state.colors.active : state.colors.link,
+        borderColor: (!state.connected ?
+            state.colors.error
+            : (fetching ?
+                state.colors.active
+                : state.colors.link
+            )
+        ),
+    };
+}
+
 export default connect(
     state => {
         const blocked = (
@@ -266,113 +378,29 @@ export default connect(
         );
         return {
             requests: [
-                ...state.scholar.pages.map((page, index) => {
-                    return {
-                        id: `${page.doi}-${page.url}-${state.version}-page`,
-                        title: state.publications.has(page.doi) ? state.publications.get(page.doi).title : 'Request cancelled',
-                        onTitleClick: (state.publications.has(page.doi) ?
-                            (
-                                dispatch => {
-                                    if (state.publications.get(page.doi).selected) {
-                                        dispatch(unselectPublication());
-                                    } else {
-                                        dispatch(selectPublication(page.doi));
-                                    }
-                                }
-                            )
-                            : null
-                        ),
-                        subtitle: page.type === PAGE_TYPE_INITIALIZE ? 'Initial request' : `${page.number} / ${page.total}`,
-                        color: (state.publications.has(page.doi) ?
-                            (state.publications.get(page.doi).selected ? state.colors.active : state.colors.link)
-                            : state.colors.error
-                        ),
-                        borderColor: (blocked ?
-                            state.colors.error
-                            : (index === 0 && state.scholar.status === SCHOLAR_STATUS_FETCHING ?
-                                state.colors.active
-                                : state.colors.link
-                            )
-                        ),
-                    };
-                }),
-                ...Array.from(state.publications.entries()).filter(([doi, publication]) =>
-                    publication.status === PUBLICATION_STATUS_UNVALIDATED
-                ).map(([doi, publication]) => {
-                    return {
-                        id: `${doi}-${state.version}-publication`,
-                        title: doi,
-                        onTitleClick: null,
-                        subtitle: 'Validation',
-                        color: state.colors.content,
-                        borderColor: (!state.connected ?
-                            state.colors.error
-                            : (publication.validating ?
-                                state.colors.active
-                                : state.colors.link
-                            )
-                        ),
-                    };
-                }),
-                ...Array.from(state.bibtexRequests.entries()).map(([id, bibtexRequest]) => {
-                    return {
-                        id: `${id}-${state.version}-bibtex-request`,
-                        title: state.publications.get(bibtexRequest.doi).title,
-                        onTitleClick: dispatch => {
-                            if (state.publications.get(bibtexRequest.doi).selected) {
-                                dispatch(unselectPublication());
-                            } else {
-                                dispatch(selectPublication(bibtexRequest.doi));
-                            }
-                        },
-                        subtitle: `BibTeX for “${bibtexRequest.doi}”`,
-                        color: state.publications.get(bibtexRequest.doi).selected ? state.colors.active : state.colors.link,
-                        borderColor: (!state.connected ?
-                            state.colors.error
-                            : (bibtexRequest.fetching ?
-                                state.colors.active
-                                : state.colors.link
-                            )
-                        ),
-                    };
-                }),
-                ...Array.from(state.publicationRequests.entries()).map(([id, publicationRequest]) => {
-                    return {
-                        id: `${id}-${state.version}-doi-request`,
-                        title: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
-                            state.publications.get(publicationRequest.parentDoi).title
-                            : publicationRequest.title
-                        ),
-                        onTitleClick: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
-                            (dispatch => {
-                                if (state.publications.get(publicationRequest.parentDoi).selected) {
-                                    dispatch(unselectPublication());
-                                } else {
-                                    dispatch(selectPublication(publicationRequest.parentDoi));
-                                }
-                            })
-                            : null
-                        ),
-                        subtitle: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
-                            `DOI for “${publicationRequest.title}”`
-                            : 'Validation'
-                        ),
-                        color: (publicationRequest.type === PUBLICATION_REQUEST_TYPE_CITER_METADATA ?
-                            state.publications.get(publicationRequest.parentDoi).selected ? state.colors.active : state.colors.link
-                            : null
-                        ),
-                        borderColor: (!state.connected ?
-                            state.colors.error
-                            : (publicationRequest.fetching ?
-                                state.colors.active
-                                : state.colors.link
-                            )
-                        ),
-                    };
-
-                }),
+                ...(state.scholar.requests.length > 0 ?
+                    [scholarRequestToRequest(state.scholar.requests[0], state, state.scholar.status === scholarQueue.status.FETCHING, blocked)]
+                    : []
+                ),
+                ...(state.crossref.status === crossrefQueue.status.FETCHING ?
+                    [crossrefRequestToRequest(state.crossref.requests[0], state, true)]
+                    : []
+                ),
+                ...(state.doi.status === doiQueue.status.FETCHING ?
+                    [doiRequestToRequest(state.doi.requests[0], state, true)]
+                    : []
+                ),
+                ...state.scholar.requests.slice(1).map(scholarRequest => scholarRequestToRequest(scholarRequest, state, false, blocked)),
+                ...(state.crossref.status === crossrefQueue.status.FETCHING ?
+                    state.crossref.requests.slice(1)
+                    : state.crossref.requests
+                ).map(crossrefRequest => crossrefRequestToRequest(crossrefRequest, state, false)),
+                ...(state.doi.status === doiQueue.status.FETCHING ?
+                    state.doi.requests.slice(1)
+                    : state.doi.requests
+                ).map(doiRequest => doiRequestToRequest(doiRequest, state)),
             ],
-            hasPages: state.scholar.pages.length > 0,
+            hasPages: state.scholar.requests.length > 0,
             beginOfRefractoryPeriod: state.scholar.beginOfRefractoryPeriod,
             endOfRefractoryPeriod: state.scholar.endOfRefractoryPeriod,
             blocked,
