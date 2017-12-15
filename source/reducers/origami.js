@@ -49,35 +49,36 @@ export default function(state, action) {
             state = action.state;
         }
     }
+    const appState = state;
     return reduceReducers(
         (state = {}, action) => {
             return {
                 ...state,
-                warnings: warnings(state.warnings, action, state),
+                crossref: crossref(state.crossref, action, appState),
             };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                crossref: crossref(state.crossref, action, state),
+                doi: doi(state.doi, action, appState),
             };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                doi: doi(state.doi, action, state),
+                publications: publications(state.publications, action, appState),
             };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                scholar: scholar(state.scholar, action, state),
+                scholar: scholar(state.scholar, action, appState),
             };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                publications: publications(state.publications, action, state),
+                warnings: warnings(state.warnings, action, appState),
             };
         },
         combineReducers({
@@ -99,7 +100,7 @@ export default function(state, action) {
         }),
         (state = {}, action) => {
             if (process.env.ORIGAMI_ENV === 'development') {
-                console.log(action.type, action, state);
+                console.log(action.type, appState, action, state);
             }
             return state;
         }

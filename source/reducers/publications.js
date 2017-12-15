@@ -22,6 +22,7 @@ import {
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
     SCHOLAR_REQUEST_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_CITERS,
     CROSSREF_REQUEST_TYPE_VALIDATION,
     CROSSREF_REQUEST_TYPE_CITER_METADATA,
     CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
@@ -194,12 +195,12 @@ export default function publications(state = new Map(), action, appState) {
             ).map(
                 ([doi, publication]) => doi
             ));
-            for (const request of appState.scholar.requests) {
-                if (request.type !== SCHOLAR_REQUEST_TYPE_INITIALIZE) {
-                    updatableDois.delete(request.doi);
+            for (const scholarRequest of appState.scholar.requests) {
+                if (scholarRequest.type === SCHOLAR_REQUEST_TYPE_CITERS) {
+                    updatableDois.delete(scholarRequest.doi);
                 }
             }
-            for (const crossrefRequest of appState.crossref.requests.values()) {
+            for (const crossrefRequest of appState.crossref.requests) {
                 if (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA) {
                     updatableDois.delete(crossrefRequest.parentDoi);
                 }
@@ -211,9 +212,9 @@ export default function publications(state = new Map(), action, appState) {
             for (const doi of updatableDois.values()) {
                 newState.set(doi, {
                     ...newState.get(doi),
+                    citers: [],
                     updated: action.timestamp,
                     bibtex: null,
-                    citers: [],
                 });
             }
             const citers = new Set();

@@ -107,10 +107,12 @@ export default function scholar(
             ).map(
                 ([doi, publication]) => doi
             ));
-            for (const request of state.requests) {
-                updatableDois.delete(request.doi);
+            for (const scholarRequest of state.requests) {
+                if (scholarRequest.type === SCHOLAR_REQUEST_TYPE_CITERS) {
+                    updatableDois.delete(scholarRequest.doi);
+                }
             }
-            for (const crossrefRequest of appState.crossref.requests.values()) {
+            for (const crossrefRequest of appState.crossref.requests) {
                 if (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA) {
                     updatableDois.delete(crossrefRequest.parentDoi);
                 }

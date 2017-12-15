@@ -349,6 +349,20 @@ class Information extends React.Component {
                         borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                     }}>{`Last update: ${new Date(this.props.publication.updated).getFullYear()}-${pad(new Date(this.props.publication.updated).getMonth() + 1)}-${pad(new Date(this.props.publication.updated).getDate())}`}</p>
                 )}
+                {this.props.publication.bibtex != null && (
+                    <p style={{
+                        color: this.props.colors.content,
+                        fontSize: '14px',
+                        fontFamily: 'robotoLight',
+                        margin: 0,
+                        paddingTop: '10px',
+                        paddingRight: '6px',
+                        paddingBottom: '10px',
+                        paddingLeft: '6px',
+                        textAlign: 'left',
+                        borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
+                    }}>BibTeX loaded</p>
+                )}
                 {this.props.updatable && (
                     <button
                         key={`${this.props.publication.updated}-${this.props.doi}-information-update-button`}
@@ -453,13 +467,16 @@ export default connect(
             ).map(
                 ([doi, publication]) => doi
             ));
-            for (const request of state.scholar.requests) {
-                updatableDois.delete(request.doi);
+            for (const scholarRequest of state.scholar.requests) {
+                updatableDois.delete(scholarRequest.doi);
             }
             for (const crossrefRequest of state.crossref.requests) {
                 if (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA) {
                     updatableDois.delete(crossrefRequest.parentDoi);
                 }
+            }
+            for (const doiRequest of state.doi.requests) {
+                updatableDois.delete(doiRequest.doi);
             }
             return {
                 publication: null,
