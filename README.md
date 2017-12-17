@@ -6,9 +6,9 @@ Origami is an open-source research tool focused on graphical representations of 
 
 ## Download
 
-| [<img src="linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-linux-x64.zip) | [<img src="macOs.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-darwin-x64.zip) | [<img src="windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-win32-x64.zip) |
+| [<img src="linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.8.0/Origami-linux-x64.zip) | [<img src="macOs.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.8.0/Origami-darwin-x64.zip) | [<img src="windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.8.0/Origami-win32-x64.zip) |
 | ------------------------------------ | ------------------------------------ | ---------------------------------------|
-| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-linux-x64.zip) | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-darwin-x64.zip) | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-win32-x64.zip) |
+| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.8.0/Origami-linux-x64.zip) | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.8.0/Origami-darwin-x64.zip) | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.8.0/Origami-win32-x64.zip) |
 
 Visit the [Releases](https://github.com/aMarcireau/origami/releases) page to download Origami for other platforms.
 
@@ -42,7 +42,7 @@ Origami can load several DOIs at once from a [JSON](https://www.json.org) format
 Origami saves and load collections in [JSON](https://www.json.org) format. The generated files have the following structure:
 ```yaml
 {
-    "appVersion": "0.7.4", # the version of the app used to generate this save
+    "appVersion": "0.8.0", # the version of the app used to generate this save
     "display": 0,          # the current display's index (0 for graph, 1 for list)
     "knownDois": [         # list of DOIs clicked at least once (used to highlight new publications)
         "10.1109/tpami.2016.2574707"
