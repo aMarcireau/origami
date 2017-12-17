@@ -41,6 +41,33 @@ const version = {
     identifier: semverMatch[4] ? semverMatch[4] : null,
 };
 
+// check the links' version in README.md
+if (version.identifier == null) {
+    const simpleSemver = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)/g;
+    const readme = fs.readFileSync(`${__dirname}/README.md`).toString('utf8');
+    for (;;) {
+        const simpleSemverMatch = simpleSemver.exec(readme);
+        if (simpleSemverMatch == null) {
+            break;
+        }
+        const readmeVersion = {
+            major: parseInt(simpleSemverMatch[1]),
+            minor: parseInt(simpleSemverMatch[2]),
+            patch: parseInt(simpleSemverMatch[3]),
+            identifier: null,
+        };
+        if (!areEqual(version, readmeVersion)) {
+            const lines = readme.substring(0, simpleSemverMatch.index).split('\n');
+            let position = simpleSemverMatch.index;
+            for (const line of lines.slice(0, lines.length - 1)) {
+                position -= (line.length + 1);
+            }
+            console.error(`Bad version number in README.md on line ${lines.length}:${position + 1}`);
+            process.exit(1);
+        }
+    }
+}
+
 const usernameInterface = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
