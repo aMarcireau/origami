@@ -20,7 +20,11 @@ import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
-    PAGE_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_CITERS,
+    CROSSREF_REQUEST_TYPE_VALIDATION,
+    CROSSREF_REQUEST_TYPE_CITER_METADATA,
+    CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
 } from '../constants/enums'
 
 class Information extends React.Component {
@@ -207,12 +211,9 @@ class Information extends React.Component {
                                                 },
                                             }}
                                             onClick={() => {
-                                                const bytes = new Uint8Array(64);
-                                                window.crypto.getRandomValues(bytes);
                                                 this.props.dispatch(addPublicationToCollection(
                                                     element.doi,
-                                                    new Date().getTime(),
-                                                    Array.from(bytes).map(byte => byte.toString(16)).join('')
+                                                    new Date().getTime()
                                                 ));
                                             }}
                                         >
@@ -327,12 +328,9 @@ class Information extends React.Component {
                             },
                         }}
                         onClick={() => {
-                            const bytes = new Uint8Array(64);
-                            window.crypto.getRandomValues(bytes);
                             this.props.dispatch(addPublicationToCollection(
                                 this.props.doi,
-                                new Date().getTime(),
-                                Array.from(bytes).map(byte => byte.toString(16)).join('')
+                                new Date().getTime()
                             ));
                         }}
                     >Add to collection</button>
@@ -350,6 +348,20 @@ class Information extends React.Component {
                         textAlign: 'left',
                         borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                     }}>{`Last update: ${new Date(this.props.publication.updated).getFullYear()}-${pad(new Date(this.props.publication.updated).getMonth() + 1)}-${pad(new Date(this.props.publication.updated).getDate())}`}</p>
+                )}
+                {this.props.publication.bibtex != null && (
+                    <p style={{
+                        color: this.props.colors.content,
+                        fontSize: '14px',
+                        fontFamily: 'robotoLight',
+                        margin: 0,
+                        paddingTop: '10px',
+                        paddingRight: '6px',
+                        paddingBottom: '10px',
+                        paddingLeft: '6px',
+                        textAlign: 'left',
+                        borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
+                    }}>BibTeX loaded</p>
                 )}
                 {this.props.updatable && (
                     <button
@@ -455,11 +467,16 @@ export default connect(
             ).map(
                 ([doi, publication]) => doi
             ));
-            for (const page of state.scholar.pages) {
-                updatableDois.delete(page.doi);
+            for (const scholarRequest of state.scholar.requests) {
+                updatableDois.delete(scholarRequest.doi);
             }
-            for (const publicationRequest of state.publicationRequests.values()) {
-                updatableDois.delete(publicationRequest.parentDoi);
+            for (const crossrefRequest of state.crossref.requests) {
+                if (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA) {
+                    updatableDois.delete(crossrefRequest.parentDoi);
+                }
+            }
+            for (const doiRequest of state.doi.requests) {
+                updatableDois.delete(doiRequest.doi);
             }
             return {
                 publication: null,
@@ -474,11 +491,14 @@ export default connect(
             publication: doiAndPublication[1],
             updatable: (
                 doiAndPublication[1].status === PUBLICATION_STATUS_IN_COLLECTION
-                && state.scholar.pages.every(
-                    page => page.doi !== doiAndPublication[0]
+                && state.scholar.requests.every(
+                    request => request.doi !== doiAndPublication[0]
                 )
-                && Array.from(state.publicationRequests.values()).every(
-                    publicationRequest => publicationRequest.parentDoi !== doiAndPublication[0]
+                && state.crossref.requests.every(
+                    crossrefRequest => (
+                        crossrefRequest.type !== CROSSREF_REQUEST_TYPE_CITER_METADATA
+                        || crossrefRequest.parentDoi !== doiAndPublication[0]
+                    )
                 )
             ),
             publications: state.publications,

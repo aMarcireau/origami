@@ -182,7 +182,7 @@ export default connect(
                 doi,
                 isCiting: doisCitingSelected.has(doi),
                 isCited: doisCitedBySelected.has(doi),
-                isKnown: state.knownDois.has(doi),
+                isKnown: state.knownDois.has(doi) || publication.status === PUBLICATION_STATUS_IN_COLLECTION,
             }}
         ).sort(
             (firstPublication, secondPublication) => {

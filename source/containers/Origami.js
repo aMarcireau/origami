@@ -36,6 +36,9 @@ import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
+    CROSSREF_REQUEST_TYPE_VALIDATION,
+    CROSSREF_REQUEST_TYPE_CITER_METADATA,
+    CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
 } from '../constants/enums'
 import {
     MINIMUM_WINDOW_WIDTH,
@@ -202,31 +205,36 @@ class Origami extends React.Component {
                                                     if (failed) {
                                                         this.props.dispatch(rejectImportPublications(filename, 'The file could not be open for reading'));
                                                     } else {
-                                                        try {
-                                                            const importedState = JSON.parse(data);
-                                                            const fetchingDois = new Set([
-                                                                ...importedState.publicationRequests.map(([id, publicationRequest]) => publicationRequest.parentDoi),
-                                                                ...importedState.scholar.pages.map(page => page.doi),
-                                                            ]);
-                                                            if (importedState.publications.length > 0) {
-                                                                this.props.dispatch(resolveImportPublications(new Map(importedState.publications.filter(
-                                                                    ([doi, publication]) => (
-                                                                        publication.status === PUBLICATION_STATUS_DEFAULT
-                                                                        || (
-                                                                            publication.status === PUBLICATION_STATUS_IN_COLLECTION
-                                                                            && !fetchingDois.has(doi)
-                                                                        )
-                                                                    )
-                                                                ).map(
-                                                                    ([doi, publication]) => [doi, {
-                                                                        ...publication,
-                                                                        validating: false,
-                                                                    }]
-                                                                ))));
-                                                            }
-                                                        } catch(error) {
-                                                            console.error(error);
+                                                        const [error, importedState] = jsonToState(data, filename, this.props.state);
+                                                        if (error) {
                                                             this.props.dispatch(rejectImportPublications(filename, `Parsing failed: ${error.message}`));
+                                                        } else {
+                                                            const fetchingDois = new Set([
+                                                                ...importedState.crossref.requests.filter(
+                                                                    crossrefRequest => crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA
+                                                                ).map(
+                                                                    crossrefRequest => crossrefRequest.parentDoi
+                                                                ),
+                                                                ...importedState.doi.requests.map(
+                                                                    doiRequest => doiRequest.doi
+                                                                ),
+                                                                ...importedState.scholar.requests.map(request => request.doi),
+                                                            ]);
+                                                            for (const [doi, publication] of importedState.publications) {
+                                                                if (
+                                                                    publication.status === PUBLICATION_STATUS_UNVALIDATED
+                                                                    || (
+                                                                        publication.status === PUBLICATION_STATUS_IN_COLLECTION
+                                                                        && fetchingDois.has(doi)
+                                                                    )
+                                                                ) {
+                                                                    importedState.publications.delete(doi);
+                                                                }
+                                                            }
+                                                            if (importedState.publications.size > 0) {
+                                                                this.props.dispatch(resolveImportPublications(importedState.publications));
+                                                            }
+
                                                         }
                                                     }
                                                 }
@@ -247,14 +255,7 @@ class Origami extends React.Component {
                                                         if (error) {
                                                             this.props.dispatch(rejectImportBibtex(filename, `Parsing failed: ${error.message}`));
                                                         } else if (publications.length > 0) {
-                                                            this.props.dispatch(resolveImportBibtex(publications.map(publication => {
-                                                                const bytes = new Uint8Array(64);
-                                                                window.crypto.getRandomValues(bytes);
-                                                                return {
-                                                                    ...publication,
-                                                                    id: Array.from(bytes).map(byte => byte.toString(16)).join(''),
-                                                                };
-                                                            })));
+                                                            this.props.dispatch(resolveImportBibtex(publications));
                                                         }
                                                     }
                                                 }

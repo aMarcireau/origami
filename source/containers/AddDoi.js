@@ -1,7 +1,7 @@
 import React from 'react'
 import Radium from 'radium'
 import {connect} from 'react-redux'
-import {publicationFromDoi} from '../actions/getPublicationFromDoi'
+import {publicationFromDoi} from '../actions/manageCrossref'
 import {doiPattern} from '../libraries/utilities'
 
 class AddDoi extends React.Component {
@@ -11,6 +11,7 @@ class AddDoi extends React.Component {
         this.state = {
             valid: false,
             value: '',
+            hash: 0,
         };
     }
 
@@ -49,7 +50,7 @@ class AddDoi extends React.Component {
                     }}
                 />
                 <button
-                    key='validate'
+                    key={`validate-${this.props.connected}-${this.state.hash}`}
                     disabled={!this.props.connected || !this.state.valid}
                     style={{
                         position: 'absolute',
@@ -76,7 +77,7 @@ class AddDoi extends React.Component {
                     }}
                     onClick={() => {
                         this.props.dispatch(publicationFromDoi(this.state.value.match(doiPattern)[1], new Date().getTime()));
-                        this.setState({valid: false, value: ''});
+                        this.setState({valid: false, value: '', hash: this.state.hash + 1});
                     }}
                 >
                     {this.props.connected ? (
@@ -85,7 +86,7 @@ class AddDoi extends React.Component {
                                 style={{
                                     fill: this.state.valid ?
                                         (
-                                            Radium.getState(this.state, 'validate', ':hover') ?
+                                            Radium.getState(this.state, `validate-${this.props.connected}-${this.state.hash}`, ':hover') ?
                                             this.props.colors.valid
                                             : this.props.colors.link
                                         )

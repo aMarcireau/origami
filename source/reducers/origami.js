@@ -1,8 +1,8 @@
 import {combineReducers} from 'redux'
-import bibtexRequests from './bibtexRequests'
 import connected from './connected'
+import crossref from './crossref'
+import doi from './doi'
 import knownDois from './knownDois'
-import publicationRequests from './publicationRequests'
 import graph from './graph'
 import menu from './menu'
 import mouseOwner from './mouseOwner'
@@ -49,44 +49,45 @@ export default function(state, action) {
             state = action.state;
         }
     }
+    const appState = state;
     return reduceReducers(
         (state = {}, action) => {
             return {
                 ...state,
-                warnings: warnings(state.warnings, action, state),
-            }
+                crossref: crossref(state.crossref, action, appState),
+            };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                scholar: scholar(state.scholar, action, state),
-            }
+                doi: doi(state.doi, action, appState),
+            };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                bibtexRequests: bibtexRequests(state.bibtexRequests, action, state),
-            }
+                publications: publications(state.publications, action, appState),
+            };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                publicationRequests: publicationRequests(state.publicationRequests, action, state),
-            }
+                scholar: scholar(state.scholar, action, appState),
+            };
         },
         (state = {}, action) => {
             return {
                 ...state,
-                publications: publications(state.publications, action, state),
-            }
+                warnings: warnings(state.warnings, action, appState),
+            };
         },
         combineReducers({
             appVersion: (state = '0.0.0') => state,
-            bibtexRequests: (state = new Map()) => state,
             colors: (state = {}) => state,
             connected,
+            crossref: (state = {}) => state,
+            doi: (state = {}) => state,
             knownDois,
-            publicationRequests: (state = new Map()) => state,
             graph,
             menu,
             mouseOwner,
@@ -99,7 +100,7 @@ export default function(state, action) {
         }),
         (state = {}, action) => {
             if (process.env.ORIGAMI_ENV === 'development') {
-                console.log(action.type, action, state);
+                console.log(action.type, appState, action, state);
             }
             return state;
         }

@@ -1,3 +1,5 @@
+import scholarQueue from '../queues/scholarQueue'
+
 import {
     ADD_PUBLICATION_TO_COLLECTION,
     REMOVE_PUBLICATION,
@@ -5,13 +7,12 @@ import {
     UPDATE_ALL_PUBLICATIONS,
     PUBLICATION_FROM_DOI,
     RESOLVE_PUBLICATION_FROM_DOI,
-    FETCH_SCHOLAR_PAGE,
-    RESOLVE_SCHOLAR_INITIAL_PAGE,
-    RESOLVE_SCHOLAR_CITERS_PAGE,
-    REJECT_SCHOLAR_CITERS_PAGE,
+    RESOLVE_SCHOLAR_INITIAL_REQUEST,
+    RESOLVE_SCHOLAR_CITERS_REQUEST,
+    REJECT_SCHOLAR_CITERS_REQUEST,
     REJECT_SCHOLAR_CONNECTION,
-    SCHOLAR_PAGE_REFRACTORY_PERIOD_DONE,
-    SET_SCHOLAR_PAGE_REFRACTORY_PERIOD,
+    SCHOLAR_REQUEST_REFRACTORY_PERIOD_DONE,
+    SET_SCHOLAR_REQUEST_REFRACTORY_PERIOD,
     BLOCK_SCHOLAR,
     UNBLOCKING_SCHOLAR,
     UNBLOCK_SCHOLAR,
@@ -25,8 +26,8 @@ import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
-    PAGE_TYPE_INITIALIZE,
-    PAGE_TYPE_CITERS,
+    SCHOLAR_REQUEST_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_CITERS,
     SCHOLAR_STATUS_IDLE,
     SCHOLAR_STATUS_FETCHING,
     SCHOLAR_STATUS_BLOCKED_HIDDEN,
@@ -37,7 +38,7 @@ import {doiPattern} from '../libraries/utilities'
 
 export default function scholar(
     state = {
-        pages: [],
+        requests: [],
         status: SCHOLAR_STATUS_IDLE,
         beginOfRefractoryPeriod: null,
         endOfRefractoryPeriod: null,
@@ -48,6 +49,7 @@ export default function scholar(
     action,
     appState
 ) {
+    state = scholarQueue.reduce(state, action);
     switch (action.type) {
         case ADD_PUBLICATION_TO_COLLECTION:
             if (!appState.publications.has(action.doi) || appState.publications.get(action.doi).status !== PUBLICATION_STATUS_DEFAULT) {
@@ -55,8 +57,8 @@ export default function scholar(
             }
             return {
                 ...state,
-                pages: [...state.pages, {
-                    type: PAGE_TYPE_INITIALIZE,
+                requests: [...state.requests, {
+                    type: SCHOLAR_REQUEST_TYPE_INITIALIZE,
                     doi: action.doi,
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(action.doi)}`,
                 }],
@@ -68,8 +70,8 @@ export default function scholar(
             }
             return {
                 ...state,
-                pages: [...state.pages, {
-                    type: PAGE_TYPE_INITIALIZE,
+                requests: [...state.requests, {
+                    type: SCHOLAR_REQUEST_TYPE_INITIALIZE,
                     doi: doi,
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
                 }],
@@ -78,8 +80,8 @@ export default function scholar(
         case REMOVE_PUBLICATION:
             return {
                 ...state,
-                pages: state.pages.filter((page, index) => (
-                    page.doi !== action.doi
+                requests: state.requests.filter((request, index) => (
+                    request.doi !== action.doi
                     || (index === 0 && state.status !== SCHOLAR_STATUS_IDLE)
                 )),
             };
@@ -87,14 +89,14 @@ export default function scholar(
             if (
                 !appState.publications.has(action.doi)
                 || appState.publications.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION
-                || state.pages.some(page => page.doi === action.doi)
+                || state.requests.some(request => request.doi === action.doi)
             ) {
                 return state;
             }
             return {
                 ...state,
-                pages: [...state.pages, {
-                    type: PAGE_TYPE_INITIALIZE,
+                requests: [...state.requests, {
+                    type: SCHOLAR_REQUEST_TYPE_INITIALIZE,
                     doi: action.doi,
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(action.doi)}`,
                 }],
@@ -105,19 +107,26 @@ export default function scholar(
             ).map(
                 ([doi, publication]) => doi
             ));
-            for (const page of state.pages) {
-                updatableDois.delete(page.doi);
+            for (const scholarRequest of state.requests) {
+                if (scholarRequest.type === SCHOLAR_REQUEST_TYPE_CITERS) {
+                    updatableDois.delete(scholarRequest.doi);
+                }
             }
-            for (const publicationRequest of appState.publicationRequests.values()) {
-                updatableDois.delete(publicationRequest.parentDoi);
+            for (const crossrefRequest of appState.crossref.requests) {
+                if (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA) {
+                    updatableDois.delete(crossrefRequest.parentDoi);
+                }
+            }
+            for (const doiRequest of appState.doi.requests) {
+                updatableDois.delete(doiRequest.doi);
             }
             return {
                 ...state,
-                pages: [
-                    ...state.pages,
+                requests: [
+                    ...state.requests,
                     ...Array.from(updatableDois.values()).map(doi => {
                         return {
-                            type: PAGE_TYPE_INITIALIZE,
+                            type: SCHOLAR_REQUEST_TYPE_INITIALIZE,
                             doi,
                             url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
                         }
@@ -131,8 +140,8 @@ export default function scholar(
             }
             return {
                 ...state,
-                pages: [...state.pages, {
-                    type: PAGE_TYPE_INITIALIZE,
+                requests: [...state.requests, {
+                    type: SCHOLAR_REQUEST_TYPE_INITIALIZE,
                     doi,
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
                 }],
@@ -144,22 +153,17 @@ export default function scholar(
             }
             return {
                 ...state,
-                pages: [...state.pages, {
-                    type: PAGE_TYPE_INITIALIZE,
+                requests: [...state.requests, {
+                    type: SCHOLAR_REQUEST_TYPE_INITIALIZE,
                     doi: action.doi,
                     url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(action.doi)}`,
                 }],
             };
-        case FETCH_SCHOLAR_PAGE:
-            return {
-                ...state,
-                status: SCHOLAR_STATUS_FETCHING,
-            };
-        case RESOLVE_SCHOLAR_INITIAL_PAGE:
+        case RESOLVE_SCHOLAR_INITIAL_REQUEST:
             if (action.numberOfCiters === 0) {
                 return {
                     ...state,
-                    pages: state.pages.slice(1),
+                    requests: state.requests.slice(1),
                     status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
                         SCHOLAR_STATUS_UNBLOCKING
                         : SCHOLAR_STATUS_IDLE
@@ -170,11 +174,11 @@ export default function scholar(
             }
             return {
                 ...state,
-                pages: [
-                    ...state.pages.slice(1),
+                requests: [
+                    ...state.requests.slice(1),
                     ...new Array(Math.ceil(action.numberOfCiters / 10)).fill().map((_, index) => {return {
-                        type: PAGE_TYPE_CITERS,
-                        doi: state.pages[0].doi,
+                        type: SCHOLAR_REQUEST_TYPE_CITERS,
+                        doi: state.requests[0].doi,
                         url: `https://scholar.google.com/scholar?cites=${action.scholarId}&start=${index * 10}&hl=en`,
                         number: index + 1,
                         total: Math.ceil(action.numberOfCiters / 10),
@@ -187,10 +191,10 @@ export default function scholar(
                 beginOfRefractoryPeriod: action.beginOfRefractoryPeriod,
                 endOfRefractoryPeriod: action.endOfRefractoryPeriod,
             };
-        case RESOLVE_SCHOLAR_CITERS_PAGE:
+        case RESOLVE_SCHOLAR_CITERS_REQUEST:
             return {
                 ...state,
-                pages: state.pages.slice(1),
+                requests: state.requests.slice(1),
                 status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
                     SCHOLAR_STATUS_UNBLOCKING
                     : SCHOLAR_STATUS_IDLE
@@ -198,10 +202,10 @@ export default function scholar(
                 beginOfRefractoryPeriod: action.beginOfRefractoryPeriod,
                 endOfRefractoryPeriod: action.endOfRefractoryPeriod,
             };
-        case REJECT_SCHOLAR_CITERS_PAGE:
+        case REJECT_SCHOLAR_CITERS_REQUEST:
             return {
                 ...state,
-                pages: state.pages.slice(1),
+                requests: state.requests.slice(1),
                 status: (state.status === SCHOLAR_STATUS_BLOCKED_HIDDEN || state.status === SCHOLAR_STATUS_BLOCKED_VISIBLE ?
                     SCHOLAR_STATUS_UNBLOCKING
                     : SCHOLAR_STATUS_IDLE
@@ -214,13 +218,13 @@ export default function scholar(
                 ...state,
                 status: SCHOLAR_STATUS_IDLE,
             };
-        case SCHOLAR_PAGE_REFRACTORY_PERIOD_DONE:
+        case SCHOLAR_REQUEST_REFRACTORY_PERIOD_DONE:
             return {
                 ...state,
                 beginOfRefractoryPeriod: null,
                 endOfRefractoryPeriod: null,
             }
-        case SET_SCHOLAR_PAGE_REFRACTORY_PERIOD:
+        case SET_SCHOLAR_REQUEST_REFRACTORY_PERIOD:
             return {
                 ...state,
                 minimumRefractoryPeriod: action.minimum,
@@ -275,30 +279,35 @@ export default function scholar(
             }
             return state;
         case RESOLVE_IMPORT_DOIS: {
+            const foundDois = new Set();
             const newState = {
                 ...state,
-                pages: [...state.pages],
+                requests: [
+                    ...state.requests,
+                    ...action.dois.map(
+                        rawDoi => doiPattern.exec(rawDoi)
+                    ).filter(
+                        match => match != null
+                    ).map(
+                        match => match[1].toLowerCase()
+                    ).filter(
+                        doi => (
+                            !foundDois.has(doi)
+                            && appState.publications.has(doi)
+                            && appState.publications.get(doi).status === PUBLICATION_STATUS_DEFAULT
+                        )
+                    ).map(
+                        doi => {
+                            foundDois.add(doi);
+                            return {
+                                type: SCHOLAR_REQUEST_TYPE_INITIALIZE,
+                                doi,
+                                url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
+                            };
+                        }
+                    ),
+                ],
             };
-            const foundDois = new Set();
-            for (const rawDoi of action.dois) {
-                const match = doiPattern.exec(rawDoi);
-                if (match) {
-                    const doi = match[1].toLowerCase();
-                    if (foundDois.has(doi)) {
-                        continue;
-                    }
-                    foundDois.add(doi);
-                    if (appState.publications.has(doi) && appState.publications.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
-                        continue;
-                    }
-                    newState.pages.push({
-                        type: PAGE_TYPE_INITIALIZE,
-                        doi,
-                        url: `https://scholar.google.com/scholar?hl=en&q=${encodeURIComponent(doi)}`,
-                    });
-                }
-            }
-            return newState;
         }
         default:
             return state;

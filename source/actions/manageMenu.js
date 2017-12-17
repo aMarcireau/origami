@@ -1,5 +1,11 @@
 import {ipcRenderer} from 'electron'
-import {convertLaTeX, stringifyLaTeX} from '../libraries/latex-to-unicode-converter'
+import {
+    convertLaTeX,
+    stringifyLaTeX
+} from '../libraries/latex-to-unicode-converter'
+import crossrefQueue from '../queues/crossrefQueue'
+import doiQueue from '../queues/doiQueue'
+import scholarQueue from '../queues/scholarQueue'
 import {
     RESET,
     OPEN_MENU_ITEM,
@@ -16,7 +22,16 @@ import {
     SELECT_GRAPH_DISPLAY,
     SELECT_LIST_DISPLAY,
 } from '../constants/actionTypes'
-import {SCHOLAR_STATUS_IDLE} from '../constants/enums'
+import {
+    SCHOLAR_STATUS_IDLE,
+    SCHOLAR_STATUS_FETCHING,
+    SCHOLAR_STATUS_BLOCKED_HIDDEN,
+    SCHOLAR_STATUS_BLOCKED_VISIBLE,
+    SCHOLAR_STATUS_UNBLOCKING,
+    CROSSREF_REQUEST_TYPE_VALIDATION,
+    CROSSREF_REQUEST_TYPE_CITER_METADATA,
+    CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
+} from '../constants/enums'
 
 export function reset(state) {
     return {
@@ -119,27 +134,17 @@ export function stateToJson(state, expand) {
         appVersion: state.appVersion,
         display: state.menu.display,
         knownDois: Array.from(state.knownDois),
-        publicationRequests: Array.from(state.publicationRequests.entries()).map(
-            ([id, publicationRequest]) => {
-                const savableDoiRequest = {...publicationRequest};
-                delete savableDoiRequest.fetching;
-                return [id, savableDoiRequest];
-            }
-        ).filter(
-            ([id, publicationRequest]) => state.publications.has(publicationRequest.parentDoi)
-        ),
+        crossref: state.crossref.requests.filter(crossrefRequest => (
+            crossrefRequest.type !== CROSSREF_REQUEST_TYPE_CITER_METADATA
+            || state.publications.has(crossrefRequest.parentDoi)
+        )),
+        doi: state.doi.requests.filter(doiRequest => state.publications.has(doiRequest.doi)),
         graph: state.graph,
         saveFilename: expand ? undefined : state.menu.saveFilename,
         savable: expand ? undefined : state.menu.savedVersion < state.version,
-        publications: Array.from(state.publications.entries()).map(
-            ([doi, publication]) => {
-                const savablePublication = {...publication};
-                delete publication.validating;
-                return [doi, savablePublication];
-            }
-        ),
+        publications: Array.from(state.publications.entries()),
         scholar: {
-            pages: state.scholar.pages.filter(page => state.publications.has(page.doi)),
+            requests: state.scholar.requests.filter(request => state.publications.has(request.doi)),
             minimumRefractoryPeriod: state.scholar.minimumRefractoryPeriod,
             maximumRefractoryPeriod: state.scholar.maximumRefractoryPeriod,
         },
@@ -155,13 +160,15 @@ export function jsonToState(json, saveFilename, previousState) {
         state.appVersion = previousState ? previousState.appVersion : undefined;
         state.colors = previousState ? previousState.colors : undefined;
         state.connected = previousState ? previousState.connected : undefined;
+        state.crossref = {
+            status: crossrefQueue.status.IDLE,
+            requests: state.crossref,
+        };
+        state.doi = {
+            status: doiQueue.status.IDLE,
+            requests: state.doi,
+        };
         state.knownDois = new Set(state.knownDois);
-        state.publicationRequests = new Map(state.publicationRequests.map(
-            ([id, publicationRequest]) => [id, {
-                ...publicationRequest,
-                fetching: false,
-            }]
-        ));
         state.menu = {
             activeItem: null,
             hash: previousState ? previousState.menu.hash + 1 : 0,
@@ -171,12 +178,7 @@ export function jsonToState(json, saveFilename, previousState) {
         };
         delete state.saveFilename;
         delete state.display;
-        state.publications = new Map(state.publications.map(
-            ([doi, publication]) => [doi, {
-                ...publication,
-                validating: false,
-            }]
-        ));
+        state.publications = new Map(state.publications);
         state.scholar.status = SCHOLAR_STATUS_IDLE;
         state.scholar.beginOfRefractoryPeriod = null;
         state.scholar.endOfRefractoryPeriod = null;
@@ -274,14 +276,14 @@ export function bibtexToPublications(bibtex) {
                         addPublication();
                     } else if (/\w/.test(character)) {
                         status = 'key';
-                        key += character;
+                        key += character.toLowerCase();
                     } else if (/\S/.test(character)) {
                         throwError(character);
                     }
                     break;
                 case 'key':
-                    if (/(\w|:)/.test(character)) {
-                        key += character;
+                    if (/(\w|:|-)/.test(character)) {
+                        key += character.toLowerCase();
                     } else if (character === '=') {
                         publication[key] = '';
                         status = 'beforeValue';
@@ -316,9 +318,10 @@ export function bibtexToPublications(bibtex) {
                     if (character === '}') {
                         --nesting;
                         if (nesting === 0) {
-                            throwError(character);
+                            addPublication();
+                        } else {
+                            publication[key] += character;
                         }
-                        publication[key] += character;
                     } else if (character === '{') {
                         ++nesting;
                         publication[key] += character;

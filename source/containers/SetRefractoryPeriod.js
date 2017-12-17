@@ -3,7 +3,7 @@ import Radium from 'radium'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import HorizontallyMovable from './HorizontallyMovable'
-import {setPageRefractoryPeriod} from '../actions/manageScholarPage'
+import {setScholarRequestRefractoryPeriod} from '../actions/manageScholar'
 import {
     acquireMouse,
     releaseMouse,
@@ -130,7 +130,7 @@ class SetRefractoryPeriod extends React.Component {
                     position={this.props.left + (this.props.minimumRefractoryPeriod / this.props.refractoryPeriodLimit) * this.props.width}
                     rightLimit={this.props.left + (this.props.maximumRefractoryPeriod / this.props.refractoryPeriodLimit) * this.props.width + 1}
                     move={position => {
-                        this.props.dispatch(setPageRefractoryPeriod(
+                        this.props.dispatch(setScholarRequestRefractoryPeriod(
                             (position - this.props.left) / this.props.width * this.props.refractoryPeriodLimit,
                             this.props.maximumRefractoryPeriod
                         ));
@@ -149,7 +149,7 @@ class SetRefractoryPeriod extends React.Component {
                     position={this.props.left + (this.props.maximumRefractoryPeriod / this.props.refractoryPeriodLimit) * this.props.width}
                     rightLimit={this.props.left + this.props.width + 1}
                     move={position => {
-                        this.props.dispatch(setPageRefractoryPeriod(
+                        this.props.dispatch(setScholarRequestRefractoryPeriod(
                             this.props.minimumRefractoryPeriod,
                             (position - this.props.left) / this.props.width * this.props.refractoryPeriodLimit
                         ));

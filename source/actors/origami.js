@@ -1,14 +1,16 @@
-import manageScholar from './manageScholar'
+import crossrefQueue from '../queues/crossrefQueue'
+import doiQueue from '../queues/doiQueue'
+import scholarQueue from '../queues/scholarQueue'
 import manageConnection from './manageConnection'
-import manageCrossref from './manageCrossref'
 import managePlaceholderColor from './managePlaceholderColor'
 import manageVersion from './manageVersion'
 
 export default function origami(store) {
     for (const actor of [
-        manageScholar,
+        crossrefQueue.actor,
+        doiQueue.actor,
+        scholarQueue.actor,
         manageConnection,
-        manageCrossref,
         managePlaceholderColor,
         manageVersion,
     ]) {
