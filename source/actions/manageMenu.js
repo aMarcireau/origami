@@ -218,9 +218,6 @@ export function bibtexToPublications(bibtex) {
         throw new Error(`Unexpected character '${character}' on line ${line}:${position}`);
     };
     const addPublication = () => {
-
-        console.log(publication); // @DEBUG
-
         if (publication.title != null && publication.author != null && publication.year != null) {
             publications.push({
                 title: convertLaTeX({
@@ -236,9 +233,6 @@ export function bibtexToPublications(bibtex) {
                 }, publication.year),
             });
         }
-
-        else {console.log('REJECTED');} // @DEBUG
-
         key = '';
         publication = {};
         status = 'root';

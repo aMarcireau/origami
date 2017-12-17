@@ -206,9 +206,6 @@ class Origami extends React.Component {
                                                         this.props.dispatch(rejectImportPublications(filename, 'The file could not be open for reading'));
                                                     } else {
                                                         const [error, importedState] = jsonToState(data, filename, this.props.state);
-
-                                                        console.log(error, importedState); // @DEBUG
-
                                                         if (error) {
                                                             this.props.dispatch(rejectImportPublications(filename, `Parsing failed: ${error.message}`));
                                                         } else {
@@ -223,9 +220,6 @@ class Origami extends React.Component {
                                                                 ),
                                                                 ...importedState.scholar.requests.map(request => request.doi),
                                                             ]);
-
-                                                            console.log(importedState.publications); // @DEBUG
-
                                                             for (const [doi, publication] of importedState.publications) {
                                                                 if (
                                                                     publication.status === PUBLICATION_STATUS_UNVALIDATED
