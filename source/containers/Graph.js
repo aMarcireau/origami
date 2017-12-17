@@ -409,14 +409,28 @@ class Graph extends React.Component {
         this.zoom = d3.zoom()
             .scaleExtent([2 ** (-50 / 20), 2 ** (50 / 20)])
             .on('zoom', () => {
-                const newZoom = Math.round(20 * Math.log(d3.event.transform.k) / Math.log(2));
-                if (d3.event.sourceEvent != null && d3.event.sourceEvent.type !== 'zoom' && newZoom != this.props.zoom) {
-                    const scale = 2 ** (-this.props.zoom / 20) - 2 ** (-newZoom / 20);
-                    this.props.dispatch(setGraphZoomAndOffset(
-                        newZoom,
-                        this.props.xOffset + (d3.event.sourceEvent.clientX - this.domSvg.getBoundingClientRect().left - this.props.width / 2) * scale,
-                        this.props.yOffset + (d3.event.sourceEvent.clientY - this.domSvg.getBoundingClientRect().top - this.props.height / 2) * scale
-                    ));
+                if (d3.event.sourceEvent) {
+                    if (d3.event.sourceEvent.type !== 'zoom') {
+                        const newZoom = Math.round(20 * Math.log(d3.event.transform.k) / Math.log(2));
+                        if (newZoom != this.props.zoom) {
+                            const scale = 2 ** (-this.props.zoom / 20) - 2 ** (-newZoom / 20);
+                            this.props.dispatch(setGraphZoomAndOffset(
+                                newZoom,
+                                this.props.xOffset + (
+                                    d3.event.sourceEvent.clientX
+                                    - this.domSvg.getBoundingClientRect().left
+                                    - this.props.width / 2
+                                ) * scale,
+                                this.props.yOffset + (
+                                    d3.event.sourceEvent.clientY
+                                    - this.domSvg.getBoundingClientRect().top
+                                    - this.props.height / 2
+                                ) * scale
+                            ));
+                        }
+                    }
+                } else {
+                    this.zoom.scaleTo(this.svg, 2 ** (this.props.zoom / 20));
                 }
             })
         ;
