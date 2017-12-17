@@ -89,16 +89,17 @@ class Graph extends React.Component {
                 if (publication.doi === node.doi) {
                     node.keep = true;
                     found = true;
+                    const known = (nextProps.knownDois.has(publication.doi) || publication.status === PUBLICATION_STATUS_IN_COLLECTION);
                     if (
                         publication.status !== node.status
                         || publication.selected !== node.selected
-                        || nextProps.knownDois.has(publication.doi) !== node.known
+                        || known !== node.known
                         || publication.locked !== node.locked
                     ) {
                         updateRequired = true;
                         node.status = publication.status;
                         node.selected = publication.selected;
-                        node.known = nextProps.knownDois.has(node.doi);
+                        node.known = known;
                         if (node.locked && !publication.locked) {
                             node.fx = null;
                             node.fy = null;
@@ -156,15 +157,23 @@ class Graph extends React.Component {
                     }
                 }
                 publication.keep = true;
-                publication.known = nextProps.knownDois.has(publication.doi);
+                publication.known = nextProps.knownDois.has(publication.doi) || publication.status === PUBLICATION_STATUS_IN_COLLECTION;
                 this.nodes.push(publication);
             }
         }
         for (let index = this.nodes.length - 1; index >= 0; --index) {
             if (this.nodes[index].keep) {
                 delete this.nodes[index].keep;
-                this.nodes[index].isCiting = nextProps.doisCitingSelected.has(this.nodes[index].doi);
-                this.nodes[index].isCited =  nextProps.doisCitedBySelected.has(this.nodes[index].doi);
+                const newIsCiting = nextProps.doisCitingSelected.has(this.nodes[index].doi);
+                if (this.nodes[index].isCiting != newIsCiting) {
+                    this.nodes[index].isCiting = newIsCiting;
+                    updateRequired = true;
+                }
+                const newIsCited = nextProps.doisCitedBySelected.has(this.nodes[index].doi);
+                if (this.nodes[index].isCited != newIsCited) {
+                    this.nodes[index].isCited = newIsCited;
+                    updateRequired = true;
+                }
             } else {
                 updateRequired = true;
                 this.reheatSimulation = true;
