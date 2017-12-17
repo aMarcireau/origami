@@ -6,7 +6,7 @@ Origami is an open-source research tool focused on graphical representations of 
 
 ## Download
 
-| <img src="linux.png" width="100px"/> | <img src="macOs.png" width="100px"/> | <img src="windows.png" width="100px"/> |
+| [<img src="linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-linux-x64.zip) | [<img src="macOs.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-darwin-x64.zip) | [<img src="windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-win32-x64.zip) |
 | ------------------------------------ | ------------------------------------ | ---------------------------------------|
 | [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-linux-x64.zip) | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-darwin-x64.zip) | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.7.4/Origami-win32-x64.zip) |
 
