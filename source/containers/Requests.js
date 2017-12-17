@@ -262,7 +262,7 @@ class Requests extends React.Component {
 function scholarRequestToRequest(scholarRequest, state, fetching, blocked) {
     return {
         id: `${scholarRequest.doi}-${scholarRequest.url}-${state.version}-scholar-request`,
-        title: state.publications.has(scholarRequest.doi) ? state.publications.get(scholarRequest.doi).title : 'Request cancelled',
+        title: state.publications.has(scholarRequest.doi) ? state.publications.get(scholarRequest.doi).title : 'Cancelling request',
         onTitleClick: (state.publications.has(scholarRequest.doi) ?
             (
                 dispatch => {
@@ -312,17 +312,23 @@ function crossrefRequestToRequest(crossrefRequest, state, fetching) {
             return {
                 id: `${crossrefRequest.title}-${state.version}-crossref-request`,
                 title: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
-                    state.publications.get(crossrefRequest.parentDoi).title
+                    (state.publications.has(crossrefRequest.parentDoi) ?
+                        state.publications.get(crossrefRequest.parentDoi).title
+                        : 'Cancelling request'
+                    )
                     : crossrefRequest.title
                 ),
                 onTitleClick: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
-                    (dispatch => {
-                        if (state.publications.get(crossrefRequest.parentDoi).selected) {
-                            dispatch(unselectPublication());
-                        } else {
-                            dispatch(selectPublication(crossrefRequest.parentDoi));
-                        }
-                    })
+                    (state.publications.has(crossrefRequest.parentDoi) ?
+                        (dispatch => {
+                            if (state.publications.get(crossrefRequest.parentDoi).selected) {
+                                dispatch(unselectPublication());
+                            } else {
+                                dispatch(selectPublication(crossrefRequest.parentDoi));
+                            }
+                        })
+                        : null
+                    )
                     : null
                 ),
                 subtitle: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
@@ -330,7 +336,13 @@ function crossrefRequestToRequest(crossrefRequest, state, fetching) {
                     : 'Validation'
                 ),
                 color: (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA ?
-                    state.publications.get(crossrefRequest.parentDoi).selected ? state.colors.active : state.colors.link
+                    (state.publications.has(crossrefRequest.parentDoi) ?
+                        (state.publications.get(crossrefRequest.parentDoi).selected ?
+                            state.colors.active
+                            : state.colors.link
+                        )
+                        : state.colors.error
+                    )
                     : null
                 ),
                 borderColor: (!state.connected ?
@@ -349,16 +361,28 @@ function crossrefRequestToRequest(crossrefRequest, state, fetching) {
 function doiRequestToRequest(doiRequest, state, fetching) {
     return {
         id: `${doiRequest.id}-${state.version}-doi-request`,
-        title: state.publications.get(doiRequest.doi).title,
-        onTitleClick: dispatch => {
-            if (state.publications.get(doiRequest.doi).selected) {
-                dispatch(unselectPublication());
-            } else {
-                dispatch(selectPublication(doiRequest.doi));
-            }
-        },
+        title: (state.publications.has(doiRequest.doi) ?
+            state.publications.get(doiRequest.doi).title
+            : 'Cancelling request'
+        ),
+        onTitleClick: (state.publications.has(doiRequest.doi) ?
+            (dispatch => {
+                if (state.publications.get(doiRequest.doi).selected) {
+                    dispatch(unselectPublication());
+                } else {
+                    dispatch(selectPublication(doiRequest.doi));
+                }
+            })
+            : null
+        ),
         subtitle: `BibTeX for “${doiRequest.doi}”`,
-        color: state.publications.get(doiRequest.doi).selected ? state.colors.active : state.colors.link,
+        color: (state.publications.has(doiRequest.doi) ?
+            (state.publications.get(doiRequest.doi).selected ?
+                state.colors.active
+                : state.colors.link
+            )
+            : state.colors.error
+        ),
         borderColor: (!state.connected ?
             state.colors.error
             : (fetching ?

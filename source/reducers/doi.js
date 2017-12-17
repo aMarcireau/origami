@@ -59,7 +59,10 @@ export default function doi(
         case REMOVE_PUBLICATION:
             return {
                 ...state,
-                requests: state.requests.filter(request => request.doi !== action.doi),
+                requests: state.requests.filter((request, index) => (
+                    request.doi !== action.doi
+                    || (index === 0 && state.status !== doiQueue.status.IDLE)
+                )),
             };
         case UPDATE_PUBLICATION:
             if (!appState.publications.has(action.doi) || appState.publications.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
