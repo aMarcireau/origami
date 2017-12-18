@@ -258,7 +258,7 @@ export function resolveHtml(url, text) {
                                         dispatch(publicationFromCiterMetadata(
                                             state.scholar.requests[0].doi,
                                             titleCandidates[0].children[0].data,
-                                            matchedMetadata[1].replace(/\s*&hellip;\s*$/, '').split(/\s*,\s*/),
+                                            matchedMetadata[1].replace(/\s*(&hellip;|…)\s*$/, '').split(/\s*,\s*/),
                                             matchedMetadata[3]
                                         ));
                                     }
