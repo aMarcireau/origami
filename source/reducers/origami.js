@@ -1,3 +1,4 @@
+import {resetState} from '../state'
 import {combineReducers} from 'redux'
 import connected from './connected'
 import crossref from './crossref'
@@ -24,27 +25,7 @@ function reduceReducers(...reducers) {
 export default function(state, action) {
     if (action.type === RESET) {
         if (action.state == null) {
-            state = {
-                appVersion: state.appVersion,
-                colors: state.colors,
-                connected: state.connected,
-                menu: {
-                    activeItem: null,
-                    hash: state.menu.hash + 1,
-                    saveFilename: null,
-                    savedVersion: state.version + 1,
-                    display: 0,
-                },
-                tabs: {
-                    index: 0,
-                    hash: state.tabs.hash + 1,
-                },
-                version: state.version + 1,
-                warnings: {
-                    list: [],
-                    hash: state.warnings.hash + 1,
-                },
-            };
+            state = resetState(state);
         } else {
             state = action.state;
         }

@@ -15,6 +15,11 @@ import SetRefractoryPeriod from './SetRefractoryPeriod'
 import Tabs from './Tabs'
 import Warnings from './Warnings'
 import Tab from '../components/Tab'
+import {bibtexToPublications} from '../libraries/utilities'
+import {
+    stateToJson,
+    jsonToState,
+} from '../state'
 import {
     reset,
     resolveSave,
@@ -28,9 +33,6 @@ import {
     rejectImportBibtex,
     selectGraphDisplay,
     selectListDisplay,
-    stateToJson,
-    jsonToState,
-    bibtexToPublications,
 } from '../actions/manageMenu'
 import {
     PUBLICATION_STATUS_UNVALIDATED,

@@ -1,5 +1,5 @@
 import {ipcRenderer} from 'electron'
-import {stateToJson} from '../actions/manageMenu'
+import {stateToJson} from '../state'
 
 let inhibited = false;
 let bufferedState = null;
