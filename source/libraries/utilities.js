@@ -1,3 +1,8 @@
+import {
+    convertLaTeX,
+    stringifyLaTeX
+} from './latex-to-unicode-converter'
+
 /// smallestOfThreePlusOne is used to calculate the Levenshtein distance.
 export function smallestOfThreePlusOne(first, second, third, incrementSecondIfSmallest) {
     return (first < second || third < second ?
@@ -109,3 +114,163 @@ export function pad(number) {
 
 /// doiPattern matches a Digital Object Identifier, with an optionnal 'https://doi.org/' prefix.
 export const doiPattern = /^\s*(?:https?:\/\/doi\.org\/)?(10\.[0-9]{4,}(?:\.[0-9]+)*\/(?:(?![%"#? ])\S)+)\s*$/;
+
+/// bibtexToPublications parses a BibTeX file and extracts publications to validate.
+/// bibtex must be a buffer.
+export function bibtexToPublications(bibtex) {
+    const bibtexAsString = bibtex.toString('utf8');
+    const publications = [];
+    let line = 1;
+    let position = 0;
+    let status = 'root';
+    let nesting = 0;
+    let publication = {};
+    let key = '';
+    const throwError = character => {
+        throw new Error(`Unexpected character '${character}' on line ${line}:${position}`);
+    };
+    const addPublication = () => {
+        if (publication.title != null && publication.author != null && publication.year != null) {
+            publications.push({
+                title: convertLaTeX({
+                    onError: (error, latex) => stringifyLaTeX(latex)
+                }, publication.title),
+                authors: convertLaTeX({
+                    onError: (error, latex) => stringifyLaTeX(latex)
+                }, publication.author).split(' and ').map(
+                    author => author.split(',').reverse().filter(name => name.length > 0).map(name => name.trim()).join(' ')
+                ),
+                dateAsString: convertLaTeX({
+                    onError: (error, latex) => stringifyLaTeX(latex)
+                }, publication.year),
+            });
+        }
+        key = '';
+        publication = {};
+        status = 'root';
+        nesting = 0;
+    }
+    try {
+        for (const character of bibtexAsString) {
+            ++position;
+            switch (status) {
+                case 'root':
+                    if (character === '@') {
+                        status = 'type';
+                    } else if (/\S/.test(character)) {
+                        status = 'comment';
+                    }
+                    break;
+                case 'comment':
+                    if (character === '\n') {
+                        status = 'root';
+                    }
+                    break;
+                case 'type':
+                    if (/(\w|\s)/.test(character)) {
+                        break;
+                    } else if (character === '{') {
+                        status = 'label';
+                        nesting = 1;
+                    } else {
+                        throwError(character);
+                    }
+                    break;
+                case 'label':
+                    if (character === ',') {
+                        status = 'beforeKey';
+                    } else if (character === '{' || character === '}') {
+                        throwError(character);
+                    }
+                    break;
+                case 'beforeKey':
+                    if (character === '}') {
+                        addPublication();
+                    } else if (/\w/.test(character)) {
+                        status = 'key';
+                        key += character.toLowerCase();
+                    } else if (/\S/.test(character)) {
+                        throwError(character);
+                    }
+                    break;
+                case 'key':
+                    if (/(\w|:|-)/.test(character)) {
+                        key += character.toLowerCase();
+                    } else if (character === '=') {
+                        publication[key] = '';
+                        status = 'beforeValue';
+                    } else if (/\s/.test(character)) {
+                        status = 'afterKey';
+                    } else {
+                        throwError(character);
+                    }
+                    break;
+                case 'afterKey':
+                    if (character === '=') {
+                        publication[key] = '';
+                        status = 'beforeValue';
+                    } else if (/\S/.test(character)) {
+                        throwError(character);
+                    }
+                    break;
+                case 'beforeValue':
+                    if (/\s/.test(character)) {
+                        break;
+                    } else if (character === '}') {
+                        throwError(character);
+                    } else {
+                        if (character === '{') {
+                            ++nesting;
+                        }
+                        publication[key] += character;
+                        status = 'value';
+                    }
+                    break;
+                case 'value':
+                    if (character === '}') {
+                        --nesting;
+                        if (nesting === 0) {
+                            addPublication();
+                        } else {
+                            publication[key] += character;
+                        }
+                    } else if (character === '{') {
+                        ++nesting;
+                        publication[key] += character;
+                    } else if (nesting === 1) {
+                        if (character === ',') {
+                            key = '';
+                            status = 'beforeKey';
+                        } else if (/(\s)/.test(character)) {
+                            status = 'afterValue';
+                        } else {
+                            publication[key] += character;
+                        }
+                    } else {
+                        publication[key] += character;
+                    }
+                    break;
+                case 'afterValue': {
+                    if (character === ',') {
+                        key = '';
+                        status = 'beforeKey';
+                    } else if (character === '}') {
+                        addPublication();
+                    } else if (/\S/.test(character)) {
+                        throwError(character);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+            if (character === '\n') {
+                ++line;
+                position = 0;
+            }
+        }
+        return [null, publications];
+    } catch (error) {
+        return [error, null];
+    }
+}

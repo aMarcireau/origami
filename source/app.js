@@ -11,7 +11,7 @@ import origamiReducers from './reducers/origami'
 import origamiActors from './actors/origami'
 import Origami from './containers/Origami'
 import {disconnect} from './actions/setConnection'
-import {jsonToState} from './actions/manageMenu'
+import {jsonToState} from './state'
 import {SCHOLAR_STATUS_IDLE} from './constants/enums'
 
 ipcRenderer.once('startWithState', (event, json, appVersion, colors) => {
