@@ -163,7 +163,7 @@ class Origami extends React.Component {
                                     },
                                     {
                                         name: 'Save',
-                                        onClick: (this.props.savable ?
+                                        onClick: ((this.props.savable || this.props.saveFilename == null) ?
                                             (() => {
                                                 const version = this.props.version;
                                                 ipcRenderer.once('saved-to-file', (event, cancelled, failed, filename) => {
