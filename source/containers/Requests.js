@@ -143,7 +143,7 @@ class Requests extends React.Component {
                     )}
                     <div style={{
                         overflowY: 'auto',
-                        height: `${this.props.height - 40 - 3 - (this.props.blocked ? 133 : 0)}px`,
+                        height: `${this.props.height - 40 - (this.props.hasPages ? 3 : 0) - (this.props.blocked ? 133 : 0)}px`,
                     }}>
                         <List
                             elementsPerPage={10}
