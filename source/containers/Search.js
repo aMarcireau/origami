@@ -38,6 +38,11 @@ class Search extends React.Component {
                         borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
                         borderLeft: 'none',
                     }}
+                    ref={input => {
+                        if (input) {
+                            input.focus();
+                        }
+                    }}
                     value={this.props.search}
                     onChange={event => {
                         this.props.dispatch(setSearch(event.target.value));

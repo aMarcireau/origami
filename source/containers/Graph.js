@@ -43,6 +43,7 @@ class Graph extends React.Component {
         this.d3Node = null;
         this.d3Edge = null;
         this.zoom = null;
+        this.zoomScale = 0;
         this.reheatSimulation = false;
         this.simulation = d3.forceSimulation(this.nodes)
             .stop()
@@ -224,6 +225,7 @@ class Graph extends React.Component {
             this.svg.attr('width', nextProps.width);
             this.svg.attr('height', nextProps.height);
             this.svg.attr('viewBox', Graph.viewBoxFromProps(nextProps));
+            this.zoomScale = nextProps.zoom;
             this.zoom.scaleTo(this.svg, 2 ** (nextProps.zoom / 20));
         }
         this.debouncedUpdate(nextProps);
@@ -430,7 +432,7 @@ class Graph extends React.Component {
                         }
                     }
                 } else {
-                    this.zoom.scaleTo(this.svg, 2 ** (this.props.zoom / 20));
+                    this.zoom.scaleTo(this.svg, 2 ** (this.zoomScale / 20));
                 }
             })
         ;
