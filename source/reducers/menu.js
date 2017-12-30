@@ -38,7 +38,6 @@ export default function menu(state = {
                 ...state,
                 saveFilename: null,
             };
-
         case SELECT_GRAPH_DISPLAY:
             return {
                 ...state,

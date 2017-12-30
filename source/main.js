@@ -279,7 +279,7 @@ function createWindow() {
                         } else {
                             fs.readFile(filePaths[0], (error, data) => {
                                 if (error) {
-                                    event.sender.send('opened', false , true, filePaths[0], null);
+                                    event.sender.send('opened', false, true, filePaths[0], null);
                                 } else {
                                     event.sender.send('opened', false, false, filePaths[0], data);
                                 }
@@ -287,6 +287,41 @@ function createWindow() {
                         }
                     }
                 );
+            });
+
+            /// 'backup' moves an existing save and creates a new one, reporting errors with 'backedup'.
+            ///     filename: string, file to backup and replace. If null, the auto-save filename is used.
+            ///     data: string, content to write to the state file
+            /// 'backedup' arguments:
+            ///     moveFailed: bool, true if moving the original file failed
+            ///     saveFailed: bool, true if creating the new save failed
+            ///     filename: string, the created backup filename
+            electron.ipcMain.on('backup', (event, filename, data) => {
+                if (!filename) {
+                    filename = stateFilename;
+                }
+                const dateAsString = new Date().toISOString().split('T')[0];
+                const pathParts = path.parse(filename);
+                let backupFilename = `${pathParts.dir}/${pathParts.name}-backup-${dateAsString}${pathParts.ext}`;
+                for (let index = 1; ; ++index) {
+                    if (!fs.existsSync(backupFilename)) {
+                        break;
+                    }
+                    backupFilename = `${pathParts.dir}/${pathParts.name}-backup-${dateAsString}-${index}${pathParts.ext}`;
+                }
+                fs.rename(filename, backupFilename, error => {
+                    if (error) {
+                        event.sender.send('backedup', true, false, backupFilename);
+                    } else {
+                        fs.writeFile(filename, data, error => {
+                            if (error) {
+                                event.sender.send('backedup', false, true, backupFilename);
+                            } else {
+                                event.sender.send('backedup', false, false, backupFilename);
+                            }
+                        });
+                    }
+                });
             });
 
             /// 'import-publications' prompts for a file to open and sends back its contents with 'imported-publications'.
@@ -399,6 +434,7 @@ function createWindow() {
                     }
                 );
             });
+
             mainWindow.once('ready-to-show', () => {
                 mainWindow.show();
             });

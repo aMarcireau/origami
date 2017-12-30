@@ -129,9 +129,45 @@ class Origami extends React.Component {
                                                                 if (openFailed) {
                                                                     this.props.dispatch(rejectOpen(openFilename, 'The file could not be open for reading'));
                                                                 } else {
-                                                                    const [error, newState] = jsonToState(data, openFilename, this.props.state);
+                                                                    const [error, modified, newState] = jsonToState(data, openFilename, this.props.state);
                                                                     if (error) {
-                                                                        this.props.dispatch(rejectOpen(openFilename, `Parsing failed: ${error.message}`));
+                                                                        this.props.dispatch(rejectOpen(openFilename, error.message));
+                                                                    } else if (modified) {
+                                                                        ipcRenderer.once('backedup', (event, moveFailed, saveFailed, backupFilename) => {
+                                                                            if (moveFailed) {
+                                                                                this.props.dispatch(reset({
+                                                                                    ...newState,
+                                                                                    warnings: {
+                                                                                        ...newState.warnings,
+                                                                                        list: [
+                                                                                            ...newState.warnings.list,
+                                                                                            {
+                                                                                                title: 'The save file was updated',
+                                                                                                subtitle: 'Creating a backup failed',
+                                                                                                level: 'error',
+                                                                                            },
+                                                                                        ],
+                                                                                    },
+                                                                                    tabs: 2,
+                                                                                }));
+                                                                            } else {
+                                                                                this.props.dispatch(reset({
+                                                                                    ...newState,
+                                                                                    warnings: {
+                                                                                        ...newState.warnings,
+                                                                                        list: [
+                                                                                            ...newState.warnings.list,
+                                                                                            {
+                                                                                                title: 'The save file was updated',
+                                                                                                subtitle: `A backup was saved to '${backupFilename}'`,
+                                                                                                level: 'warning',
+                                                                                            },
+                                                                                        ],
+                                                                                    },
+                                                                                }));
+                                                                            }
+                                                                        });
+                                                                        ipcRenderer.send('backup', openFilename, stateToJson(newState, false));
                                                                     } else {
                                                                         this.props.dispatch(reset(newState));
                                                                     }
@@ -147,9 +183,45 @@ class Origami extends React.Component {
                                                         if (failed) {
                                                             this.props.dispatch(rejectOpen(filename, 'The file could not be open for reading'));
                                                         } else {
-                                                            const [error, newState] = jsonToState(data, filename, this.props.state);
+                                                            const [error, modified, newState] = jsonToState(data, filename, this.props.state);
                                                             if (error) {
-                                                                this.props.dispatch(rejectOpen(filename, `Parsing failed: ${error.message}`));
+                                                                this.props.dispatch(rejectOpen(filename, error.message));
+                                                            } else if (modified) {
+                                                                ipcRenderer.once('backedup', (event, moveFailed, saveFailed, backupFilename) => {
+                                                                    if (moveFailed) {
+                                                                        this.props.dispatch(reset({
+                                                                            ...newState,
+                                                                            warnings: {
+                                                                                ...newState.warnings,
+                                                                                list: [
+                                                                                    ...newState.warnings.list,
+                                                                                    {
+                                                                                        title: 'The save file was updated',
+                                                                                        subtitle: 'Creating a backup failed',
+                                                                                        level: 'error',
+                                                                                    },
+                                                                                ],
+                                                                            },
+                                                                            tabs: 2,
+                                                                        }));
+                                                                    } else {
+                                                                        this.props.dispatch(reset({
+                                                                            ...newState,
+                                                                            warnings: {
+                                                                                ...newState.warnings,
+                                                                                list: [
+                                                                                    ...newState.warnings.list,
+                                                                                    {
+                                                                                        title: 'The save file was updated',
+                                                                                        subtitle: `A backup was saved to '${backupFilename}'`,
+                                                                                        level: 'warning',
+                                                                                    },
+                                                                                ],
+                                                                            },
+                                                                        }));
+                                                                    }
+                                                                });
+                                                                ipcRenderer.send('backup', filename, stateToJson(newState, false));
                                                             } else {
                                                                 this.props.dispatch(reset(newState));
                                                             }
@@ -207,9 +279,9 @@ class Origami extends React.Component {
                                                     if (failed) {
                                                         this.props.dispatch(rejectImportPublications(filename, 'The file could not be open for reading'));
                                                     } else {
-                                                        const [error, importedState] = jsonToState(data, filename, this.props.state);
+                                                        const [error, updated, importedState] = jsonToState(data, filename, this.props.state);
                                                         if (error) {
-                                                            this.props.dispatch(rejectImportPublications(filename, `Parsing failed: ${error.message}`));
+                                                            this.props.dispatch(rejectImportPublications(filename, error.message));
                                                         } else {
                                                             const fetchingDois = new Set([
                                                                 ...importedState.crossref.requests.filter(

@@ -1,7 +1,14 @@
+import Ajv from 'ajv'
+import deepEqual from 'deep-equal'
 import crossrefQueue from './queues/crossrefQueue'
 import doiQueue from './queues/doiQueue'
 import scholarQueue from './queues/scholarQueue'
 import {
+    PUBLICATION_STATUS_UNVALIDATED,
+    PUBLICATION_STATUS_DEFAULT,
+    PUBLICATION_STATUS_IN_COLLECTION,
+    SCHOLAR_REQUEST_TYPE_INITIALIZE,
+    SCHOLAR_REQUEST_TYPE_CITERS,
     SCHOLAR_STATUS_IDLE,
     SCHOLAR_STATUS_FETCHING,
     SCHOLAR_STATUS_BLOCKED_HIDDEN,
@@ -11,6 +18,273 @@ import {
     CROSSREF_REQUEST_TYPE_CITER_METADATA,
     CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
 } from './constants/enums'
+
+/// minimumValidate is the minimum schema validator for repairing.
+const minimumValidate = new Ajv().compile({
+    type: 'object',
+    properties: {
+        publications: {
+            type: 'array',
+            items: {
+                type: 'array',
+                minItems: 2,
+                maxItems: 2,
+                items: [
+                    {type: 'string', minLength: 1},
+                    {type: 'object'},
+                ],
+            },
+        },
+    },
+    required: ['publications'],
+});
+
+/// validate is the schema validator for the current version's state.
+const validate = new Ajv({removeAdditional: 'all'}).compile({
+    type: 'object',
+    properties: {
+        appVersion: {type: 'string'},
+        display: {type: 'integer', minimum: 0, maximum: 1},
+        knownDois: {
+            type: 'array',
+            items: {type: 'string', minLength: 1},
+        },
+        crossref: {
+            type: 'array',
+            items: {
+                anyOf: [
+                    {
+                        type: 'object',
+                        properties: {
+                            type: {type: 'string', const: CROSSREF_REQUEST_TYPE_VALIDATION},
+                            doi: {type: 'string', minLength: 1},
+                        },
+                        required: ['type', 'doi'],
+                    },
+                    {
+                        type: 'object',
+                        properties: {
+                            type: {type: 'string', const: CROSSREF_REQUEST_TYPE_CITER_METADATA},
+                            parentDoi: {type: 'string', minLength: 1},
+                            title: {type: 'string'},
+                            authors: {
+                                type: 'array',
+                                items: {type: 'string'},
+                            },
+                            dateAsString: {type: 'string'},
+                        },
+                        required: ['type', 'parentDoi', 'title', 'authors', 'dateAsString'],
+                    },
+                    {
+                        type: 'object',
+                        properties: {
+                            type: {type: 'string', const: CROSSREF_REQUEST_TYPE_IMPORTED_METADATA},
+                            title: {type: 'string'},
+                            authors: {
+                                type: 'array',
+                                items: {type: 'string'},
+                            },
+                            dateAsString: {type: 'string'},
+                        },
+                        required: ['type', 'title', 'authors', 'dateAsString'],
+                    },
+                ],
+            },
+        },
+        doi: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    doi: {type: 'string', minLength: 1},
+                },
+                required: ['doi'],
+            },
+        },
+        scholar: {
+            type: 'object',
+            properties: {
+                requests: {
+                    type: 'array',
+                    items: {
+                        anyOf: [
+                            {
+                                type: 'object',
+                                properties: {
+                                    type: {type: 'string', const: SCHOLAR_REQUEST_TYPE_INITIALIZE},
+                                    doi: {type: 'string', minLength: 1},
+                                    url: {type: 'string'},
+                                },
+                                required: ['type', 'doi', 'url'],
+                            },
+                            {
+                                type: 'object',
+                                properties: {
+                                    type: {type: 'string', const: SCHOLAR_REQUEST_TYPE_CITERS},
+                                    doi: {type: 'string', minLength: 1},
+                                    url: {type: 'string'},
+                                    number: {type: 'integer', minimum: 1},
+                                    total: {type: 'integer', minimum: 1},
+                                },
+                                required: ['type', 'doi', 'url', 'number', 'total'],
+                            },
+                        ],
+                    },
+                },
+                minimumRefractoryPeriod: {type: 'integer', minimum: 0, maximum: 20000},
+                maximumRefractoryPeriod: {type: 'integer', minimum: 0, maximum: 20000},
+            },
+            required: ['requests', 'minimumRefractoryPeriod', 'maximumRefractoryPeriod'],
+        },
+        graph: {
+            type: 'object',
+            properties: {
+                threshold: {type: 'integer', minimum: 1},
+                zoom: {type: 'integer', minimum: -50, maximum: 50},
+                xOffset: {type: 'number'},
+                yOffset: {type: 'number'},
+                sticky: {type: 'boolean'},
+            },
+            required: ['threshold', 'zoom', 'xOffset', 'yOffset', 'sticky'],
+        },
+        publications: {
+            type: 'array',
+            items: {
+                type: 'array',
+                minItems: 2,
+                maxItems: 2,
+                items: [
+                    {type: 'string', minLength: 1},
+                    {
+                        anyOf: [
+                            {
+                                type: 'object',
+                                properties: {
+                                    status: {type: 'string', const: PUBLICATION_STATUS_UNVALIDATED},
+                                    title: {type: 'null'},
+                                    authors: {type: 'null'},
+                                    journal: {type: 'null'},
+                                    date: {type: 'null'},
+                                    citers: {type: 'array', maxItems: 0},
+                                    updated: {type: 'null'},
+                                    selected: {type: 'boolean', const: false},
+                                    bibtex: {type: 'null'},
+                                    x: {type: 'null'},
+                                    y: {type: 'null'},
+                                    locked: {type: 'boolean', const: false},
+                                },
+                                required: ['status', 'title', 'authors', 'journal', 'date', 'citers', 'updated', 'selected', 'bibtex', 'x', 'y', 'locked'],
+                            },
+                            {
+                                type: 'object',
+                                properties: {
+                                    status: {type: 'string', const: PUBLICATION_STATUS_DEFAULT},
+                                    title: {type: 'string'},
+                                    authors: {
+                                        type: 'array',
+                                        items: {type: 'string'},
+                                    },
+                                    journal: {type: 'string'},
+                                    date: {
+                                        type: 'array',
+                                        minItems: 1,
+                                        maxItems: 3,
+                                        items: {type: 'integer'},
+                                    },
+                                    citers: {type: 'array', maxItems: 0},
+                                    updated: {type: 'null'},
+                                    selected: {type: 'boolean'},
+                                    bibtex: {type: 'null'},
+                                    x: {
+                                        anyOf: [
+                                            {type: 'null'},
+                                            {type: 'number'},
+                                        ]
+                                    },
+                                    y: {
+                                        anyOf: [
+                                            {type: 'null'},
+                                            {type: 'number'},
+                                        ]
+                                    },
+                                    locked: {type: 'boolean', const: false},
+                                },
+                                required: ['status', 'title', 'authors', 'journal', 'date', 'citers', 'updated', 'selected', 'bibtex', 'x', 'y', 'locked'],
+                            },
+                            {
+                                type: 'object',
+                                properties: {
+                                    status: {type: 'string', const: PUBLICATION_STATUS_IN_COLLECTION},
+                                    title: {type: 'string'},
+                                    authors: {
+                                        type: 'array',
+                                        items: {type: 'string'},
+                                    },
+                                    journal: {type: 'string'},
+                                    date: {
+                                        type: 'array',
+                                        minItems: 1,
+                                        maxItems: 3,
+                                        items: {type: 'integer'},
+                                    },
+                                    citers: {
+                                        type: 'array',
+                                        items: {type: 'string', minLength: 1},
+                                    },
+                                    updated: {type: 'integer', minimum: 0},
+                                    selected: {type: 'boolean'},
+                                    bibtex: {
+                                        anyOf: [
+                                            {type: 'null'},
+                                            {type: 'string'},
+                                        ],
+                                    },
+                                    x: {type: 'number'},
+                                    y: {type: 'number'},
+                                    locked: {type: 'boolean'},
+                                },
+                                required: ['status', 'title', 'authors', 'journal', 'date', 'citers', 'updated', 'selected', 'bibtex', 'x', 'y', 'locked'],
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        search: {type: 'string'},
+        tabs: {type: 'integer', minimum: 0, maximum: 2},
+        warnings: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    title: {type: 'string'},
+                    subtitle: {type: 'string'},
+                    level: {type: 'string', enum: ['warning', 'error']},
+                },
+                required: ['title', 'subtitle', 'level'],
+            },
+        },
+        saveFilename: {
+            anyOf: [
+                {type: 'null'},
+                {type: 'string'},
+            ],
+        },
+    },
+    required: [
+        'appVersion',
+        'display',
+        'knownDois',
+        'crossref',
+        'doi',
+        'scholar',
+        'graph',
+        'publications',
+        'search',
+        'tabs',
+        'warnings',
+    ],
+});
 
 /// stateToJson generates a JSON string from an app state.
 /// expand must be a boolean:
@@ -41,61 +315,174 @@ export function stateToJson(state, expand) {
     }, null, expand ? '    ' : null)}${expand ? '\n' : ''}`;
 }
 
-/// jsonToState generates an app state from a JSON buffer.
-/// saveFilename must be a string:
-///     if null (typically, for an auto-save JSON), the JSON's saveFilename is used
-/// previousState must be an object:
-///     if null (typically, for an auto-save JSON), some state parameters are left empty (and must be added manually)
-export function jsonToState(json, saveFilename, previousState) {
-    try {
-        const state = JSON.parse(new TextDecoder('utf-8').decode(json));
-        state.appVersion = previousState ? previousState.appVersion : undefined;
-        state.colors = previousState ? previousState.colors : undefined;
-        state.connected = previousState ? previousState.connected : undefined;
-        state.crossref = {
-            status: crossrefQueue.status.IDLE,
-            requests: state.crossref,
-        };
-        state.doi = {
-            status: doiQueue.status.IDLE,
-            requests: state.doi,
-        };
-        state.knownDois = new Set(state.knownDois);
-        state.menu = {
-            activeItem: null,
-            hash: previousState ? previousState.menu.hash + 1 : 0,
-            saveFilename: saveFilename ? saveFilename : state.saveFilename,
-            savedVersion: previousState ? previousState.version + 1 : 0,
-            display: state.display,
-        };
-        delete state.saveFilename;
-        delete state.display;
-        state.publications = new Map(state.publications);
-        state.scholar.status = SCHOLAR_STATUS_IDLE;
-        state.scholar.beginOfRefractoryPeriod = null;
-        state.scholar.endOfRefractoryPeriod = null;
-        state.scholar.url = null;
-        state.tabs = {
-            index: state.tabs,
-            hash: previousState ? previousState.tabs.hash + 1 : 0,
-        };
-        state.version = (previousState ?
-            previousState.version + 1
-            : (state.savable ?
-                1
-                : 0
-            )
-        );
-        delete state.savable;
-        state.warnings = {
-            list: state.warnings,
-            hash: previousState ? previousState.warnings.hash + 1 : 0,
-        };
-        return [null, state];
-    } catch(error) {
-        return [error, null];
+/// merge fills non-saved properties.
+///     saveFilename (string): if null (auto-save JSON), the JSON's saveFilename is used
+///     previousState (object): if null (auto-save JSON), some state parameters are left empty (and must be added manually)
+function merge(state, saveFilename, previousState) {
+
+    // fill properties
+    state.appVersion = previousState ? previousState.appVersion : undefined;
+    state.colors = previousState ? previousState.colors : undefined;
+    state.connected = previousState ? previousState.connected : undefined;
+    state.crossref = {
+        status: crossrefQueue.status.IDLE,
+        requests: state.crossref,
+    };
+    state.doi = {
+        status: doiQueue.status.IDLE,
+        requests: state.doi,
+    };
+    state.knownDois = new Set(state.knownDois);
+    state.menu = {
+        activeItem: null,
+        hash: previousState ? previousState.menu.hash + 1 : 0,
+        saveFilename: saveFilename ? saveFilename : state.saveFilename,
+        savedVersion: previousState ? previousState.version + 1 : 0,
+        display: state.display,
+    };
+    delete state.saveFilename;
+    delete state.display;
+    state.publications = new Map(state.publications);
+    state.scholar.status = SCHOLAR_STATUS_IDLE;
+    state.scholar.beginOfRefractoryPeriod = null;
+    state.scholar.endOfRefractoryPeriod = null;
+    state.scholar.url = null;
+    state.tabs = {
+        index: state.tabs,
+        hash: previousState ? previousState.tabs.hash + 1 : 0,
+    };
+    state.version = (previousState ? previousState.version + 1 : (state.savable ? 1 : 0));
+    delete state.savable;
+    state.warnings = {
+        list: state.warnings,
+        hash: previousState ? previousState.warnings.hash + 1 : 0,
+    };
+
+    // verify integrity
+    for (const [doi, publication] of state.publications.entries()) {
+        publication.citers = publication.citers.filter(citer => state.publications.has(citer));
     }
+    state.crossref.requests = state.crossref.requests.filter(request => (
+        (request.type === CROSSREF_REQUEST_TYPE_VALIDATION && state.publications.has(request.doi))
+        || (request.type === CROSSREF_REQUEST_TYPE_CITER_METADATA && state.publications.has(request.parentDoi))
+        || request.type === CROSSREF_REQUEST_TYPE_IMPORTED_METADATA
+    ));
+    state.doi.requests = state.doi.requests.filter(request => state.publications.has(request.doi));
+    state.scholar.requests = state.scholar.requests.filter(request => state.publications.has(request.doi));
+    state.warnings.list = state.warnings.list.filter(warning => warning.title !== '');
+    let selectedFound = false;
+    for (const publication of state.publications.values()) {
+        if (publication.selected) {
+            if (selectedFound) {
+                publication.selected = false;
+            } else {
+                selectedFound = true;
+            }
+        }
+    }
+    const citersCountByDoi = new Map();
+    for (const [doi, publication] of state.publications.entries()) {
+        if (publication.status === PUBLICATION_STATUS_IN_COLLECTION) {
+            for (const citer of publication.citers) {
+                if (state.publications.get(citer).status === PUBLICATION_STATUS_DEFAULT) {
+                    if (citersCountByDoi.has(citer)) {
+                        citersCountByDoi.set(citer, citersCountByDoi.get(citer) + 1);
+                    } else {
+                        citersCountByDoi.set(citer, 1);
+                    }
+                }
+            }
+        }
+    }
+    state.graph.threshold = Math.min(state.graph.threshold, citersCountByDoi.size > 0 ? Math.max(...citersCountByDoi.values()) + 1 : 2);
+
+    return state;
 }
+
+/// jsonToState generates an app state from a JSON buffer.
+///     saveFilename (string): if null (auto-save JSON), the JSON's saveFilename is used
+///     previousState (object): if null (auto-save JSON), some state parameters are left empty (and must be added manually)
+/// returned value ([error, modified, state]):
+///     error (object): if not null, no state is generated
+///     modified (boolean): if true, non-reversible modifications were requried
+///     state (boolean): the parsed state
+export function jsonToState(json, saveFilename, previousState) {
+    const jsonAsString = new TextDecoder('utf-8').decode(json);
+    let stateCandidate;
+    try {
+        stateCandidate = JSON.parse(jsonAsString);
+    } catch (error) {
+        return [new Error(`Parsing failed: ${error.message}`), false, null];
+    }
+    if (!minimumValidate(stateCandidate)) {
+        return [new Error('The JSON file does not have the expected structure'), false, null];
+    }
+    if (validate(stateCandidate)) {
+        return [null, deepEqual(stateCandidate, JSON.parse(jsonAsString)), merge(stateCandidate, saveFilename, previousState)];
+    }
+    for (;;) {
+        let errors = validate.errors;
+        console.error(errors);
+        if (errors.length > 1 && errors[errors.length - 1].keyword === 'anyOf') {
+            errors = errors.slice(0, errors.length - 2).filter(error => error.keyword !== 'const');
+            if (errors.length === 0) {
+                const match = /(^[\w\.]+)\[(\d+)\]/.exec(errors[errors.length - 1].dataPath);
+                if (!match) {
+                    return [new Error('The data path for an \'anyOf\' constraint does not have the expected format'), false, null];
+                }
+                eval(`stateCandidate${match[1]}.splice(${match[2]}, 1);`);
+                continue;
+            }
+        }
+        for (const error of errors) {
+            switch (error.keyword) {
+                case 'required': {
+                    eval(`stateCandidate${error.dataPath}.${error.params.missingProperty} = null;`);
+                    break;
+                }
+                case 'type': {
+                    const types = ['null', 'boolean', 'integer', 'number', 'string', 'array', 'object'].filter(
+                        type => error.params.type.split(',').includes(type)
+                    );
+                    if (types.length === 0) {
+                        return [new Error(`Unknown type '${error.params.type}'`), false, null];
+                    }
+                    switch (types[0]) {
+                        case 'null':
+                            eval(`stateCandidate${error.dataPath} = null;`);
+                            break;
+                        case 'boolean':
+                            eval(`stateCandidate${error.dataPath} = false;`);
+                            break;
+                        case 'integer':
+                            eval(`stateCandidate${error.dataPath} = 0;`);
+                            break;
+                        case 'number':
+                            eval(`stateCandidate${error.dataPath} = 0;`);
+                            break;
+                        case 'string':
+                            eval(`stateCandidate${error.dataPath} = '';`);
+                            break;
+                        case 'array':
+                            eval(`stateCandidate${error.dataPath} = [];`);
+                            break;
+                        case 'object':
+                            eval(`stateCandidate${error.dataPath} = {};`);
+                            break;
+                        default:
+                            return [new Error(`Unknown type '${types[0]}'`), false, null];
+                    }
+                    break;
+                }
+                default:
+                    return [new Error(`Unknown error keyword '${error.keyword}'`), false, null];
+            }
+        }
+        if (validate(stateCandidate)) {
+            return [null, true, merge(stateCandidate, saveFilename, previousState)];
+        }
+    }
+};
 
 /// resetState generates a reset state with incremented hashes.
 /// state must be an app state.
