@@ -105,7 +105,6 @@ Origami saves and load collections in [JSON](https://www.json.org) format. The g
         "xOffset": 0,   # the current graph positions' x coordinate, float
         "yOffset": 0,   # the current graph positions' y coordinate, float
         "sticky": false # false means that the 'sticky' box is unchecked
-
     },
     "publications": [ # list of known publications
         [                                 # each publication is a two-elements list containg a string and an object
