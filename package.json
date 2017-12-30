@@ -15,7 +15,6 @@
         "html-webpack-inline-source-plugin": "0.0.9",
         "html-webpack-plugin": "2.30.1",
         "htmlparser2": "3.9.2",
-        "memory-fs": "0.4.1",
         "deep-equal": "1.0.1",
         "radium": "0.19.6",
         "react": "16.0.0",

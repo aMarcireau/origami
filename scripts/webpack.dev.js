@@ -1,6 +1,6 @@
-const fs = require('fs');
+const path = require('path');
 const merge = require('webpack-merge');
-const common = require('./webpack.common');
+const common = require(`${__dirname}/webpack.common`);
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 
@@ -15,16 +15,14 @@ module.exports = merge(common.configuration, {
                         callback();
                     } else {
                         this.packaged = true;
-                        common.package(false, () => {
-                            callback();
-                        });
+                        common.package(false, callback);
                     }
                 });
                 callback();
             });
         },
         new HtmlWebpackPlugin({
-            template: './source/index.ejs',
+            template: `${path.dirname(__dirname)}/source/index.ejs`,
             inlineSource: '\.js$',
             inject: true
         }),

@@ -1,6 +1,7 @@
+const path = require('path');
 const webpack = require('webpack');
 const merge = require('webpack-merge');
-const common = require('./webpack.common');
+const common = require(`${__dirname}/webpack.common`);
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 
@@ -8,9 +9,10 @@ module.exports = merge(common.configuration, {
     plugins: [
         function() {
             this.plugin('before-run', (compiler, callback) => {
-                compiler.plugin('done', () => {
-                    common.package(true);
+                compiler.plugin('after-emit', (compilation, callback) => {
+                    common.package(true, callback);
                 });
+
                 callback();
             });
         },
@@ -18,7 +20,7 @@ module.exports = merge(common.configuration, {
             'process.env.NODE_ENV': JSON.stringify('production'),
         }),
         new HtmlWebpackPlugin({
-            template: './source/index.ejs',
+            template: `${path.dirname(__dirname)}/source/index.ejs`,
             inlineSource: '\.js$',
             inject: true,
             minify: {
