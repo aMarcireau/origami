@@ -9,5 +9,10 @@
     "warning": "#f4c20d",
     "error": "#db4733",
     "valid": "#3cba54",
-    "placeholder": "#a9a9a9"
+    "placeholder": "#a9a9a9",
+    "tag0": "#008cff",
+    "tag1": "#f4c20d",
+    "tag2": "#db4733",
+    "tag3": "#3cba54",
+    "tag4": "#d88fe2"
 }

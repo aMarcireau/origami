@@ -29,6 +29,11 @@ function createWindow() {
                         'error',
                         'valid',
                         'placeholder',
+                        'tag0',
+                        'tag1',
+                        'tag2',
+                        'tag3',
+                        'tag4',
                     ]) {
                         if (!(key in parsedColors) || !(/^#[a-zA-Z0-9]{6}$/.test(parsedColors[key]))) {
                             electron.dialog.showErrorBox('Configuration error', `'${key}' is not a color in '${__dirname}/colors.json'`);

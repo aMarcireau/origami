@@ -172,8 +172,23 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                                     x: {type: 'null'},
                                     y: {type: 'null'},
                                     locked: {type: 'boolean', const: false},
+                                    tag: {type: 'null'},
                                 },
-                                required: ['status', 'title', 'authors', 'journal', 'date', 'citers', 'updated', 'selected', 'bibtex', 'x', 'y', 'locked'],
+                                required: [
+                                    'status',
+                                    'title',
+                                    'authors',
+                                    'journal',
+                                    'date',
+                                    'citers',
+                                    'updated',
+                                    'selected',
+                                    'bibtex',
+                                    'x',
+                                    'y',
+                                    'locked',
+                                    'tag',
+                                ],
                             },
                             {
                                 type: 'object',
@@ -208,8 +223,23 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                                         ]
                                     },
                                     locked: {type: 'boolean', const: false},
+                                    tag: {type: 'null'},
                                 },
-                                required: ['status', 'title', 'authors', 'journal', 'date', 'citers', 'updated', 'selected', 'bibtex', 'x', 'y', 'locked'],
+                                required: [
+                                    'status',
+                                    'title',
+                                    'authors',
+                                    'journal',
+                                    'date',
+                                    'citers',
+                                    'updated',
+                                    'selected',
+                                    'bibtex',
+                                    'x',
+                                    'y',
+                                    'locked',
+                                    'tag',
+                                ],
                             },
                             {
                                 type: 'object',
@@ -242,8 +272,28 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                                     x: {type: 'number'},
                                     y: {type: 'number'},
                                     locked: {type: 'boolean'},
+                                    tag: {
+                                        anyOf: [
+                                            {type: 'null'},
+                                            {type: 'integer', minimum: 0, maximum: 5},
+                                        ],
+                                    },
                                 },
-                                required: ['status', 'title', 'authors', 'journal', 'date', 'citers', 'updated', 'selected', 'bibtex', 'x', 'y', 'locked'],
+                                required: [
+                                    'status',
+                                    'title',
+                                    'authors',
+                                    'journal',
+                                    'date',
+                                    'citers',
+                                    'updated',
+                                    'selected',
+                                    'bibtex',
+                                    'x',
+                                    'y',
+                                    'locked',
+                                    'tag',
+                                ],
                             },
                         ],
                     },
@@ -424,9 +474,9 @@ export function jsonToState(json, saveFilename, previousState) {
         let errors = validate.errors;
         console.error(errors);
         if (errors.length > 1 && errors[errors.length - 1].keyword === 'anyOf') {
-            errors = errors.slice(0, errors.length - 2).filter(error => error.keyword !== 'const');
+            errors = errors.slice(0, errors.length - 1).filter(error => error.keyword !== 'const');
             if (errors.length === 0) {
-                const match = /(^[\w\.]+)\[(\d+)\]/.exec(errors[errors.length - 1].dataPath);
+                const match = /(^[\w\.]+)\[(\d+)\]/.exec(validate.errors[validate.errors.length - 1].dataPath);
                 if (!match) {
                     return [new Error('The data path for an \'anyOf\' constraint does not have the expected format'), false, null];
                 }
@@ -436,6 +486,9 @@ export function jsonToState(json, saveFilename, previousState) {
         }
         for (const error of errors) {
             switch (error.keyword) {
+
+                // @DEV missing errors on integer constrains
+
                 case 'required': {
                     eval(`stateCandidate${error.dataPath}.${error.params.missingProperty} = null;`);
                     break;

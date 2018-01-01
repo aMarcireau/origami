@@ -5,6 +5,7 @@ import {
     REMOVE_PUBLICATION,
     UPDATE_PUBLICATION,
     UPDATE_ALL_PUBLICATIONS,
+    SET_PUBLICATION_TAG,
 } from '../constants/actionTypes'
 
 export function addPublicationToCollection(doi, timestamp) {
@@ -45,5 +46,13 @@ export function updateAllPublications(timestamp) {
     return {
         type: UPDATE_ALL_PUBLICATIONS,
         timestamp,
+    };
+}
+
+export function setPublicationTag(doi, tag) {
+    return {
+        type: SET_PUBLICATION_TAG,
+        doi,
+        tag,
     };
 }

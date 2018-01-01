@@ -8,6 +8,7 @@ import {
     REMOVE_PUBLICATION,
     UPDATE_PUBLICATION,
     UPDATE_ALL_PUBLICATIONS,
+    SET_PUBLICATION_TAG,
     RESOLVE_BIBTEX_FROM_DOI,
     RESOLVE_PUBLICATION_FROM_CITER_METADATA,
     RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA,
@@ -230,8 +231,19 @@ export default function publications(state = new Map(), action, appState) {
             }
             return newState;
         }
+        case SET_PUBLICATION_TAG: {
+            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
+                return state;
+            }
+            const newState = new Map(state);
+            newState.set(action.doi, {
+                ...newState.get(action.doi),
+                tag: action.tag,
+            });
+            return newState;
+        }
         case RESOLVE_BIBTEX_FROM_DOI: {
-            if (!state.has(action.doi)) {
+            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
                 return state;
             }
             const newState = new Map(state);
