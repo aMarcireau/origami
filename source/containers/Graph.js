@@ -262,7 +262,7 @@ class Graph extends React.Component {
         // create 'enter' nodes
         const d3NodeGroup = this.d3Node.enter().append('g');
         d3NodeGroup.filter(node => node.locked).append('circle')
-            .attr('r', 28)
+            .attr('r', 30)
             .attr('class', 'locked')
             .attr('fill', 'none')
             .attr('stroke-width', 4)
@@ -270,7 +270,7 @@ class Graph extends React.Component {
         ;
         d3NodeGroup.append('circle')
             .attr('class', 'publication')
-            .attr('r', 20)
+            .attr('r', 22)
             .attr('stroke-width', 4)
         ;
         d3NodeGroup.append('text')
@@ -313,8 +313,7 @@ class Graph extends React.Component {
         const colors = this.props.colors;
         this.d3Node.selectAll('circle.publication')
             .style('cursor', 'pointer')
-            .attr('fill', node => (
-                node.selected ?
+            .attr('fill', node => (node.selected ?
                 this.props.colors.active
                 : (node.isCiting ?
                     this.props.colors.valid
@@ -342,16 +341,14 @@ class Graph extends React.Component {
                             )
                         )
                     )
-                    : (node.status === PUBLICATION_STATUS_DEFAULT ?
-                        colors.active
-                        : colors.sideSeparator
-                    )
-                ) : colors[`tag${node.tag}`]
+                    : colors.active
+                )
+                : colors[`tag${node.tag}`]
             ))
             .on('mouseover', function(node) {
                 d3.select(this)
                     .attr('fill', colors.active)
-                    .attr('stroke', node => (node.tag === null) ? colors.active : colors[`tag${node.tag}`])
+                    .attr('stroke', node.tag === null ? colors.active : colors[`tag${node.tag}`])
                 ;
             })
             .on('mouseout', function(node) {
@@ -369,7 +366,7 @@ class Graph extends React.Component {
                             )
                         )
                     )
-                    .attr('stroke', node => (node.tag === null ?
+                    .attr('stroke', node.tag === null ?
                         (node.known ?
                             (node.selected ?
                                 colors.active
@@ -384,12 +381,10 @@ class Graph extends React.Component {
                                     )
                                 )
                             )
-                            : (node.status === PUBLICATION_STATUS_DEFAULT ?
-                                colors.active
-                                : colors.sideSeparator
-                            )
-                        ) : colors[`tag${node.tag}`]
-                    ))
+                            : colors.active
+                        )
+                        : colors[`tag${node.tag}`]
+                    )
                 ;
             })
         ;
@@ -414,7 +409,7 @@ class Graph extends React.Component {
                     if (!d3.event.subject.locked) {
                         d3.event.subject.locked = true;
                         this.d3Node.filter(node => node === d3.event.subject).append('circle')
-                            .attr('r', 28)
+                            .attr('r', 30)
                             .attr('class', 'locked')
                             .attr('fill', 'none')
                             .attr('stroke-width', 4)
