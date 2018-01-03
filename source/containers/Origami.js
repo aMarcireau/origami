@@ -167,7 +167,7 @@ class Origami extends React.Component {
                                                                                 }));
                                                                             }
                                                                         });
-                                                                        ipcRenderer.send('backup', openFilename, stateToJson(newState, false));
+                                                                        ipcRenderer.send('backup', openFilename, stateToJson(newState, true));
                                                                     } else {
                                                                         this.props.dispatch(reset(newState));
                                                                     }
@@ -221,7 +221,7 @@ class Origami extends React.Component {
                                                                         }));
                                                                     }
                                                                 });
-                                                                ipcRenderer.send('backup', filename, stateToJson(newState, false));
+                                                                ipcRenderer.send('backup', filename, stateToJson(newState, true));
                                                             } else {
                                                                 this.props.dispatch(reset(newState));
                                                             }

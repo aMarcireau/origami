@@ -30,7 +30,7 @@ const minimumValidate = new Ajv().compile({
                 minItems: 2,
                 maxItems: 2,
                 items: [
-                    {type: 'string', minLength: 1},
+                    {type: 'string'},
                     {type: 'object'},
                 ],
             },
@@ -40,32 +40,43 @@ const minimumValidate = new Ajv().compile({
 });
 
 /// validate is the schema validator for the current version's state.
-const validate = new Ajv({removeAdditional: 'all'}).compile({
+const validate = new Ajv({removeAdditional: true}).compile({
     type: 'object',
     properties: {
         appVersion: {type: 'string'},
         display: {type: 'integer', minimum: 0, maximum: 1},
         knownDois: {
             type: 'array',
-            items: {type: 'string', minLength: 1},
+            items: {type: 'string'},
         },
         crossref: {
             type: 'array',
             items: {
+                type: 'object',
+                properties: {
+                    type: {type: 'string'},
+                    doi: {type: 'string'},
+                    parentDoi: {type: 'string'},
+                    title: {type: 'string'},
+                    authors: {
+                        type: 'array',
+                        items: {type: 'string'},
+                    },
+                    dateAsString: {type: 'string'},
+                },
+                additionalProperties: false,
                 anyOf: [
                     {
-                        type: 'object',
                         properties: {
                             type: {type: 'string', const: CROSSREF_REQUEST_TYPE_VALIDATION},
-                            doi: {type: 'string', minLength: 1},
+                            doi: {type: 'string'},
                         },
                         required: ['type', 'doi'],
                     },
                     {
-                        type: 'object',
                         properties: {
                             type: {type: 'string', const: CROSSREF_REQUEST_TYPE_CITER_METADATA},
-                            parentDoi: {type: 'string', minLength: 1},
+                            parentDoi: {type: 'string'},
                             title: {type: 'string'},
                             authors: {
                                 type: 'array',
@@ -76,7 +87,6 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                         required: ['type', 'parentDoi', 'title', 'authors', 'dateAsString'],
                     },
                     {
-                        type: 'object',
                         properties: {
                             type: {type: 'string', const: CROSSREF_REQUEST_TYPE_IMPORTED_METADATA},
                             title: {type: 'string'},
@@ -96,8 +106,9 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
             items: {
                 type: 'object',
                 properties: {
-                    doi: {type: 'string', minLength: 1},
+                    doi: {type: 'string'},
                 },
+                additionalProperties: false,
                 required: ['doi'],
             },
         },
@@ -107,21 +118,28 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                 requests: {
                     type: 'array',
                     items: {
+                        type: 'object',
+                        properties: {
+                            type: {type: 'string', const: SCHOLAR_REQUEST_TYPE_CITERS},
+                            doi: {type: 'string'},
+                            url: {type: 'string'},
+                            number: {type: 'integer', minimum: 1},
+                            total: {type: 'integer', minimum: 1},
+                        },
+                        additionalProperties: false,
                         anyOf: [
                             {
-                                type: 'object',
                                 properties: {
                                     type: {type: 'string', const: SCHOLAR_REQUEST_TYPE_INITIALIZE},
-                                    doi: {type: 'string', minLength: 1},
+                                    doi: {type: 'string'},
                                     url: {type: 'string'},
                                 },
                                 required: ['type', 'doi', 'url'],
                             },
                             {
-                                type: 'object',
                                 properties: {
                                     type: {type: 'string', const: SCHOLAR_REQUEST_TYPE_CITERS},
-                                    doi: {type: 'string', minLength: 1},
+                                    doi: {type: 'string'},
                                     url: {type: 'string'},
                                     number: {type: 'integer', minimum: 1},
                                     total: {type: 'integer', minimum: 1},
@@ -131,9 +149,10 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                         ],
                     },
                 },
-                minimumRefractoryPeriod: {type: 'integer', minimum: 0, maximum: 20000},
-                maximumRefractoryPeriod: {type: 'integer', minimum: 0, maximum: 20000},
+                minimumRefractoryPeriod: {type: 'integer', minimum: 0, maximum: 20000, multipleOf: 100},
+                maximumRefractoryPeriod: {type: 'integer', minimum: 0, maximum: 20000, multipleOf: 100},
             },
+            additionalProperties: false,
             required: ['requests', 'minimumRefractoryPeriod', 'maximumRefractoryPeriod'],
         },
         graph: {
@@ -145,6 +164,7 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                 yOffset: {type: 'number'},
                 sticky: {type: 'boolean'},
             },
+            additionalProperties: false,
             required: ['threshold', 'zoom', 'xOffset', 'yOffset', 'sticky'],
         },
         publications: {
@@ -154,8 +174,80 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                 minItems: 2,
                 maxItems: 2,
                 items: [
-                    {type: 'string', minLength: 1},
+                    {type: 'string'},
                     {
+                        properties: {
+                            status: {type: 'string'},
+                            title: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {type: 'string'},
+                                ],
+                            },
+                            authors: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {
+                                        type: 'array',
+                                        items: {type: 'string'},
+                                    },
+                                ],
+                            },
+                            journal: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {type: 'string'},
+                                ],
+                            },
+                            date: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {
+                                        type: 'array',
+                                        minItems: 1,
+                                        maxItems: 3,
+                                        items: {type: 'integer'},
+                                    },
+                                ],
+                            },
+                            citers: {
+                                type: 'array',
+                                items: {type: 'string'},
+                            },
+                            updated: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {type: 'integer', minimum: 0},
+                                ],
+                            },
+                            selected: {type: 'boolean'},
+                            bibtex: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {type: 'string'},
+                                ],
+                            },
+                            x: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {type: 'number'},
+                                ],
+                            },
+                            y: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {type: 'number'},
+                                ],
+                            },
+                            locked: {type: 'boolean'},
+                            tag: {
+                                anyOf: [
+                                    {type: 'null'},
+                                    {type: 'integer', minimum: 0, maximum: 5},
+                                ],
+                            },
+                        },
+                        additionalProperties: false,
                         anyOf: [
                             {
                                 type: 'object',
@@ -259,7 +351,7 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                                     },
                                     citers: {
                                         type: 'array',
-                                        items: {type: 'string', minLength: 1},
+                                        items: {type: 'string'},
                                     },
                                     updated: {type: 'integer', minimum: 0},
                                     selected: {type: 'boolean'},
@@ -311,6 +403,7 @@ const validate = new Ajv({removeAdditional: 'all'}).compile({
                     subtitle: {type: 'string'},
                     level: {type: 'string', enum: ['warning', 'error']},
                 },
+                additionalProperties: false,
                 required: ['title', 'subtitle', 'level'],
             },
         },
@@ -445,6 +538,9 @@ function merge(state, saveFilename, previousState) {
         }
     }
     state.graph.threshold = Math.min(state.graph.threshold, citersCountByDoi.size > 0 ? Math.max(...citersCountByDoi.values()) + 1 : 2);
+    if (state.scholar.minimumRefractoryPeriod > state.scholar.maximumRefractoryPeriod) {
+        state.scholar.minimumRefractoryPeriod = state.scholar.maximumRefractoryPeriod;
+    }
 
     return state;
 }
@@ -468,11 +564,11 @@ export function jsonToState(json, saveFilename, previousState) {
         return [new Error('The JSON file does not have the expected structure'), false, null];
     }
     if (validate(stateCandidate)) {
-        return [null, deepEqual(stateCandidate, JSON.parse(jsonAsString)), merge(stateCandidate, saveFilename, previousState)];
+        return [null, !deepEqual(stateCandidate, JSON.parse(jsonAsString)), merge(stateCandidate, saveFilename, previousState)];
     }
     for (;;) {
         let errors = validate.errors;
-        console.error(errors);
+        console.error(errors.map(error => error.keyword).join(', '), errors, errors.map(error => eval(`stateCandidate${error.dataPath}`)));
         if (errors.length > 1 && errors[errors.length - 1].keyword === 'anyOf') {
             errors = errors.slice(0, errors.length - 1).filter(error => error.keyword !== 'const');
             if (errors.length === 0) {
@@ -486,9 +582,6 @@ export function jsonToState(json, saveFilename, previousState) {
         }
         for (const error of errors) {
             switch (error.keyword) {
-
-                // @DEV missing errors on integer constrains
-
                 case 'required': {
                     eval(`stateCandidate${error.dataPath}.${error.params.missingProperty} = null;`);
                     break;
@@ -525,6 +618,15 @@ export function jsonToState(json, saveFilename, previousState) {
                         default:
                             return [new Error(`Unknown type '${types[0]}'`), false, null];
                     }
+                    break;
+                }
+                case 'maximum':
+                case 'minimum': {
+                    eval(`stateCandidate${error.dataPath} = ${error.params.limit};`);
+                    break;
+                }
+                case 'multipleOf': {
+                    eval(`stateCandidate${error.dataPath} = Math.round(stateCandidate${error.dataPath} / ${error.params.multipleOf}) * ${error.params.multipleOf};`);
                     break;
                 }
                 default:
