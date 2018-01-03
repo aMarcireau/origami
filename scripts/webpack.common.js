@@ -11,7 +11,7 @@ module.exports = {
     package: (production, callback) => {
         console.log('\nCopying the package assets');
         try {
-            fs.mkdirSync(`${path.dirname(path.dirname(__dirname))}/build/origami`);
+            fs.mkdirSync(`${path.dirname(__dirname)}/build/origami`);
         } catch (error) {}
         fs.copyFileSync(`${path.dirname(__dirname)}/source/package.json`, `${path.dirname(__dirname)}/build/origami/package.json`);
         fs.writeFileSync(`${path.dirname(__dirname)}/build/origami/main.js`, `process.env.ORIGAMI_ENV = '${production ? 'production' : 'development'}';\n`);
