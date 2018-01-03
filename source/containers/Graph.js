@@ -94,12 +94,14 @@ class Graph extends React.Component {
                     if (
                         publication.status !== node.status
                         || publication.selected !== node.selected
+                        || publication.tag !== node.tag
                         || known !== node.known
                         || publication.locked !== node.locked
                     ) {
                         updateRequired = true;
                         node.status = publication.status;
                         node.selected = publication.selected;
+                        node.tag = publication.tag;
                         node.known = known;
                         if (node.locked && !publication.locked) {
                             node.fx = null;
@@ -260,14 +262,16 @@ class Graph extends React.Component {
         // create 'enter' nodes
         const d3NodeGroup = this.d3Node.enter().append('g');
         d3NodeGroup.filter(node => node.locked).append('circle')
-            .attr('r', 23)
+            .attr('r', 30)
             .attr('class', 'locked')
             .attr('fill', 'none')
-            .attr('stroke-width', 2)
+            .attr('stroke-width', 4)
             .attr('stroke', this.props.colors.secondaryContent)
         ;
         d3NodeGroup.append('circle')
             .attr('class', 'publication')
+            .attr('r', 22)
+            .attr('stroke-width', 4)
         ;
         d3NodeGroup.append('text')
             .attr('text-anchor', 'middle')
@@ -309,8 +313,7 @@ class Graph extends React.Component {
         const colors = this.props.colors;
         this.d3Node.selectAll('circle.publication')
             .style('cursor', 'pointer')
-            .attr('fill', node => (
-                node.selected ?
+            .attr('fill', node => (node.selected ?
                 this.props.colors.active
                 : (node.isCiting ?
                     this.props.colors.valid
@@ -323,26 +326,66 @@ class Graph extends React.Component {
                     )
                 )
             ))
-            .attr('r', node => node.known ? '20' : '19')
-            .attr('stroke', this.props.colors.active)
-            .attr('stroke-width', node => node.known ? '0' : '2')
-            .on('mouseover', function(node) {
-                d3.select(this).attr('fill', colors.active);
-            })
-            .on('mouseout', function(node) {
-                d3.select(this).attr('fill', node.selected ?
-                    colors.active
-                    : (node.isCiting ?
-                        colors.valid
-                        : (node.isCited ?
-                            colors.warning
-                            : (node.status === PUBLICATION_STATUS_IN_COLLECTION ?
-                                colors.link
-                                : colors.sideSeparator
+            .attr('stroke', node => (node.tag === null ?
+                (node.known ?
+                    (node.selected ?
+                        colors.active
+                        : (node.isCiting ?
+                            colors.valid
+                            : (node.isCited ?
+                                colors.warning
+                                : (node.status === PUBLICATION_STATUS_IN_COLLECTION ?
+                                    colors.link
+                                    : colors.sideSeparator
+                                )
                             )
                         )
                     )
-                );
+                    : colors.active
+                )
+                : colors[`tag${node.tag}`]
+            ))
+            .on('mouseover', function(node) {
+                d3.select(this)
+                    .attr('fill', colors.active)
+                    .attr('stroke', node.tag === null ? colors.active : colors[`tag${node.tag}`])
+                ;
+            })
+            .on('mouseout', function(node) {
+                d3.select(this)
+                    .attr('fill', node.selected ?
+                        colors.active
+                        : (node.isCiting ?
+                            colors.valid
+                            : (node.isCited ?
+                                colors.warning
+                                : (node.status === PUBLICATION_STATUS_IN_COLLECTION ?
+                                    colors.link
+                                    : colors.sideSeparator
+                                )
+                            )
+                        )
+                    )
+                    .attr('stroke', node.tag === null ?
+                        (node.known ?
+                            (node.selected ?
+                                colors.active
+                                : (node.isCiting ?
+                                    colors.valid
+                                    : (node.isCited ?
+                                        colors.warning
+                                        : (node.status === PUBLICATION_STATUS_IN_COLLECTION ?
+                                            colors.link
+                                            : colors.sideSeparator
+                                        )
+                                    )
+                                )
+                            )
+                            : colors.active
+                        )
+                        : colors[`tag${node.tag}`]
+                    )
+                ;
             })
         ;
         this.d3Node.call(d3.drag()
@@ -366,10 +409,10 @@ class Graph extends React.Component {
                     if (!d3.event.subject.locked) {
                         d3.event.subject.locked = true;
                         this.d3Node.filter(node => node === d3.event.subject).append('circle')
-                            .attr('r', 23)
+                            .attr('r', 30)
                             .attr('class', 'locked')
                             .attr('fill', 'none')
-                            .attr('stroke-width', 2)
+                            .attr('stroke-width', 4)
                             .attr('stroke', this.props.colors.secondaryContent)
                         ;
                     }

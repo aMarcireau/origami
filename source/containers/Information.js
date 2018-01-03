@@ -15,6 +15,7 @@ import {
     updatePublication,
     updateAllPublications,
     removePublication,
+    setPublicationTag,
 } from '../actions/managePublication'
 import {
     PUBLICATION_STATUS_UNVALIDATED,
@@ -119,6 +120,47 @@ class Information extends React.Component {
                         }}
                     >{this.props.doi}</button>
                 </div>
+                {this.props.publication.status === PUBLICATION_STATUS_IN_COLLECTION &&
+                    <div style={{
+                        height: '39px',
+                        borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
+                    }}>
+                        {new Array(5).fill().map((_, index) => (
+                            <div
+                                key={`tag-${this.props.publication.updated}-${this.props.doi}-${index}`}
+                                style={{
+                                    width: '39px',
+                                    height: '39px',
+                                    display: 'inline-block',
+                                    ':hover': {
+                                        cursor: 'pointer',
+                                    },
+                                }}
+                                onClick={() => {
+                                    this.props.dispatch(setPublicationTag(this.props.doi, this.props.publication.tag === index ? null : index));
+                                }}
+                            >
+                                <svg viewBox='0 0 39 39'>
+                                    <circle
+                                        fill={this.props.colors[`tag${index}`]}
+                                        strokeWidth='1.5'
+                                        stroke={(
+                                            (this.props.publication.tag === index)
+                                            || Radium.getState(
+                                                this.state,
+                                                `tag-${this.props.publication.updated}-${this.props.doi}-${index}`,
+                                                ':hover'
+                                            )
+                                        ) ? this.props.colors.link : this.props.colors[`tag${index}`]}
+                                        cx='19.5'
+                                        cy='19.5'
+                                        r='8'
+                                    />
+                                </svg>
+                            </div>
+                        ))}
+                    </div>
+                }
                 {this.props.publication.citers.length > 0 &&
                     <h2 style={{
                         color: this.props.colors.content,

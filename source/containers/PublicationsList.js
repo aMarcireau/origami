@@ -55,7 +55,7 @@ class PublicationsList extends React.Component {
                                     paddingTop: '6px',
                                     paddingRight: '6px',
                                     paddingBottom: '6px',
-                                    paddingLeft: element.isKnown ? '6px' : '4px',
+                                    paddingLeft: element.isKnown && element.tag === null ? '8px' : '4px',
                                     backgroundColor: (element.selected ?
                                         this.props.colors.active
                                         : (element.isCiting ?
@@ -70,7 +70,13 @@ class PublicationsList extends React.Component {
                                         )
                                     ),
                                     borderBottom: `1px solid ${this.props.colors.sideSeparator}`,
-                                    borderLeft: element.isKnown ? 'none': `2px solid ${this.props.colors.active}`,
+                                    borderLeft: (element.isKnown ?
+                                        (element.tag === null ?
+                                            'none'
+                                            : `4px solid ${this.props.colors[`tag${element.tag}`]}`
+                                        )
+                                        : `4px solid ${this.props.colors.active}`
+                                    ),
                                     cursor: 'pointer',
                                     ':hover': {
                                         backgroundColor: this.props.colors.active,

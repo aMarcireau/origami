@@ -1,12 +1,12 @@
+const fs = require('fs');
+const path = require('path');
 const request = require('request');
 const readline = require('readline');
 const stream = require('stream');
-const fs = require('fs');
 const archiver = require('archiver');
 const zlib = require('zlib');
 const urlTemplate = require('url-template');
 const recursive = require(`${__dirname}/recursive`);
-const path = require('path');
 
 function isSmallerThan(firstVersion, secondVersion) {
     if (firstVersion.major !== secondVersion.major) {
@@ -28,7 +28,7 @@ function areEqual(firstVersion, secondVersion) {
 
 const semver = /^v([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)(?:-([0-9A-Za-z-\.]+)$|$)/;
 
-const versionAsString = JSON.parse(fs.readFileSync(`${__dirname}/source/package.json`)).version;
+const versionAsString = JSON.parse(fs.readFileSync(`${path.dirname(__dirname)}/source/package.json`)).version;
 const semverMatch = semver.exec(`v${versionAsString}`);
 if (!semverMatch) {
     console.error('The version number does not have the expected format');
@@ -44,7 +44,7 @@ const version = {
 // check the links' version in README.md
 if (version.identifier == null) {
     const simpleSemver = /([1-9]\d*|0)\.([1-9]\d*|0)\.([1-9]\d*|0)/g;
-    const readme = fs.readFileSync(`${__dirname}/README.md`).toString('utf8');
+    const readme = fs.readFileSync(`${path.dirname(__dirname)}/README.md`).toString('utf8');
     for (;;) {
         const simpleSemverMatch = simpleSemver.exec(readme);
         if (simpleSemverMatch == null) {
@@ -130,20 +130,20 @@ usernameInterface.question('username: ', username => {
                     process.exit(1);
                 }
                 try {
-                    fs.mkdirSync(`${__dirname}/build/archives`);
+                    fs.mkdirSync(`${path.dirname(__dirname)}/build/archives`);
                 } catch (error) {}
                 let directoriesLeft = 0;
-                for (const directoryToZip of fs.readdirSync(`${__dirname}/build`)) {
-                    if (fs.lstatSync(`${__dirname}/build/${directoryToZip}`).isDirectory()) {
+                for (const directoryToZip of fs.readdirSync(`${path.dirname(__dirname)}/build`)) {
+                    if (fs.lstatSync(`${path.dirname(__dirname)}/build/${directoryToZip}`).isDirectory()) {
                         const matchedConfiguration = /^Origami-([^-]+)-([^-]+)$/.exec(directoryToZip);
                         if (matchedConfiguration != null) {
                             ++directoriesLeft;
-                            const output = fs.createWriteStream(`${__dirname}/build/archives/${directoryToZip}.zip`);
+                            const output = fs.createWriteStream(`${path.dirname(__dirname)}/build/archives/${directoryToZip}.zip`);
                             output.on('close', () => {
-                                console.log(`Created '${__dirname}/build/archives/${directoryToZip}.zip'`);
-                                fs.readFile(`${__dirname}/build/archives/${directoryToZip}.zip`, (error, archive) => {
+                                console.log(`Created '${path.dirname(__dirname)}/build/archives/${directoryToZip}.zip'`);
+                                fs.readFile(`${path.dirname(__dirname)}/build/archives/${directoryToZip}.zip`, (error, archive) => {
                                     if (error) {
-                                        console.error(`${__dirname}/build/archives/${directoryToZip}.zip`, error);
+                                        console.error(`${path.dirname(__dirname)}/build/archives/${directoryToZip}.zip`, error);
                                         process.exit(1);
                                     }
                                     request.post({
@@ -338,17 +338,17 @@ usernameInterface.question('username: ', username => {
 
                                 // resolve Framework symlinks manually before zipping
                                 try {
-                                    recursive.rmSync(`${__dirname}/build/archives/${directoryToZip}`);
-                                    fs.mkdirSync(`${__dirname}/build/archives`);
+                                    recursive.rmSync(`${path.dirname(__dirname)}/build/archives/${directoryToZip}`);
+                                    fs.mkdirSync(`${path.dirname(__dirname)}/build/archives`);
                                 } catch (error) {}
                                 try {
-                                    fs.mkdirSync(`${__dirname}/build/archives/${directoryToZip}`);
+                                    fs.mkdirSync(`${path.dirname(__dirname)}/build/archives/${directoryToZip}`);
                                 } catch (error) {}
                                 recursive.copyFileSync(
-                                    `${__dirname}/build/${directoryToZip}/Origami.app`,
-                                    `${__dirname}/build/archives/${directoryToZip}/Origami.app`
+                                    `${path.dirname(__dirname)}/build/${directoryToZip}/Origami.app`,
+                                    `${path.dirname(__dirname)}/build/archives/${directoryToZip}/Origami.app`
                                 );
-                                const frameworks = `${__dirname}/build/archives/${directoryToZip}/Origami.app/Contents/Frameworks`;
+                                const frameworks = `${path.dirname(__dirname)}/build/archives/${directoryToZip}/Origami.app/Contents/Frameworks`;
                                 for (const frameworkFile of fs.readdirSync(frameworks)) {
                                     if (path.extname(frameworkFile) === '.framework') {
                                         const framework = `${frameworks}/${frameworkFile}`;
@@ -362,10 +362,10 @@ usernameInterface.question('username: ', username => {
                                     }
                                 }
 
-                                archive.directory(`${__dirname}/build/archives/${directoryToZip}/Origami.app`, 'Origami.app');
+                                archive.directory(`${path.dirname(__dirname)}/build/archives/${directoryToZip}/Origami.app`, 'Origami.app');
                                 archive.finalize();
                             } else {
-                                archive.directory(`${__dirname}/build/${directoryToZip}`, 'Origami');
+                                archive.directory(`${path.dirname(__dirname)}/build/${directoryToZip}`, 'Origami');
                                 archive.finalize();
                             }
                         }
