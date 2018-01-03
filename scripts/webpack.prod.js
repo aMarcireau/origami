@@ -4,15 +4,29 @@ const merge = require('webpack-merge');
 const common = require(`${__dirname}/webpack.common`);
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+const uglifyEs = require('uglify-es');
+const webpackSources = require('webpack-sources');
 
 module.exports = merge(common.configuration, {
     plugins: [
         function() {
             this.plugin('before-run', (compiler, callback) => {
+                compiler.plugin('after-compile', (compilation, callback) => {
+                    for (const filename in compilation.assets) {
+                        if (path.extname(filename) === '.js') {
+                            console.log(`\nUglyfying ${filename}`);
+                            const result = uglifyEs.minify(compilation.assets[filename].source());
+                            if (result.error) {
+                                throw result.error;
+                            }
+                            compilation.assets[filename] = new webpackSources.RawSource(result.code);
+                        }
+                    }
+                    callback();
+                });
                 compiler.plugin('after-emit', (compilation, callback) => {
                     common.package(true, callback);
                 });
-
                 callback();
             });
         },
