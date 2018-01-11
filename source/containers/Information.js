@@ -124,12 +124,13 @@ class Information extends React.Component {
                     <div style={{
                         height: '39px',
                         borderBottom: `solid 1px ${this.props.colors.sideSeparator}`,
+                        paddingLeft: '5.75px',
                     }}>
                         {new Array(5).fill().map((_, index) => (
                             <div
                                 key={`tag-${this.props.publication.updated}-${this.props.doi}-${index}`}
                                 style={{
-                                    width: '39px',
+                                    width: '27.5px',
                                     height: '39px',
                                     display: 'inline-block',
                                     ':hover': {
@@ -140,7 +141,7 @@ class Information extends React.Component {
                                     this.props.dispatch(setPublicationTag(this.props.doi, this.props.publication.tag === index ? null : index));
                                 }}
                             >
-                                <svg viewBox='0 0 39 39'>
+                                <svg viewBox='0 0 27.5 39'>
                                     <circle
                                         fill={this.props.colors[`tag${index}`]}
                                         strokeWidth='1.5'
@@ -152,7 +153,7 @@ class Information extends React.Component {
                                                 ':hover'
                                             )
                                         ) ? this.props.colors.link : this.props.colors[`tag${index}`]}
-                                        cx='19.5'
+                                        cx='13.75'
                                         cy='19.5'
                                         r='8'
                                     />
