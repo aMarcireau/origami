@@ -60,7 +60,7 @@ function createWindow() {
                 minWidth: 650,
                 minHeight: 300,
                 show: false,
-                webPreferences: {experimentalFeatures: true},
+                webPreferences: {experimentalFeatures: true, nodeIntegration: true, webviewTag: true},
                 icon: path.join(__dirname, 'origami.png'),
             });
             mainWindow.on('closed', () => {

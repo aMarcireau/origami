@@ -29,6 +29,9 @@ class Recaptcha extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
+
+        console.log('Recaptcha received props'); // @DEBUG
+
         if (this.container.firstChild) {
             if (nextProps.scholarStatus === SCHOLAR_STATUS_IDLE || nextProps.scholarStatus === SCHOLAR_STATUS_FETCHING) {
                 this.container.removeChild(this.container.firstChild);
@@ -42,12 +45,23 @@ class Recaptcha extends React.Component {
                 }, this.props.scholarStatus === SCHOLAR_STATUS_BLOCKED_VISIBLE ? 500 : 0);
             }
         } else if (nextProps.scholarStatus === SCHOLAR_STATUS_BLOCKED_HIDDEN || nextProps.scholarStatus === SCHOLAR_STATUS_BLOCKED_VISIBLE) {
+
+            console.log('will create webview'); // @DEBUG
+
+
             const webview = document.createElement('webview');
             webview.src = nextProps.url;
+            webview.style.position = 'absolute';
             webview.style.width = '100%';
             webview.style.height = '100%';
             webview.addEventListener('dom-ready', () => {
+
+                console.log('webview DOM ready'); // @DEBUG
+
                 this.container.firstChild.getWebContents().executeJavaScript('document.documentElement.outerHTML').then(text => {
+
+                    console.log('javascript executed', this.container.firstChild.getURL()); // @DEBUG
+
                     nextProps.dispatch(resolveHtml(this.container.firstChild.getURL(), text));
                 });
             });
@@ -76,6 +90,8 @@ class Recaptcha extends React.Component {
             window.setTimeout(poll, 200);
             this.container.appendChild(webview);
             this.unblocking = false;
+
+            console.log(this.container, webview); // @DEBUG
         }
         for (const property of ['left', 'top', 'width', 'height']) {
             if (nextProps.style[property] !== this.props.style[property]) {

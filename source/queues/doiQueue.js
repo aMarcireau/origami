@@ -47,6 +47,9 @@ const doiQueue = queue(
                                 bibtex += character;
                             }
                             break;
+                        case '%':
+                            bibtex += '\\%';
+                            break;
                         default:
                             bibtex += character;
                             break;
