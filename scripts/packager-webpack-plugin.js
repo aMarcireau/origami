@@ -2,7 +2,8 @@ const child_process = require('child_process');
 const fs = require('fs');
 const packager = require('electron-packager');
 const path = require('path');
-const recursive = require(`${__dirname}/recursive`);
+const uglifyEs = require('uglify-es');
+const webpackSources = require('webpack-sources');
 
 /// Packager uses electron-packager to convert the output of webpack to actual apps.
 class PackageWebpackPlugin {
@@ -10,6 +11,21 @@ class PackageWebpackPlugin {
         this.production = production;
     }
     apply(compiler) {
+        if (this.production) {
+            compiler.hooks.afterCompile.tapAsync('PackageWebpackPlugin', (compilation, callback) => {
+                for (const filename in compilation.assets) {
+                    if (path.extname(filename) === '.js') {
+                        console.log(`\nUglify ${filename}`);
+                        const result = uglifyEs.minify(compilation.assets[filename].source());
+                        if (result.error) {
+                            throw result.error;
+                        }
+                        compilation.assets[filename] = new webpackSources.RawSource(result.code);
+                    }
+                }
+                callback();
+            });
+        }
         compiler.hooks.afterEmit.tapAsync('PackageWebpackPlugin', (compilation, callback) => {
             console.log('\nCopy the package assets');
             try {
@@ -24,7 +40,7 @@ class PackageWebpackPlugin {
             try {
                 fs.mkdirSync(`${path.dirname(__dirname)}/build/origami/fonts`);
             } catch (error) {}
-            recursive.copyFileSync(`${path.dirname(__dirname)}/fonts`, `${path.dirname(__dirname)}/build/origami/fonts`);
+            child_process.execSync(`cp -R '${path.dirname(__dirname)}/fonts' '${path.dirname(__dirname)}/build/origami/fonts'`);
             fs.copyFileSync(`${path.dirname(__dirname)}/icons/origami.png`, `${path.dirname(__dirname)}/build/origami/origami.png`);
             fs.copyFileSync(`${path.dirname(__dirname)}/build/index.html`, `${path.dirname(__dirname)}/build/origami/index.html`);
             console.log('Install the package modules');

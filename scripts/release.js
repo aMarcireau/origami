@@ -1,3 +1,4 @@
+const child_process = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const request = require('request');
@@ -6,7 +7,6 @@ const stream = require('stream');
 const archiver = require('archiver');
 const zlib = require('zlib');
 const urlTemplate = require('url-template');
-const recursive = require(`${__dirname}/recursive`);
 
 function isSmallerThan(firstVersion, secondVersion) {
     if (firstVersion.major !== secondVersion.major) {
@@ -338,27 +338,22 @@ usernameInterface.question('username: ', username => {
 
                                 // resolve Framework symlinks manually before zipping
                                 try {
-                                    recursive.rmSync(`${path.dirname(__dirname)}/build/archives/${directoryToZip}`);
                                     fs.mkdirSync(`${path.dirname(__dirname)}/build/archives`);
                                 } catch (error) {}
-                                try {
-                                    fs.mkdirSync(`${path.dirname(__dirname)}/build/archives/${directoryToZip}`);
-                                } catch (error) {}
-                                recursive.copyFileSync(
-                                    `${path.dirname(__dirname)}/build/${directoryToZip}/Origami.app`,
-                                    `${path.dirname(__dirname)}/build/archives/${directoryToZip}/Origami.app`
-                                );
+                                child_process.execSync(`rm -rf '${path.dirname(__dirname)}/build/archives/${directoryToZip}'`);
+                                fs.mkdirSync(`${path.dirname(__dirname)}/build/archives/${directoryToZip}`);
+                                child_process.execSync(`cp -R '${path.dirname(__dirname)}/build/${directoryToZip}/Origami.app' '${path.dirname(__dirname)}/build/archives/${directoryToZip}/Origami.app'`);
                                 const frameworks = `${path.dirname(__dirname)}/build/archives/${directoryToZip}/Origami.app/Contents/Frameworks`;
                                 for (const frameworkFile of fs.readdirSync(frameworks)) {
                                     if (path.extname(frameworkFile) === '.framework') {
                                         const framework = `${frameworks}/${frameworkFile}`;
                                         for (const element of fs.readdirSync(framework)) {
                                             if (element !== 'Versions') {
-                                                recursive.rmSync(`${framework}/${element}`);
-                                                recursive.copyFileSync(`${framework}/Versions/A/${element}`, `${framework}/${element}`);
+                                                child_process.execSync(`rm -rf '${framework}/${element}'`);
+                                                child_process.execSync(`cp -R '${framework}/Versions/A/${element}' '${framework}/${element}'`);
                                             }
                                         }
-                                        recursive.rmSync(`${framework}/Versions`);
+                                        child_process.execSync(`rm -rf '${framework}/Versions'`);
                                     }
                                 }
 
