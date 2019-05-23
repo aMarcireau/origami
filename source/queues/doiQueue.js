@@ -42,7 +42,7 @@ const doiQueue = queue(
                             break;
                         case ',':
                             if (nesting < 2) {
-                                bibtex += ',\n    ';
+                                bibtex += ',\n   ';
                             } else {
                                 bibtex += character;
                             }
