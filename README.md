@@ -1,4 +1,4 @@
-![origami](banner.png "The Origami banner")
+![origami](images/banner.png "The Origami banner")
 
 ## Presentation
 
@@ -6,7 +6,7 @@ Origami is an open-source research tool focused on graphical representations of 
 
 ## Download
 
-| [<img src="linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-linux-x64.zip) | [<img src="macOs.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-darwin-x64.zip) | [<img src="windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-win32-x64.zip) |
+| [<img src="images/linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-linux-x64.zip) | [<img src="images/macos.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-darwin-x64.zip) | [<img src="images/windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-win32-x64.zip) |
 | ------------------------------------ | ------------------------------------ | ---------------------------------------|
 | [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-linux-x64.zip) | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-darwin-x64.zip) | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.9.2/Origami-win32-x64.zip) |
 
@@ -171,11 +171,11 @@ Follow these steps to download the source code, edit and build Origami:
 2. Clone the repository by running from a terminal `git clone https://github.com/aMarcireau/origami.git`.
 3. Go to the created *origami* folder and run `npm install`.
 
-For development, run from the *origami* folder the command `npm start`. It will trigger a development build whenever something from the *souce* directory changes.
+For development, run from the *origami* folder the command `npm run-script watch`. It will trigger a development build whenever something from the *souce* directory changes.
 
 In order to create a new release, run:
-1. `npm run build` to generate production builds for each supported platform.
-2. `npm run release` to create a new Github release (requires administration rights on this repository).
+1. `npm run-script build` to generate production builds for each supported platform.
+2. `npm run-script release` to create a new Github release (requires administration rights on this repository).
 
 The code documentation is held in the [Wiki](https://github.com/aMarcireau/origami/wiki).
 

@@ -7,7 +7,9 @@ const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin
 const uglifyEs = require('uglify-es');
 const webpackSources = require('webpack-sources');
 
-module.exports = merge(common.configuration, {
+module.exports = {
+    ...common,
+    mode: 'production',
     plugins: [
         function() {
             this.plugin('before-run', (compiler, callback) => {
@@ -30,9 +32,6 @@ module.exports = merge(common.configuration, {
                 callback();
             });
         },
-        new webpack.DefinePlugin({
-            'process.env.NODE_ENV': JSON.stringify('production'),
-        }),
         new HtmlWebpackPlugin({
             template: `${path.dirname(__dirname)}/source/index.ejs`,
             inlineSource: '\.js$',

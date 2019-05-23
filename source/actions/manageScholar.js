@@ -4,7 +4,6 @@ import cssSelect from 'css-select'
 import {publicationFromCiterMetadata} from './manageCrossref'
 import {levenshteinDistance} from '../libraries/utilities'
 import {
-    FETCH_SCHOLAR_REQUEST,
     RESOLVE_SCHOLAR_INITIAL_REQUEST,
     RESOLVE_SCHOLAR_CITERS_REQUEST,
     REJECT_SCHOLAR_CITERS_REQUEST,
@@ -24,10 +23,6 @@ import {
     SCHOLAR_STATUS_BLOCKED_HIDDEN,
     SCHOLAR_STATUS_BLOCKED_VISIBLE,
 } from '../constants/enums'
-
-export function fetchScholarRequest() {
-    return {type: FETCH_SCHOLAR_REQUEST};
-}
 
 export function rejectScholarConnection() {
     return {type: REJECT_SCHOLAR_CONNECTION};
