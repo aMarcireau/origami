@@ -48,7 +48,7 @@ const crossrefQueue = queue(
                     .catch(error => {
                         console.error(error);
                         if (error instanceof SyntaxError) {
-                            store.dispatch(rejectPublicationFromDoi());
+                            store.dispatch(rejectPublicationFromDoi(request.doi));
                         } else {
                             store.dispatch(crossrefQueue.actions.rejectConnection());
                         }
