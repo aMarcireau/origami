@@ -59,7 +59,7 @@ const crossrefQueue = queue(
             case CROSSREF_REQUEST_TYPE_IMPORTED_METADATA:
                 fetch(`https://api.crossref.org/works?${[
                     ...request.authors.map(author => `query.author=${encodeURIComponent(author)}`),
-                    `query.bibliographic=${encodeURIComponent(request.title)}`,
+                    `query.bibliographic=${encodeURIComponent(request.title.toLowerCase())}`,
                     `filter=from-pub-date:${encodeURIComponent(request.dateAsString)}`,
                     'sort=score',
                     'order=desc',
