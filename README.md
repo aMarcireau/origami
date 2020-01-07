@@ -110,8 +110,8 @@ Origami saves and load collections in [JSON](https://www.json.org) format. The g
         [                                 # each publication is a two-elements list containg a string and an object
             "10.1109/tpami.2016.2574707", # the publication's DOI
             {                             # object containing the publication's data
-                "status": "PUBLICATION_STATUS_IN_COLLECTION", # the publication's statusin Origami, which can be:
-                                                              #     "PUBLICATION_STATUS_UNVALIDATED": the DOI was added, but not valdiated
+                "status": "PUBLICATION_STATUS_IN_COLLECTION", # the publication's status in Origami, which can be:
+                                                              #     "PUBLICATION_STATUS_UNVALIDATED": the DOI was added, but not validated
                                                               #     "PUBLICATION_STATUS_DEFAULT": suggested publication
                                                               #     "PUBLICATION_STATUS_IN_COLLECTION": in-collection publication
                 "title": "HOTS: A Hierarchy of Event-Based Time-Surfaces for Pattern Recognition",
@@ -123,7 +123,7 @@ Origami saves and load collections in [JSON](https://www.json.org) format. The g
                     "Ryad B. Benosman"
                 ],
                 "journal": "Institute of Electrical and Electronics Engineers (IEEE)",
-                "date": [ # the publication's release date, list of one to three integer values (optionnal month and day)
+                "date": [ # the publication's release date, list of one to three integer values (optional month and day)
                     2016,
                     7,
                     14
@@ -156,7 +156,6 @@ Origami saves and load collections in [JSON](https://www.json.org) format. The g
         }
     ]
 }
-
 ```
 
 ## Contribute
@@ -178,10 +177,6 @@ In order to create a new release, run:
 2. `npm run-script release` to create a new Github release (requires administration rights on this repository).
 
 The code documentation is held in the [Wiki](https://github.com/aMarcireau/origami/wiki).
-
-### Help out
-
-Check the [Projects](https://github.com/aMarcireau/origami/projects) page to see what's urgent or expected by the community.
 
 ## License
 

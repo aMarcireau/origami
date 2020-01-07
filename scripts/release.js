@@ -146,8 +146,9 @@ usernameInterface.question('username: ', username => {
                                         console.error(`${path.dirname(__dirname)}/build/archives/${directoryToZip}.zip`, error);
                                         process.exit(1);
                                     }
+                                    const url = urlTemplate.parse(body.upload_url).expand({name: `${directoryToZip}.zip`});
                                     request.post({
-                                        url: urlTemplate.parse(body.upload_url).expand({name: `${directoryToZip}.zip`}),
+                                        url,
                                         auth: {
                                             user: username,
                                             pass: password,
@@ -160,11 +161,11 @@ usernameInterface.question('username: ', username => {
                                         body: archive,
                                     }, (error, httpIncomingMessage, body) => {
                                         if (error) {
-                                            console.error(urlTemplate.parse(body.upload_url).expand({name: `${directoryToZip}.zip`}), error);
+                                            console.error(url, error);
                                             process.exit(1);
                                         }
                                         if (httpIncomingMessage.statusCode !== 201) {
-                                            console.error(urlTemplate.parse(body.upload_url).expand({name: `${directoryToZip}.zip`}), body);
+                                            console.error(url, body);
                                             process.exit(1);
                                         }
                                         console.log(`Uploaded '${directoryToZip}'`);
