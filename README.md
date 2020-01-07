@@ -6,9 +6,9 @@ Origami is an open-source research tool focused on graphical representations of 
 
 ## Download
 
-| [<img src="images/linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.0/Origami-linux-x64.zip) | [<img src="images/macos.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.0/Origami-darwin-x64.zip) | [<img src="images/windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.0/Origami-win32-x64.zip) |
+| [<img src="images/linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.1/Origami-linux-x64.zip) | [<img src="images/macos.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.1/Origami-darwin-x64.zip) | [<img src="images/windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.1/Origami-win32-x64.zip) |
 | ------------------------------------ | ------------------------------------ | ---------------------------------------|
-| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.10.0/Origami-linux-x64.zip) | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.10.0/Origami-darwin-x64.zip) | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.10.0/Origami-win32-x64.zip) |
+| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.10.1/Origami-linux-x64.zip) | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.10.1/Origami-darwin-x64.zip) | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.10.1/Origami-win32-x64.zip) |
 
 Visit the [Releases](https://github.com/aMarcireau/origami/releases) page to download Origami for other platforms.
 
@@ -42,7 +42,7 @@ Origami can load several DOIs at once from a [JSON](https://www.json.org) format
 Origami saves and load collections in [JSON](https://www.json.org) format. The generated files have the following structure:
 ```yaml
 {
-    "appVersion": "0.10.0", # the version of the app used to generate this save
+    "appVersion": "0.10.1", # the version of the app used to generate this save
     "display": 0,           # the current display's index (0 for graph, 1 for list)
     "knownDois": [          # list of DOIs clicked at least once (used to highlight new publications)
         "10.1109/tpami.2016.2574707"
@@ -175,6 +175,8 @@ For development, run from the *origami* folder the command `npm run-script watch
 In order to create a new release, run:
 1. `npm run-script build` to generate production builds for each supported platform.
 2. `npm run-script release` to create a new Github release (requires administration rights on this repository).
+
+To build Windows apps with macOS Catalina, one must patch Wine (see https://github.com/electron/node-rcedit/issues/51#issuecomment-546234084).
 
 The code documentation is held in the [Wiki](https://github.com/aMarcireau/origami/wiki).
 
