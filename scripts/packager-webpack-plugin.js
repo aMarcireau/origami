@@ -1,5 +1,5 @@
 const child_process = require('child_process');
-const fs = require('fs');
+const fs = require('fs-extra');
 const packager = require('electron-packager');
 const path = require('path');
 const uglifyEs = require('uglify-es');
@@ -40,7 +40,7 @@ class PackageWebpackPlugin {
             try {
                 fs.mkdirSync(`${path.dirname(__dirname)}/build/origami/fonts`);
             } catch (error) {}
-            child_process.execSync(`cp -R '${path.dirname(__dirname)}/fonts' '${path.dirname(__dirname)}/build/origami/fonts'`);
+            fs.copySync(`${path.dirname(__dirname)}/fonts`, `${path.dirname(__dirname)}/build/origami/fonts`);
             fs.copyFileSync(`${path.dirname(__dirname)}/icons/origami.png`, `${path.dirname(__dirname)}/build/origami/origami.png`);
             fs.copyFileSync(`${path.dirname(__dirname)}/build/index.html`, `${path.dirname(__dirname)}/build/origami/index.html`);
             console.log('Install the package modules');
