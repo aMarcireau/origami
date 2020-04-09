@@ -30,7 +30,7 @@ const crossrefQueue = queue(
     (request, store) => {
         switch (request.type) {
             case CROSSREF_REQUEST_TYPE_VALIDATION:
-                fetch(`http://api.crossref.org/works/${request.doi}`)
+                fetch(`https://api.crossref.org/works/${request.doi}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new SyntaxError(response.statusText);
