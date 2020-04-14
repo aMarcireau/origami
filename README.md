@@ -2,7 +2,7 @@
     <img src="images/banner.png" width="400">
 </p>
 
-Origami is an open-source research tool focused on graphical representations of data.
+Origami is an open-source research tool. It automatically scraps Google Scholar pages to retrieve "cited by" papers, and presents the results as an interactive graph.
 
 ![demo](images/demo.png "A screenshot")
 
@@ -16,12 +16,12 @@ Visit the [Releases](https://github.com/aMarcireau/origami/releases) page to dow
 
 ## Color theme
 
-To change the color theme, edit the *colors.json* file with the path:
+To change the color theme, edit `colors.json`. You can find it at:
 - `Origami/resources/app/colors.json` on Linux
 - `Origami.app/Contents/Resources/app/colors.json` on macOS (right-cick on the app and choose *Show Package Contents*)
 - `Origami\resources\app\colors.json` on Windows
 
-The *themes* directory of this repository contains several themes suggestions.
+The `themes` directory of this repository contains several themes suggestions.
 
 ## Formats
 
@@ -172,10 +172,10 @@ Follow these steps to download the source code, edit and build Origami:
 2. Clone the repository by running from a terminal `git clone https://github.com/aMarcireau/origami.git`.
 3. Go to the created *origami* folder and run `npm install`.
 
-For development, run from the *origami* folder the command `npm run-script watch`. It will trigger a development build whenever something from the *souce* directory changes.
+For development, run from the *origami* folder the command `npm run-script watch`. A development build is triggered every time a file in the *souce* directory is modified.
 
 In order to create a new release, run:
-1. `npm run-script build` to generate production builds for each supported platform.
+1. `npm run-script build` to generate a production build for each supported platform.
 2. `npm run-script release` to create a new Github release (requires administration rights on this repository).
 
 To build Windows apps with macOS Catalina, one must patch Wine (see https://github.com/electron/node-rcedit/issues/51#issuecomment-546234084).
