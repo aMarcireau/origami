@@ -1,12 +1,14 @@
-![origami](images/banner.png "The Origami banner")
-
-## Presentation
+<p align="center">
+    <img src="images/banner.png" width="400">
+</p>
 
 Origami is an open-source research tool focused on graphical representations of data.
 
+![demo](images/demo.png "A screenshot")
+
 ## Download
 
-| [<img src="images/linux.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-linux-x64.zip) | [<img src="images/macos.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-darwin-x64.zip) | [<img src="images/windows.png" width="50px"/>](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-win32-x64.zip) |
+| [<p align="center" style="margin-bottom: 0"><img src="images/linux.png" width="50px"/></p>](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-linux-x64.zip) | [<p align="center" style="margin-bottom: 0"><img src="images/macos.png" width="50px"/></p>](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-darwin-x64.zip) | [<p align="center" style="margin-bottom: 0"><img src="images/windows.png" width="50px"/></p>](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-win32-x64.zip) |
 | ------------------------------------ | ------------------------------------ | ---------------------------------------|
 | [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-linux-x64.zip) | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-darwin-x64.zip) | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.10.2/Origami-win32-x64.zip) |
 
