@@ -14,12 +14,12 @@ Origami is an open-source research tool focused on graphical representations of 
 
 Visit the [Releases](https://github.com/aMarcireau/origami/releases) page to download Origami for other platforms.
 
-## Themes
+## Color theme
 
 To change the color theme, edit the *colors.json* file with the path:
-- *Origami/resources/app/colors.json* under Linux
-- *Origami.app/Contents/Resources/app/colors.json* under macOS (right-cick on the app and choose *Show Package Contents*)
-- *Origami\resources\app\colors.json* under Windows
+- `Origami/resources/app/colors.json` on Linux
+- `Origami.app/Contents/Resources/app/colors.json` on macOS (right-cick on the app and choose *Show Package Contents*)
+- `Origami\resources\app\colors.json` on Windows
 
 The *themes* directory of this repository contains several themes suggestions.
 
