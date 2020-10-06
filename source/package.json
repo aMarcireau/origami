@@ -4,6 +4,6 @@
     "main": "main.js",
     "private": true,
     "devDependencies": {
-        "electron": "9.1.0"
+        "electron": "10.1.3"
     }
 }
