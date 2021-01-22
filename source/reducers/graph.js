@@ -18,7 +18,6 @@ export default function graphZoom(state = {
                 ...state,
                 threshold: action.threshold,
             }
-
         case SET_GRAPH_ZOOM_AND_OFFSET:
             return {
                 ...state,

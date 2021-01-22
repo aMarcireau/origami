@@ -22,7 +22,7 @@ class Checkbox extends React.Component {
                     ':hover': {
                         backgroundColor: this.props.colors.sideBackground,
                     },
-                    dispplay: 'inline-block',
+                    display: 'inline-block',
                     position: 'relative',
                 }}
             >
