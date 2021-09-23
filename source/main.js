@@ -152,13 +152,12 @@ function createWindow() {
             ///     filename: string, the filename used if the save was not cancelled
             electron.ipcMain.on("save-to-file", (event, filename, data) => {
                 if (filename == null) {
-                    electron.dialog.showSaveDialog(
-                        mainWindow,
-                        {
+                    electron.dialog
+                        .showSaveDialog(mainWindow, {
                             filters: [{ name: "JSON", extensions: ["json"] }],
-                        },
-                        filePaths => {
-                            if (filePaths == null) {
+                        })
+                        .then(result => {
+                            if (result.canceled) {
                                 event.sender.send(
                                     "saved-to-file",
                                     true,
@@ -166,26 +165,25 @@ function createWindow() {
                                     null
                                 );
                             } else {
-                                fs.writeFile(filePaths, data, error => {
+                                fs.writeFile(result.filePath, data, error => {
                                     if (error) {
                                         event.sender.send(
                                             "saved-to-file",
                                             false,
                                             true,
-                                            filePaths
+                                            result.filePath
                                         );
                                     } else {
                                         event.sender.send(
                                             "saved-to-file",
                                             false,
                                             false,
-                                            filePaths
+                                            result.filePath
                                         );
                                     }
                                 });
                             }
-                        }
-                    );
+                        });
                 } else {
                     fs.writeFile(filename, data, error => {
                         if (error) {
@@ -217,22 +215,21 @@ function createWindow() {
             electron.ipcMain.on(
                 "save-to-file-then-new",
                 (event, filename, data) => {
-                    electron.dialog.showMessageBox(
-                        mainWindow,
-                        {
+                    electron.dialog
+                        .showMessageBox(mainWindow, {
                             type: "question",
                             buttons: ["Save", "Cancel", "Don't Save"],
                             message: "Do you want to save your changes?",
-                        },
-                        response => {
-                            if (response === 2) {
+                        })
+                        .then(result => {
+                            if (result.response === 2) {
                                 event.sender.send(
                                     "saved-to-file-then-new",
                                     false,
                                     false,
                                     null
                                 );
-                            } else if (response === 1) {
+                            } else if (result.response === 1) {
                                 event.sender.send(
                                     "saved-to-file-then-new",
                                     true,
@@ -241,18 +238,20 @@ function createWindow() {
                                 );
                             } else {
                                 if (filename == null) {
-                                    electron.dialog.showSaveDialog(
-                                        mainWindow,
-                                        {
+                                    electron.dialog
+                                        .showSaveDialog(mainWindow, {
                                             filters: [
                                                 {
                                                     name: "JSON",
                                                     extensions: ["json"],
                                                 },
                                             ],
-                                        },
-                                        filePaths => {
-                                            if (filePaths == null) {
+                                        })
+                                        .then(result => {
+                                            if (
+                                                result.canceled ||
+                                                result.filePaths.length === 0
+                                            ) {
                                                 event.sender.send(
                                                     "saved-to-file-then-new",
                                                     true,
@@ -261,7 +260,7 @@ function createWindow() {
                                                 );
                                             } else {
                                                 fs.writeFile(
-                                                    filePaths,
+                                                    result.filePaths,
                                                     data,
                                                     error => {
                                                         if (error) {
@@ -269,21 +268,20 @@ function createWindow() {
                                                                 "saved-to-file-then-new",
                                                                 false,
                                                                 true,
-                                                                filePaths
+                                                                result.filePaths
                                                             );
                                                         } else {
                                                             event.sender.send(
                                                                 "saved-to-file-then-new",
                                                                 false,
                                                                 false,
-                                                                filePaths
+                                                                result.filePaths
                                                             );
                                                         }
                                                     }
                                                 );
                                             }
-                                        }
-                                    );
+                                        });
                                 } else {
                                     fs.writeFile(filename, data, error => {
                                         if (error) {
@@ -304,8 +302,7 @@ function createWindow() {
                                     });
                                 }
                             }
-                        }
-                    );
+                        });
                 }
             );
 
@@ -325,15 +322,17 @@ function createWindow() {
                 "save-to-file-then-open",
                 (event, filename, data) => {
                     const openFileDialog = saveFilename => {
-                        electron.dialog.showOpenDialog(
-                            mainWindow,
-                            {
+                        electron.dialog
+                            .showOpenDialog(mainWindow, {
                                 filters: [
                                     { name: "JSON", extensions: ["json"] },
                                 ],
-                            },
-                            filePaths => {
-                                if (filePaths == null) {
+                            })
+                            .then(result => {
+                                if (
+                                    result.canceled ||
+                                    result.filePaths.length === 0
+                                ) {
                                     event.sender.send(
                                         "saved-to-file-then-opened",
                                         false,
@@ -345,34 +344,36 @@ function createWindow() {
                                         null
                                     );
                                 } else {
-                                    fs.readFile(filePaths[0], (error, data) => {
-                                        if (error) {
-                                            event.sender.send(
-                                                "saved-to-file-then-opened",
-                                                false,
-                                                false,
-                                                false,
-                                                true,
-                                                saveFilename,
-                                                filePaths[0],
-                                                null
-                                            );
-                                        } else {
-                                            event.sender.send(
-                                                "saved-to-file-then-opened",
-                                                false,
-                                                false,
-                                                false,
-                                                false,
-                                                saveFilename,
-                                                filePaths[0],
-                                                data
-                                            );
+                                    fs.readFile(
+                                        result.filePaths[0],
+                                        (error, data) => {
+                                            if (error) {
+                                                event.sender.send(
+                                                    "saved-to-file-then-opened",
+                                                    false,
+                                                    false,
+                                                    false,
+                                                    true,
+                                                    saveFilename,
+                                                    result.filePaths[0],
+                                                    null
+                                                );
+                                            } else {
+                                                event.sender.send(
+                                                    "saved-to-file-then-opened",
+                                                    false,
+                                                    false,
+                                                    false,
+                                                    false,
+                                                    saveFilename,
+                                                    result.filePaths[0],
+                                                    data
+                                                );
+                                            }
                                         }
-                                    });
+                                    );
                                 }
-                            }
-                        );
+                            });
                     };
                     electron.dialog.showMessageBox(
                         mainWindow,
@@ -397,18 +398,17 @@ function createWindow() {
                                 );
                             } else {
                                 if (filename == null) {
-                                    electron.dialog.showSaveDialog(
-                                        mainWindow,
-                                        {
+                                    electron.dialog
+                                        .showSaveDialog(mainWindow, {
                                             filters: [
                                                 {
                                                     name: "JSON",
                                                     extensions: ["json"],
                                                 },
                                             ],
-                                        },
-                                        filePaths => {
-                                            if (filePaths == null) {
+                                        })
+                                        .then(result => {
+                                            if (result.canceled) {
                                                 event.sender.send(
                                                     "saved-to-file-then-opened",
                                                     true,
@@ -421,7 +421,7 @@ function createWindow() {
                                                 );
                                             } else {
                                                 fs.writeFile(
-                                                    filePaths,
+                                                    result.filePath,
                                                     data,
                                                     error => {
                                                         if (error) {
@@ -431,20 +431,19 @@ function createWindow() {
                                                                 false,
                                                                 true,
                                                                 false,
-                                                                filePaths,
+                                                                result.filePath,
                                                                 null,
                                                                 null
                                                             );
                                                         } else {
                                                             openFileDialog(
-                                                                filePaths
+                                                                result.filePath
                                                             );
                                                         }
                                                     }
                                                 );
                                             }
-                                        }
-                                    );
+                                        });
                                 } else {
                                     fs.writeFile(filename, data, error => {
                                         if (error) {
@@ -476,13 +475,12 @@ function createWindow() {
             ///     filename: string, the filename used if the opening was not cancelled
             ///     data: buffer, content of the opened file
             electron.ipcMain.on("open", event => {
-                electron.dialog.showOpenDialog(
-                    mainWindow,
-                    {
+                electron.dialog
+                    .showOpenDialog(mainWindow, {
                         filters: [{ name: "JSON", extensions: ["json"] }],
-                    },
-                    filePaths => {
-                        if (filePaths == null) {
+                    })
+                    .then(result => {
+                        if (result.canceled || result.filePaths.length === 0) {
                             event.sender.send(
                                 "opened",
                                 true,
@@ -491,13 +489,13 @@ function createWindow() {
                                 null
                             );
                         } else {
-                            fs.readFile(filePaths[0], (error, data) => {
+                            fs.readFile(result.filePaths[0], (error, data) => {
                                 if (error) {
                                     event.sender.send(
                                         "opened",
                                         false,
                                         true,
-                                        filePaths[0],
+                                        result.filePaths[0],
                                         null
                                     );
                                 } else {
@@ -505,14 +503,13 @@ function createWindow() {
                                         "opened",
                                         false,
                                         false,
-                                        filePaths[0],
+                                        result.filePaths[0],
                                         data
                                     );
                                 }
                             });
                         }
-                    }
-                );
+                    });
             });
 
             /// 'backup' moves an existing save and creates a new one, reporting errors with 'backedup'.
@@ -572,13 +569,12 @@ function createWindow() {
             ///     filename: string, the filename used if the opening was not cancelled
             ///     data: buffer, content of the opened file
             electron.ipcMain.on("import-publications", event => {
-                electron.dialog.showOpenDialog(
-                    mainWindow,
-                    {
+                electron.dialog
+                    .showOpenDialog(mainWindow, {
                         filters: [{ name: "JSON", extensions: ["json"] }],
-                    },
-                    filePaths => {
-                        if (filePaths == null) {
+                    })
+                    .then(result => {
+                        if (result.canceled || result.filePaths.length === 0) {
                             event.sender.send(
                                 "imported-publications",
                                 true,
@@ -587,13 +583,13 @@ function createWindow() {
                                 null
                             );
                         } else {
-                            fs.readFile(filePaths[0], (error, data) => {
+                            fs.readFile(result.filePaths[0], (error, data) => {
                                 if (error) {
                                     event.sender.send(
                                         "imported-publications",
                                         false,
                                         true,
-                                        filePaths[0],
+                                        result.filePaths[0],
                                         null
                                     );
                                 } else {
@@ -601,14 +597,13 @@ function createWindow() {
                                         "imported-publications",
                                         false,
                                         false,
-                                        filePaths[0],
+                                        result.filePaths[0],
                                         data
                                     );
                                 }
                             });
                         }
-                    }
-                );
+                    });
             });
 
             /// 'import-dois' prompts for a file to open and sends back its contents with 'imported-dois'.
@@ -618,13 +613,12 @@ function createWindow() {
             ///     filename: string, the filename used if the opening was not cancelled
             ///     data: buffer, content of the opened file
             electron.ipcMain.on("import-dois", event => {
-                electron.dialog.showOpenDialog(
-                    mainWindow,
-                    {
+                electron.dialog
+                    .showOpenDialog(mainWindow, {
                         filters: [{ name: "JSON", extensions: ["json"] }],
-                    },
-                    filePaths => {
-                        if (filePaths == null) {
+                    })
+                    .then(result => {
+                        if (result.canceled || result.filePaths.length === 0) {
                             event.sender.send(
                                 "imported-dois",
                                 true,
@@ -633,13 +627,13 @@ function createWindow() {
                                 null
                             );
                         } else {
-                            fs.readFile(filePaths[0], (error, data) => {
+                            fs.readFile(result.filePaths[0], (error, data) => {
                                 if (error) {
                                     event.sender.send(
                                         "imported-dois",
                                         false,
                                         true,
-                                        filePaths[0],
+                                        result.filePaths[0],
                                         null
                                     );
                                 } else {
@@ -647,14 +641,13 @@ function createWindow() {
                                         "imported-dois",
                                         false,
                                         false,
-                                        filePaths[0],
-                                        data
+                                        result.filePaths[0],
+                                        data.toString()
                                     );
                                 }
                             });
                         }
-                    }
-                );
+                    });
             });
 
             /// 'import-bibtex' prompts for a file to open and sends back its contents with 'imported-bibtex'.
@@ -664,13 +657,12 @@ function createWindow() {
             ///     filename: string, the filename used if the opening was not cancelled
             ///     data: buffer, content of the opened file
             electron.ipcMain.on("import-bibtex", event => {
-                electron.dialog.showOpenDialog(
-                    mainWindow,
-                    {
+                electron.dialog
+                    .showOpenDialog(mainWindow, {
                         filters: [{ name: "BibTeX", extensions: ["bib"] }],
-                    },
-                    filePaths => {
-                        if (filePaths == null) {
+                    })
+                    .then(result => {
+                        if (result.canceled || result.filePaths.length === 0) {
                             event.sender.send(
                                 "imported-bibtex",
                                 true,
@@ -679,13 +671,13 @@ function createWindow() {
                                 null
                             );
                         } else {
-                            fs.readFile(filePaths[0], (error, data) => {
+                            fs.readFile(result.filePaths[0], (error, data) => {
                                 if (error) {
                                     event.sender.send(
                                         "imported-bibtex",
                                         false,
                                         true,
-                                        filePaths[0],
+                                        result.filePaths[0],
                                         null
                                     );
                                 } else {
@@ -693,14 +685,13 @@ function createWindow() {
                                         "imported-bibtex",
                                         false,
                                         false,
-                                        filePaths[0],
-                                        data
+                                        result.filePaths[0],
+                                        data.toString()
                                     );
                                 }
                             });
                         }
-                    }
-                );
+                    });
             });
 
             /// 'export-bibtex' stores the given data to the given file and sends back 'exported-bibtex'.
@@ -709,33 +700,31 @@ function createWindow() {
             ///     failed: bool, true if the save failed
             ///     filename: string, the filename used if the save was not cancelled
             electron.ipcMain.on("export-bibtex", (event, data) => {
-                electron.dialog.showSaveDialog(
-                    mainWindow,
-                    {
+                electron.dialog
+                    .showSaveDialog(mainWindow, {
                         filters: [{ name: "BibTeX", extensions: ["bib"] }],
-                    },
-                    filePaths => {
-                        if (filePaths == null) {
+                    })
+                    .then(result => {
+                        if (result.canceled) {
                             event.sender.send("exported-bibtex", false, null);
                         } else {
-                            fs.writeFile(filePaths, data, error => {
+                            fs.writeFile(result.filePath, data, error => {
                                 if (error) {
                                     event.sender.send(
                                         "exported-bibtex",
                                         true,
-                                        filePaths
+                                        result.filePath
                                     );
                                 } else {
                                     event.sender.send(
                                         "exported-bibtex",
                                         false,
-                                        filePaths
+                                        result.filePath
                                     );
                                 }
                             });
                         }
-                    }
-                );
+                    });
             });
 
             /// 'secure-cookies' changes the secure flag to true for all cookies.

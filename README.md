@@ -2,15 +2,15 @@
     <img src="images/banner.png" width="400">
 </p>
 
-Origami is an open-source research tool. It automatically scraps Google Scholar pages to retrieve "cited by" papers, and presents the results as an interactive graph.
+Origami is an open-source research tool. It automatically scraps Google Scholar pages to retrieve "cited by" papers and presents the results as an interactive graph.
 
 ![demo](images/demo.png "A screenshot")
 
 ## Download
 
-| [<div align="center"><img src="images/linux.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.11.0/Origami-linux-x64.zip) | [<div align="center"><img src="images/macos.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.11.0/Origami-darwin-x64.zip) | [<div align="center"><img src="images/windows.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.11.0/Origami-win32-x64.zip) |
+| [<div align="center"><img src="images/linux.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-linux-x64.zip) | [<div align="center"><img src="images/macos.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-darwin-x64.zip) | [<div align="center"><img src="images/windows.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-win32-x64.zip) |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.11.0/Origami-linux-x64.zip)                                                   | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.11.0/Origami-darwin-x64.zip)                                                   | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.11.0/Origami-win32-x64.zip)                                                   |
+| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-linux-x64.zip)                                                   | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-darwin-x64.zip)                                                   | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-win32-x64.zip)                                                   |
 
 Visit the [Releases](https://github.com/aMarcireau/origami/releases) page to download Origami for other platforms.
 
@@ -19,7 +19,7 @@ Visit the [Releases](https://github.com/aMarcireau/origami/releases) page to dow
 To change the color theme, edit `colors.json`. You can find it at:
 
 -   `Origami/resources/app/colors.json` on Linux
--   `Origami.app/Contents/Resources/app/colors.json` on macOS (right-cick on the app and choose _Show Package Contents_)
+-   `Origami.app/Contents/Resources/app/colors.json` on macOS (right-click on the app and choose _Show Package Contents_)
 -   `Origami\resources\app\colors.json` on Windows
 
 The `themes` directory of this repository contains several themes suggestions.
@@ -43,11 +43,11 @@ Origami can load several DOIs at once from a [JSON](https://www.json.org) format
 
 ### Saves
 
-Origami saves and load collections in [JSON](https://www.json.org) format. The generated files have the following structure:
+Origami saves and loads collections in [JSON](https://www.json.org) format. The generated files have the following structure:
 
 ```yaml
 {
-  "appVersion": "0.11.0", # the version of the app used to generate this save
+  "appVersion": "0.10.3", # the version of the app used to generate this save
   "display": 0, # the current display's index (0 for graph, 1 for list)
   "knownDois": ["10.1109/tpami.2016.2574707"], # list of DOIs clicked at least once (used to highlight new publications)
   "crossref": # pending requests to crossref.org
@@ -137,7 +137,7 @@ Origami saves and load collections in [JSON](https://www.json.org) format. The g
           "updated": 1513430331442, # last metadata update, in milliseconds since 1970-01-01
           "selected":
             false # false means that the publication is not selected
-            #     a single publication may be selected at once,
+                  # only one publication can be selected
           "bibtex": "@article{...}", # the article's BibTeX as a string
           "x": 1.0813568646326681, # the publication's node position's x coordinate in the graph, float
           "y": -1.563450690825733, # the publication's node position's y coordinate in the graph, float
@@ -166,20 +166,30 @@ Origami is build with [Electron](https://electronjs.org), [React](https://reactj
 
 Follow these steps to download the source code, edit and build Origami:
 
-1. Install [Node.js](https://nodejs.org).
-2. Clone the repository by running from a terminal `git clone https://github.com/aMarcireau/origami.git`.
-3. Go to the created _origami_ folder and run `npm install`.
+1. install [Node.js](https://nodejs.org)
+2. clone the repository by running from a terminal `git clone https://github.com/aMarcireau/origami.git`
+3. go to the created _origami_ folder and run `npm install`
 
-For development, run from the _origami_ folder the command `npm run-script watch`. A development build is triggered every time a file in the _souce_ directory is modified.
+For development, run the command `npm run-script watch` from the _origami_ folder. A development build is triggered every time a file in the _souce_ directory is modified.
 
-In order to create a new release, run:
+To create a new release:
 
-1. `npm run-script build` to generate a production build for each supported platform.
-2. `npm run-script release` to create a new Github release (requires administration rights on this repository).
+1. create a personal access token (see https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
+2. create a file auth.json in the _origami_ directory with the following structure:
+
+```json
+{
+    "username": "Github username",
+    "token": "personal access token"
+}
+```
+
+3. generate a production build for each supported platform with `npm run-script build`
+4. create a new Github release (requires administration rights on this repository) with `npm run-script release`
 
 To build Windows apps with macOS Catalina, one must patch Wine (see https://github.com/electron/node-rcedit/issues/51#issuecomment-546234084).
 
-The code documentation is held in the [Wiki](https://github.com/aMarcireau/origami/wiki).
+Code documentation: [Wiki](https://github.com/aMarcireau/origami/wiki).
 
 ## License
 
