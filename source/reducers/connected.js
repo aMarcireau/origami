@@ -3,7 +3,7 @@ import {
     DISCONNECT,
     REJECT_SCHOLAR_CONNECTION,
     SCHOLAR_DISCONNECT,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
 export default function connected(state = false, action) {
     switch (action.type) {

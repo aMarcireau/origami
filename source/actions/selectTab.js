@@ -1,6 +1,4 @@
-import {
-    SELECT_TAB,
-} from '../constants/actionTypes'
+import { SELECT_TAB } from "../constants/actionTypes";
 
 export function selectTab(index) {
     return {

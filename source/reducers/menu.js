@@ -5,15 +5,18 @@ import {
     REJECT_SAVE,
     SELECT_GRAPH_DISPLAY,
     SELECT_LIST_DISPLAY,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
-export default function menu(state = {
-    activeItem: null,
-    hash: 0,
-    saveFilename: null,
-    savedVersion: 0,
-    display: 0,
-}, action) {
+export default function menu(
+    state = {
+        activeItem: null,
+        hash: 0,
+        saveFilename: null,
+        savedVersion: 0,
+        display: 0,
+    },
+    action
+) {
     switch (action.type) {
         case OPEN_MENU_ITEM:
             return {

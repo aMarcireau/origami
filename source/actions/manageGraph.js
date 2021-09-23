@@ -6,7 +6,7 @@ import {
     STORE_GRAPH_NODES,
     LOCK_GRAPH_NODE,
     RELEASE_GRAPH_NODE,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
 export function setGraphThreshold(threshold) {
     return {
@@ -25,11 +25,11 @@ export function setGraphZoomAndOffset(zoom, xOffset, yOffset) {
 }
 
 export function enableStickyGraph() {
-    return {type: ENABLE_STICKY_GRAPH};
+    return { type: ENABLE_STICKY_GRAPH };
 }
 
 export function disableStickyGraph() {
-    return {type: DISABLE_STICKY_GRAPH};
+    return { type: DISABLE_STICKY_GRAPH };
 }
 
 export function storeGraphNodes(nodes) {

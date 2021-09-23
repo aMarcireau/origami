@@ -17,18 +17,18 @@ export default function queue(name, stateKey, enabled, fetch, popActions) {
         },
         actions: {
             fetch: () => {
-                return {type: generatedQueue.actionTypes.FETCH};
+                return { type: generatedQueue.actionTypes.FETCH };
             },
             rejectConnection: () => {
-                return {type: generatedQueue.actionTypes.REJECT_CONNECTION};
+                return { type: generatedQueue.actionTypes.REJECT_CONNECTION };
             },
         },
         actor: store => {
             const state = store.getState();
             if (
-                state[stateKey].status === generatedQueue.status.IDLE
-                && state[stateKey].requests.length > 0
-                && enabled(state)
+                state[stateKey].status === generatedQueue.status.IDLE &&
+                state[stateKey].requests.length > 0 &&
+                enabled(state)
             ) {
                 store.dispatch(generatedQueue.actions.fetch());
                 fetch(state[stateKey].requests[0], store);

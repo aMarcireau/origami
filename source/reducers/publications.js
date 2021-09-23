@@ -17,7 +17,7 @@ import {
     STORE_GRAPH_NODES,
     LOCK_GRAPH_NODE,
     RELEASE_GRAPH_NODE,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
@@ -27,11 +27,8 @@ import {
     CROSSREF_REQUEST_TYPE_VALIDATION,
     CROSSREF_REQUEST_TYPE_CITER_METADATA,
     CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
-} from '../constants/enums'
-import {
-    isOlderThan,
-    doiPattern,
-} from '../libraries/utilities'
+} from "../constants/enums";
+import { isOlderThan, doiPattern } from "../libraries/utilities";
 
 export default function publications(state = new Map(), action, appState) {
     switch (action.type) {
@@ -68,7 +65,10 @@ export default function publications(state = new Map(), action, appState) {
             return newState;
         }
         case REJECT_PUBLICATION_FROM_DOI: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED
+            ) {
                 return state;
             }
             const newState = new Map(state);
@@ -76,17 +76,27 @@ export default function publications(state = new Map(), action, appState) {
             return newState;
         }
         case RESOLVE_PUBLICATION_FROM_DOI: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status !== PUBLICATION_STATUS_UNVALIDATED
+            ) {
                 return state;
             }
             const newState = new Map(state);
             newState.set(action.doi, {
                 ...state.get(action.doi),
-                title: action.crossrefMessage.title[0] == null ? '' : action.crossrefMessage.title[0],
-                authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
-                    author => author.given != null || author.family != null
-                ).map(
-                    author => {
+                title:
+                    action.crossrefMessage.title[0] == null
+                        ? ""
+                        : action.crossrefMessage.title[0],
+                authors: (action.crossrefMessage.author
+                    ? action.crossrefMessage.author
+                    : action.crossrefMessage.editor
+                )
+                    .filter(
+                        author => author.given != null || author.family != null
+                    )
+                    .map(author => {
                         if (author.given == null) {
                             return author.family;
                         }
@@ -94,20 +104,24 @@ export default function publications(state = new Map(), action, appState) {
                             return author.given;
                         }
                         return `${author.given} ${author.family}`;
-                    }
-                ),
+                    }),
                 journal: action.crossrefMessage.publisher,
-                date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
-                    action.crossrefMessage.created['date-parts'][0]
-                    : action.crossrefMessage.issued['date-parts'][0]
-                ),
+                date: isOlderThan(
+                    action.crossrefMessage.created["date-parts"][0],
+                    action.crossrefMessage.issued["date-parts"][0]
+                )
+                    ? action.crossrefMessage.created["date-parts"][0]
+                    : action.crossrefMessage.issued["date-parts"][0],
                 status: PUBLICATION_STATUS_IN_COLLECTION,
                 updated: action.timestamp,
             });
             return newState;
         }
         case ADD_PUBLICATION_TO_COLLECTION: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_DEFAULT) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status !== PUBLICATION_STATUS_DEFAULT
+            ) {
                 return state;
             }
             const newState = new Map(state);
@@ -119,32 +133,49 @@ export default function publications(state = new Map(), action, appState) {
             return newState;
         }
         case SELECT_PUBLICATION: {
-            if (!state.has(action.doi) || state.get(action.doi).status === PUBLICATION_STATUS_UNVALIDATED) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status === PUBLICATION_STATUS_UNVALIDATED
+            ) {
                 return state;
             }
-            return new Map(Array.from(state.entries()).map(([doi, publication]) => [
-                doi,
-                {
-                    ...publication,
-                    selected: doi === action.doi,
-                },
-            ]));
+            return new Map(
+                Array.from(state.entries()).map(([doi, publication]) => [
+                    doi,
+                    {
+                        ...publication,
+                        selected: doi === action.doi,
+                    },
+                ])
+            );
         }
         case UNSELECT_PUBLICATION: {
-            return new Map(Array.from(state.entries()).map(([doi, publication]) => [
-                doi,
-                {
-                    ...publication,
-                    selected: false,
-                },
-            ]));
+            return new Map(
+                Array.from(state.entries()).map(([doi, publication]) => [
+                    doi,
+                    {
+                        ...publication,
+                        selected: false,
+                    },
+                ])
+            );
         }
         case REMOVE_PUBLICATION: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status !==
+                    PUBLICATION_STATUS_IN_COLLECTION
+            ) {
                 return state;
             }
             const doisToRemove = new Set([
-                ...state.get(action.doi).citers.filter(citer => state.get(citer).status === PUBLICATION_STATUS_DEFAULT),
+                ...state
+                    .get(action.doi)
+                    .citers.filter(
+                        citer =>
+                            state.get(citer).status ===
+                            PUBLICATION_STATUS_DEFAULT
+                    ),
                 action.doi,
             ]);
             const newState = new Map(state);
@@ -170,42 +201,61 @@ export default function publications(state = new Map(), action, appState) {
             return newState;
         }
         case UPDATE_PUBLICATION: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status !==
+                    PUBLICATION_STATUS_IN_COLLECTION
+            ) {
                 return state;
             }
-            return new Map(Array.from(state.entries()).filter(
-                ([doi, publication]) => (
-                    publication.status !== PUBLICATION_STATUS_DEFAULT
-                    || !state.get(action.doi).citers.includes(doi)
-                    || Array.from(state.entries()).some(
-                        ([otherDoi, otherPublication]) => otherDoi !== action.doi && otherPublication.citers.includes(doi)
+            return new Map(
+                Array.from(state.entries())
+                    .filter(
+                        ([doi, publication]) =>
+                            publication.status !== PUBLICATION_STATUS_DEFAULT ||
+                            !state.get(action.doi).citers.includes(doi) ||
+                            Array.from(state.entries()).some(
+                                ([otherDoi, otherPublication]) =>
+                                    otherDoi !== action.doi &&
+                                    otherPublication.citers.includes(doi)
+                            )
                     )
-                )
-            ).map(
-                ([doi, publication]) => [
-                    doi,
-                    {
-                        ...publication,
-                        citers: doi === action.doi ? [] : publication.citers,
-                        updated: doi === action.doi ? action.timestamp : publication.updated,
-                        bibtex: doi === action.doi ? null : publication.bibtex,
-                    },
-                ]
-            ));
+                    .map(([doi, publication]) => [
+                        doi,
+                        {
+                            ...publication,
+                            citers:
+                                doi === action.doi ? [] : publication.citers,
+                            updated:
+                                doi === action.doi
+                                    ? action.timestamp
+                                    : publication.updated,
+                            bibtex:
+                                doi === action.doi ? null : publication.bibtex,
+                        },
+                    ])
+            );
         }
         case UPDATE_ALL_PUBLICATIONS: {
-            const updatableDois = new Set(Array.from(state.entries()).filter(
-                ([doi, publication]) => publication.status === PUBLICATION_STATUS_IN_COLLECTION
-            ).map(
-                ([doi, publication]) => doi
-            ));
+            const updatableDois = new Set(
+                Array.from(state.entries())
+                    .filter(
+                        ([doi, publication]) =>
+                            publication.status ===
+                            PUBLICATION_STATUS_IN_COLLECTION
+                    )
+                    .map(([doi, publication]) => doi)
+            );
             for (const scholarRequest of appState.scholar.requests) {
                 if (scholarRequest.type === SCHOLAR_REQUEST_TYPE_CITERS) {
                     updatableDois.delete(scholarRequest.doi);
                 }
             }
             for (const crossrefRequest of appState.crossref.requests) {
-                if (crossrefRequest.type === CROSSREF_REQUEST_TYPE_CITER_METADATA) {
+                if (
+                    crossrefRequest.type ===
+                    CROSSREF_REQUEST_TYPE_CITER_METADATA
+                ) {
                     updatableDois.delete(crossrefRequest.parentDoi);
                 }
             }
@@ -228,14 +278,21 @@ export default function publications(state = new Map(), action, appState) {
                 }
             }
             for (const [doi, publication] of newState.entries()) {
-                if (publication.status === PUBLICATION_STATUS_DEFAULT && !citers.has(doi)) {
+                if (
+                    publication.status === PUBLICATION_STATUS_DEFAULT &&
+                    !citers.has(doi)
+                ) {
                     newState.delete(doi);
                 }
             }
             return newState;
         }
         case SET_PUBLICATION_TAG: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status !==
+                    PUBLICATION_STATUS_IN_COLLECTION
+            ) {
                 return state;
             }
             const newState = new Map(state);
@@ -246,7 +303,11 @@ export default function publications(state = new Map(), action, appState) {
             return newState;
         }
         case RESOLVE_BIBTEX_FROM_DOI: {
-            if (!state.has(action.doi) || state.get(action.doi).status !== PUBLICATION_STATUS_IN_COLLECTION) {
+            if (
+                !state.has(action.doi) ||
+                state.get(action.doi).status !==
+                    PUBLICATION_STATUS_IN_COLLECTION
+            ) {
                 return state;
             }
             const newState = new Map(state);
@@ -266,10 +327,15 @@ export default function publications(state = new Map(), action, appState) {
                 newState.set(doi, {
                     ...newState.get(doi),
                     title: action.crossrefMessage.title[0],
-                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
-                        author => author.given != null || author.family != null
-                    ).map(
-                        author => {
+                    authors: (action.crossrefMessage.author
+                        ? action.crossrefMessage.author
+                        : action.crossrefMessage.editor
+                    )
+                        .filter(
+                            author =>
+                                author.given != null || author.family != null
+                        )
+                        .map(author => {
                             if (author.given == null) {
                                 return author.family;
                             }
@@ -277,22 +343,28 @@ export default function publications(state = new Map(), action, appState) {
                                 return author.given;
                             }
                             return `${author.given} ${author.family}`;
-                        }
-                    ),
+                        }),
                     journal: action.crossrefMessage.publisher,
-                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
-                        action.crossrefMessage.created['date-parts'][0]
-                        : action.crossrefMessage.issued['date-parts'][0]
-                    ),
+                    date: isOlderThan(
+                        action.crossrefMessage.created["date-parts"][0],
+                        action.crossrefMessage.issued["date-parts"][0]
+                    )
+                        ? action.crossrefMessage.created["date-parts"][0]
+                        : action.crossrefMessage.issued["date-parts"][0],
                 });
             } else {
                 newState.set(doi, {
                     status: PUBLICATION_STATUS_DEFAULT,
                     title: action.crossrefMessage.title[0],
-                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
-                        author => author.given != null || author.family != null
-                    ).map(
-                        author => {
+                    authors: (action.crossrefMessage.author
+                        ? action.crossrefMessage.author
+                        : action.crossrefMessage.editor
+                    )
+                        .filter(
+                            author =>
+                                author.given != null || author.family != null
+                        )
+                        .map(author => {
                             if (author.given == null) {
                                 return author.family;
                             }
@@ -300,13 +372,14 @@ export default function publications(state = new Map(), action, appState) {
                                 return author.given;
                             }
                             return `${author.given} ${author.family}`;
-                        }
-                    ),
+                        }),
                     journal: action.crossrefMessage.publisher,
-                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
-                        action.crossrefMessage.created['date-parts'][0]
-                        : action.crossrefMessage.issued['date-parts'][0]
-                    ),
+                    date: isOlderThan(
+                        action.crossrefMessage.created["date-parts"][0],
+                        action.crossrefMessage.issued["date-parts"][0]
+                    )
+                        ? action.crossrefMessage.created["date-parts"][0]
+                        : action.crossrefMessage.issued["date-parts"][0],
                     citers: [],
                     updated: null,
                     selected: false,
@@ -320,17 +393,17 @@ export default function publications(state = new Map(), action, appState) {
             if (!newState.get(action.parentDoi).citers.includes(doi)) {
                 newState.set(action.parentDoi, {
                     ...newState.get(action.parentDoi),
-                    citers: [
-                        ...newState.get(action.parentDoi).citers,
-                        doi,
-                    ],
+                    citers: [...newState.get(action.parentDoi).citers, doi],
                 });
             }
             return newState;
         }
         case RESOLVE_PUBLICATION_FROM_IMPORTED_METADATA: {
             const doi = action.crossrefMessage.DOI.toLowerCase();
-            if (state.has(doi) && state.get(doi).status !== PUBLICATION_STATUS_DEFAULT) {
+            if (
+                state.has(doi) &&
+                state.get(doi).status !== PUBLICATION_STATUS_DEFAULT
+            ) {
                 return state;
             }
             const newState = new Map(state);
@@ -339,10 +412,15 @@ export default function publications(state = new Map(), action, appState) {
                     ...newState.get(doi),
                     status: PUBLICATION_STATUS_IN_COLLECTION,
                     title: action.crossrefMessage.title[0],
-                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
-                        author => author.given != null || author.family != null
-                    ).map(
-                        author => {
+                    authors: (action.crossrefMessage.author
+                        ? action.crossrefMessage.author
+                        : action.crossrefMessage.editor
+                    )
+                        .filter(
+                            author =>
+                                author.given != null || author.family != null
+                        )
+                        .map(author => {
                             if (author.given == null) {
                                 return author.family;
                             }
@@ -350,23 +428,29 @@ export default function publications(state = new Map(), action, appState) {
                                 return author.given;
                             }
                             return `${author.given} ${author.family}`;
-                        }
-                    ),
+                        }),
                     journal: action.crossrefMessage.publisher,
-                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
-                        action.crossrefMessage.created['date-parts'][0]
-                        : action.crossrefMessage.issued['date-parts'][0]
-                    ),
+                    date: isOlderThan(
+                        action.crossrefMessage.created["date-parts"][0],
+                        action.crossrefMessage.issued["date-parts"][0]
+                    )
+                        ? action.crossrefMessage.created["date-parts"][0]
+                        : action.crossrefMessage.issued["date-parts"][0],
                     updated: action.timestamp,
                 });
             } else {
                 newState.set(doi, {
                     status: PUBLICATION_STATUS_IN_COLLECTION,
                     title: action.crossrefMessage.title[0],
-                    authors: (action.crossrefMessage.author ? action.crossrefMessage.author : action.crossrefMessage.editor).filter(
-                        author => author.given != null || author.family != null
-                    ).map(
-                        author => {
+                    authors: (action.crossrefMessage.author
+                        ? action.crossrefMessage.author
+                        : action.crossrefMessage.editor
+                    )
+                        .filter(
+                            author =>
+                                author.given != null || author.family != null
+                        )
+                        .map(author => {
                             if (author.given == null) {
                                 return author.family;
                             }
@@ -374,13 +458,14 @@ export default function publications(state = new Map(), action, appState) {
                                 return author.given;
                             }
                             return `${author.given} ${author.family}`;
-                        }
-                    ),
+                        }),
                     journal: action.crossrefMessage.publisher,
-                    date: (isOlderThan(action.crossrefMessage.created['date-parts'][0], action.crossrefMessage.issued['date-parts'][0]) ?
-                        action.crossrefMessage.created['date-parts'][0]
-                        : action.crossrefMessage.issued['date-parts'][0]
-                    ),
+                    date: isOlderThan(
+                        action.crossrefMessage.created["date-parts"][0],
+                        action.crossrefMessage.issued["date-parts"][0]
+                    )
+                        ? action.crossrefMessage.created["date-parts"][0]
+                        : action.crossrefMessage.issued["date-parts"][0],
                     citers: [],
                     updated: action.timestamp,
                     selected: false,
@@ -399,8 +484,12 @@ export default function publications(state = new Map(), action, appState) {
                 if (newState.has(doi)) {
                     const existingPublication = newState.get(doi);
                     if (
-                        (existingPublication.status !== publication.status && existingPublication.status !== PUBLICATION_STATUS_IN_COLLECTION)
-                        || (publication.status === PUBLICATION_STATUS_IN_COLLECTION && publication.updated > existingPublication.updated)
+                        (existingPublication.status !== publication.status &&
+                            existingPublication.status !==
+                                PUBLICATION_STATUS_IN_COLLECTION) ||
+                        (publication.status ===
+                            PUBLICATION_STATUS_IN_COLLECTION &&
+                            publication.updated > existingPublication.updated)
                     ) {
                         newState.set(doi, publication);
                     }
@@ -408,11 +497,14 @@ export default function publications(state = new Map(), action, appState) {
                     newState.set(doi, publication);
                 }
             }
-            const doisToRemove = new Set(Array.from(state.entries()).filter(
-                ([doi, publication]) => publication.status === PUBLICATION_STATUS_DEFAULT
-            ).map(
-                ([doi, publication]) => doi
-            ));
+            const doisToRemove = new Set(
+                Array.from(state.entries())
+                    .filter(
+                        ([doi, publication]) =>
+                            publication.status === PUBLICATION_STATUS_DEFAULT
+                    )
+                    .map(([doi, publication]) => doi)
+            );
             for (const publication of newState.values()) {
                 for (const citer of publication.citers) {
                     doisToRemove.delete(citer);
@@ -435,7 +527,9 @@ export default function publications(state = new Map(), action, appState) {
                     }
                     foundDois.add(doi);
                     if (state.has(doi)) {
-                        if (state.get(doi).status === PUBLICATION_STATUS_DEFAULT) {
+                        if (
+                            state.get(doi).status === PUBLICATION_STATUS_DEFAULT
+                        ) {
                             const newState = new Map(state);
                             newState.set(doi, {
                                 ...state.get(doi),

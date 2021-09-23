@@ -6,13 +6,13 @@ import {
     UPDATE_PUBLICATION,
     UPDATE_ALL_PUBLICATIONS,
     SET_PUBLICATION_TAG,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
 export function addPublicationToCollection(doi, timestamp) {
     return {
         type: ADD_PUBLICATION_TO_COLLECTION,
         doi,
-        timestamp
+        timestamp,
     };
 }
 
@@ -24,7 +24,7 @@ export function selectPublication(doi) {
 }
 
 export function unselectPublication() {
-    return {type: UNSELECT_PUBLICATION};
+    return { type: UNSELECT_PUBLICATION };
 }
 
 export function removePublication(doi) {

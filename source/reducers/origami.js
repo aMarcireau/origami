@@ -1,28 +1,29 @@
-import {resetState} from '../state'
-import {combineReducers} from 'redux'
-import connected from './connected'
-import crossref from './crossref'
-import doi from './doi'
-import knownDois from './knownDois'
-import graph from './graph'
-import menu from './menu'
-import mouseOwner from './mouseOwner'
-import publications from './publications'
-import scholar from './scholar'
-import search from './search'
-import tabs from './tabs'
-import version from './version'
-import warnings from './warnings'
-import {RESET} from '../constants/actionTypes'
+import { resetState } from "../state";
+import { combineReducers } from "redux";
+import connected from "./connected";
+import crossref from "./crossref";
+import doi from "./doi";
+import knownDois from "./knownDois";
+import graph from "./graph";
+import menu from "./menu";
+import mouseOwner from "./mouseOwner";
+import publications from "./publications";
+import scholar from "./scholar";
+import search from "./search";
+import tabs from "./tabs";
+import version from "./version";
+import warnings from "./warnings";
+import { RESET } from "../constants/actionTypes";
 
 function reduceReducers(...reducers) {
-    return (state, action) => reducers.reduce(
-        (newState, reducer) => reducer(newState, action),
-        state
-    );
+    return (state, action) =>
+        reducers.reduce(
+            (newState, reducer) => reducer(newState, action),
+            state
+        );
 }
 
-export default function(state, action) {
+export default function (state, action) {
     if (action.type === RESET) {
         if (action.state == null) {
             state = resetState(state);
@@ -47,7 +48,11 @@ export default function(state, action) {
         (state = {}, action) => {
             return {
                 ...state,
-                publications: publications(state.publications, action, appState),
+                publications: publications(
+                    state.publications,
+                    action,
+                    appState
+                ),
             };
         },
         (state = {}, action) => {
@@ -63,7 +68,7 @@ export default function(state, action) {
             };
         },
         combineReducers({
-            appVersion: (state = '0.0.0') => state,
+            appVersion: (state = "0.0.0") => state,
             colors: (state = {}) => state,
             connected,
             crossref: (state = {}) => state,
@@ -80,7 +85,7 @@ export default function(state, action) {
             warnings: (state = {}) => state,
         }),
         (state = {}, action) => {
-            if (process.env.ORIGAMI_ENV === 'development') {
+            if (process.env.ORIGAMI_ENV === "development") {
                 console.log(action.type, appState, action, state);
             }
             return state;

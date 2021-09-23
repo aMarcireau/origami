@@ -1,5 +1,5 @@
-import crossrefQueue from '../queues/crossrefQueue'
-import {doiPattern} from '../libraries/utilities'
+import crossrefQueue from "../queues/crossrefQueue";
+import { doiPattern } from "../libraries/utilities";
 import {
     RESOLVE_IMPORT_DOIS,
     PUBLICATION_FROM_DOI,
@@ -7,12 +7,12 @@ import {
     PUBLICATION_FROM_IMPORTED_METADATA,
     REMOVE_PUBLICATION,
     RESOLVE_IMPORT_BIBTEX,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 import {
     CROSSREF_REQUEST_TYPE_VALIDATION,
     CROSSREF_REQUEST_TYPE_CITER_METADATA,
     CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
-} from '../constants/enums'
+} from "../constants/enums";
 
 export default function crossref(
     state = {
@@ -30,26 +30,22 @@ export default function crossref(
                 ...state,
                 requests: [
                     ...state.requests,
-                    ...action.dois.map(
-                        rawDoi => doiPattern.exec(rawDoi)
-                    ).filter(
-                        match => match != null
-                    ).map(
-                        match => match[1].toLowerCase()
-                    ).filter(
-                        doi => (
-                            !foundDois.has(doi)
-                            && !appState.publications.has(doi)
+                    ...action.dois
+                        .map(rawDoi => doiPattern.exec(rawDoi))
+                        .filter(match => match != null)
+                        .map(match => match[1].toLowerCase())
+                        .filter(
+                            doi =>
+                                !foundDois.has(doi) &&
+                                !appState.publications.has(doi)
                         )
-                    ).map(
-                        doi => {
+                        .map(doi => {
                             foundDois.add(doi);
                             return {
                                 type: CROSSREF_REQUEST_TYPE_VALIDATION,
                                 doi,
                             };
-                        }
-                    ),
+                        }),
                 ],
             };
         }
@@ -65,7 +61,7 @@ export default function crossref(
                     {
                         type: CROSSREF_REQUEST_TYPE_VALIDATION,
                         doi,
-                    }
+                    },
                 ],
             };
         }
@@ -99,11 +95,13 @@ export default function crossref(
         case REMOVE_PUBLICATION:
             return {
                 ...state,
-                requests: state.requests.filter((request, index) => (
-                    request.type !== CROSSREF_REQUEST_TYPE_CITER_METADATA
-                    || request.parentDoi !== action.doi
-                    || (index === 0 && state.status !== crossrefQueue.status.IDLE)
-                )),
+                requests: state.requests.filter(
+                    (request, index) =>
+                        request.type !== CROSSREF_REQUEST_TYPE_CITER_METADATA ||
+                        request.parentDoi !== action.doi ||
+                        (index === 0 &&
+                            state.status !== crossrefQueue.status.IDLE)
+                ),
             };
         case RESOLVE_IMPORT_BIBTEX:
             return {

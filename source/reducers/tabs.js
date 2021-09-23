@@ -8,9 +8,9 @@ import {
     SELECT_TAB,
     UPDATE_ALL_PUBLICATIONS,
     SELECT_PUBLICATION,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
-export default function tabs(state = {index: 0, hash: 0}, action) {
+export default function tabs(state = { index: 0, hash: 0 }, action) {
     switch (action.type) {
         case SELECT_TAB:
             return {

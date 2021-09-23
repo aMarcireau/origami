@@ -38,7 +38,7 @@ import {
     LOCK_GRAPH_NODE,
     RELEASE_GRAPH_NODE,
     SET_SEARCH,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
 export default function menu(state = 0, action) {
     switch (action.type) {

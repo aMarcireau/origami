@@ -1,7 +1,4 @@
-import {
-    REMOVE_WARNING,
-    REMOVE_ALL_WARNINGS,
-} from '../constants/actionTypes'
+import { REMOVE_WARNING, REMOVE_ALL_WARNINGS } from "../constants/actionTypes";
 
 export function removeWarning(warningIndex) {
     return {
@@ -11,5 +8,5 @@ export function removeWarning(warningIndex) {
 }
 
 export function removeAllWarnings() {
-    return {type: REMOVE_ALL_WARNINGS};
+    return { type: REMOVE_ALL_WARNINGS };
 }

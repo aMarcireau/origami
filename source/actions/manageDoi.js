@@ -1,4 +1,4 @@
-import {RESOLVE_BIBTEX_FROM_DOI} from '../constants/actionTypes'
+import { RESOLVE_BIBTEX_FROM_DOI } from "../constants/actionTypes";
 
 export function resolveBibtexFromDoi(doi, bibtex) {
     return {

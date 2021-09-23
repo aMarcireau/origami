@@ -1,7 +1,7 @@
 import {
     FETCH_BIBTEX_FROM_DOI,
     RESOLVE_BIBTEX_FROM_DOI,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
 export function fetchBibtexFromDoi(id) {
     return {

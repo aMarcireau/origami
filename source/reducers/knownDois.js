@@ -1,6 +1,4 @@
-import {
-    SELECT_PUBLICATION,
-} from '../constants/actionTypes'
+import { SELECT_PUBLICATION } from "../constants/actionTypes";
 
 export default function knownDois(state = new Set(), action) {
     switch (action.type) {

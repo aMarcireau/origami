@@ -1,13 +1,9 @@
-import React from 'react'
-import {connect} from 'react-redux'
-import PropTypes from 'prop-types'
-import {
-    acquireMouse,
-    releaseMouse,
-} from '../actions/manageMouse'
+import React from "react";
+import { connect } from "react-redux";
+import PropTypes from "prop-types";
+import { acquireMouse, releaseMouse } from "../actions/manageMouse";
 
 class HorizontallyMovable extends React.Component {
-
     static propTypes = {
         id: PropTypes.string.isRequired,
         leftLimit: PropTypes.number.isRequired,
@@ -15,10 +11,10 @@ class HorizontallyMovable extends React.Component {
         rightLimit: PropTypes.number.isRequired,
         move: PropTypes.func.isRequired,
         style: PropTypes.object,
-    }
+    };
 
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             hover: false,
             active: false,
@@ -37,33 +33,33 @@ class HorizontallyMovable extends React.Component {
                 onMouseDown={this.onMouseDown.bind(this)}
                 onMouseLeave={this.onMouseLeave.bind(this)}
             ></div>
-        )
+        );
     }
 
     componentDidMount() {
-        document.addEventListener('mousemove', this.boundOnMouseMove);
-        document.addEventListener('mouseup', this.boundDisable);
-        document.body.addEventListener('mouseleave', this.boundDisable);
+        document.addEventListener("mousemove", this.boundOnMouseMove);
+        document.addEventListener("mouseup", this.boundDisable);
+        document.body.addEventListener("mouseleave", this.boundDisable);
     }
 
     componentWillUnmount() {
-        document.removeEventListener('mousemove', this.boundOnMouseMove);
-        document.removeEventListener('mouseup', this.boundDisable);
-        document.body.removeEventListener('mouseleave', this.boundDisable);
+        document.removeEventListener("mousemove", this.boundOnMouseMove);
+        document.removeEventListener("mouseup", this.boundDisable);
+        document.body.removeEventListener("mouseleave", this.boundDisable);
     }
 
     componentDidUpdate(previousProps, previousState) {
         if (this.props.id === this.props.mouseOwner) {
             if (this.state.active) {
                 if (this.state.targetPosition < this.props.leftLimit) {
-                    document.body.style.cursor = 'e-resize';
+                    document.body.style.cursor = "e-resize";
                 } else if (this.state.targetPosition > this.props.rightLimit) {
-                    document.body.style.cursor = 'w-resize';
+                    document.body.style.cursor = "w-resize";
                 } else {
-                    document.body.style.cursor = 'col-resize';
+                    document.body.style.cursor = "col-resize";
                 }
             } else if (this.state.hover) {
-                document.body.style.cursor = 'col-resize';
+                document.body.style.cursor = "col-resize";
             }
         } else if (this.props.mouseOwner === null && this.state.hover) {
             this.props.dispatch(acquireMouse(this.props.id));
@@ -71,7 +67,7 @@ class HorizontallyMovable extends React.Component {
     }
 
     onMouseEnter(event) {
-        this.setState({hover: true});
+        this.setState({ hover: true });
         if (this.props.mouseOwner === null) {
             this.props.dispatch(acquireMouse(this.props.id));
         }
@@ -79,14 +75,17 @@ class HorizontallyMovable extends React.Component {
 
     onMouseDown(event) {
         if (event.button === 0 && this.props.id === this.props.mouseOwner) {
-            this.setState({active: true, mouseOffset: this.props.position - event.clientX});
+            this.setState({
+                active: true,
+                mouseOffset: this.props.position - event.clientX,
+            });
         }
     }
 
     onMouseLeave(event) {
-        this.setState({hover: false});
+        this.setState({ hover: false });
         if (this.props.id === this.props.mouseOwner && !this.state.active) {
-            document.body.style.cursor = '';
+            document.body.style.cursor = "";
             this.props.dispatch(releaseMouse());
         }
     }
@@ -94,7 +93,7 @@ class HorizontallyMovable extends React.Component {
     onMouseMove(event) {
         if (this.state.active) {
             const targetPosition = event.clientX + this.state.mouseOffset;
-            this.setState({targetPosition});
+            this.setState({ targetPosition });
             if (targetPosition < this.props.leftLimit) {
                 this.props.move(this.props.leftLimit);
             } else if (targetPosition >= this.props.rightLimit) {
@@ -103,23 +102,23 @@ class HorizontallyMovable extends React.Component {
                 this.props.move(targetPosition);
             }
         } else if (this.state.hover) {
-            this.setState({targetPosition: event.clientX + this.state.mouseOffset});
+            this.setState({
+                targetPosition: event.clientX + this.state.mouseOffset,
+            });
         }
     }
 
     disable() {
-        this.setState({active: false});
+        this.setState({ active: false });
         if (this.props.id === this.props.mouseOwner) {
-            document.body.style.cursor = '';
+            document.body.style.cursor = "";
             this.props.dispatch(releaseMouse());
         }
     }
 }
 
-export default connect(
-    state => {
-        return {
-            mouseOwner: state.mouseOwner,
-        };
-    }
-)(HorizontallyMovable);
+export default connect(state => {
+    return {
+        mouseOwner: state.mouseOwner,
+    };
+})(HorizontallyMovable);

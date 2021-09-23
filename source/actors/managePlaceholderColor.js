@@ -1,4 +1,4 @@
-const style = document.createElement('style');
+const style = document.createElement("style");
 let placeholderColor = null;
 
 export default function managePlaceholderColor(store) {
@@ -8,7 +8,11 @@ export default function managePlaceholderColor(store) {
         if (style.styleSheet) {
             style.styleSheet.cssText = `input::-webkit-input-placeholder {color: ${placeholderColor};}`;
         } else {
-            style.appendChild(document.createTextNode(`input::-webkit-input-placeholder {color: ${placeholderColor};}`));
+            style.appendChild(
+                document.createTextNode(
+                    `input::-webkit-input-placeholder {color: ${placeholderColor};}`
+                )
+            );
         }
     }
 }

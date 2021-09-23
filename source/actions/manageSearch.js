@@ -1,6 +1,4 @@
-import {
-    SET_SEARCH
-} from '../constants/actionTypes'
+import { SET_SEARCH } from "../constants/actionTypes";
 
 export function setSearch(search) {
     return {

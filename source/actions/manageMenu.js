@@ -1,4 +1,4 @@
-import {ipcRenderer} from 'electron'
+import { ipcRenderer } from "electron";
 import {
     RESET,
     OPEN_MENU_ITEM,
@@ -14,7 +14,7 @@ import {
     REJECT_IMPORT_BIBTEX,
     SELECT_GRAPH_DISPLAY,
     SELECT_LIST_DISPLAY,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
 export function reset(state) {
     return {
@@ -31,7 +31,7 @@ export function openMenuItem(id) {
 }
 
 export function closeMenu() {
-    return {type: CLOSE_MENU};
+    return { type: CLOSE_MENU };
 }
 
 export function resolveSave(filename, version) {
@@ -105,9 +105,9 @@ export function rejectImportBibtex(filename, message) {
 }
 
 export function selectGraphDisplay() {
-    return {type: SELECT_GRAPH_DISPLAY};
+    return { type: SELECT_GRAPH_DISPLAY };
 }
 
 export function selectListDisplay() {
-    return {type: SELECT_LIST_DISPLAY};
+    return { type: SELECT_LIST_DISPLAY };
 }

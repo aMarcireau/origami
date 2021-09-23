@@ -1,6 +1,4 @@
-import {
-    connect,
-} from '../actions/setConnection'
+import { connect } from "../actions/setConnection";
 
 let polling = false;
 
@@ -9,11 +7,11 @@ export default function manageConnection(store) {
     if (!state.connected && !polling) {
         polling = true;
         const poll = () => {
-            fetch('https://scholar.google.com/favicon.ico', {
-                method: 'GET',
+            fetch("https://scholar.google.com/favicon.ico", {
+                method: "GET",
                 headers: new Headers({
-                    'pragma': 'no-cache',
-                    'cache-control': 'no-cache',
+                    pragma: "no-cache",
+                    "cache-control": "no-cache",
                 }),
             })
                 .then(response => {
@@ -22,8 +20,7 @@ export default function manageConnection(store) {
                 })
                 .catch(() => {
                     window.setTimeout(poll, 1000);
-                })
-            ;
+                });
         };
         window.setTimeout(poll, 1000);
     }

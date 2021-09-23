@@ -1,9 +1,9 @@
 {
     "name": "Origami",
-    "version": "0.10.2",
+    "version": "0.11.0",
     "main": "main.js",
     "private": true,
     "devDependencies": {
-        "electron": "9.1.0"
+        "electron": "15.0.0"
     }
 }

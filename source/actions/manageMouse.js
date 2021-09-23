@@ -1,7 +1,4 @@
-import {
-    ACQUIRE_MOUSE,
-    RELEASE_MOUSE,
-} from '../constants/actionTypes'
+import { ACQUIRE_MOUSE, RELEASE_MOUSE } from "../constants/actionTypes";
 
 export function acquireMouse(id) {
     return {
@@ -11,5 +8,5 @@ export function acquireMouse(id) {
 }
 
 export function releaseMouse() {
-    return {type: RELEASE_MOUSE};
+    return { type: RELEASE_MOUSE };
 }

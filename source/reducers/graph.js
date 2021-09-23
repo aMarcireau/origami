@@ -3,21 +3,24 @@ import {
     SET_GRAPH_ZOOM_AND_OFFSET,
     ENABLE_STICKY_GRAPH,
     DISABLE_STICKY_GRAPH,
-} from '../constants/actionTypes'
+} from "../constants/actionTypes";
 
-export default function graphZoom(state = {
-    threshold: 1,
-    zoom: 0,
-    xOffset: 0,
-    yOffset: 0,
-    sticky: false,
-}, action) {
+export default function graphZoom(
+    state = {
+        threshold: 1,
+        zoom: 0,
+        xOffset: 0,
+        yOffset: 0,
+        sticky: false,
+    },
+    action
+) {
     switch (action.type) {
         case SET_GRAPH_THRESHOLD:
             return {
                 ...state,
                 threshold: action.threshold,
-            }
+            };
         case SET_GRAPH_ZOOM_AND_OFFSET:
             return {
                 ...state,

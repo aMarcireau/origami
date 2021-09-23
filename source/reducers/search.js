@@ -1,8 +1,6 @@
-import {
-    SET_SEARCH,
-} from '../constants/actionTypes'
+import { SET_SEARCH } from "../constants/actionTypes";
 
-export default function search(state = '', action) {
+export default function search(state = "", action) {
     switch (action.type) {
         case SET_SEARCH:
             return action.search;
