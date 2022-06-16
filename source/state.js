@@ -2,7 +2,6 @@ import Ajv from "ajv";
 import deepEqual from "deep-equal";
 import crossrefQueue from "./queues/crossrefQueue";
 import doiQueue from "./queues/doiQueue";
-import scholarQueue from "./queues/scholarQueue";
 import {
     PUBLICATION_STATUS_UNVALIDATED,
     PUBLICATION_STATUS_DEFAULT,
@@ -10,10 +9,6 @@ import {
     SCHOLAR_REQUEST_TYPE_INITIALIZE,
     SCHOLAR_REQUEST_TYPE_CITERS,
     SCHOLAR_STATUS_IDLE,
-    SCHOLAR_STATUS_FETCHING,
-    SCHOLAR_STATUS_BLOCKED_HIDDEN,
-    SCHOLAR_STATUS_BLOCKED_VISIBLE,
-    SCHOLAR_STATUS_UNBLOCKING,
     CROSSREF_REQUEST_TYPE_VALIDATION,
     CROSSREF_REQUEST_TYPE_CITER_METADATA,
     CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
@@ -217,64 +212,6 @@ const validate = new Ajv({ removeAdditional: true }).compile({
                 items: [
                     { type: "string" },
                     {
-                        type: "object",
-                        properties: {
-                            status: { type: "string" },
-                            title: {
-                                anyOf: [{ type: "null" }, { type: "string" }],
-                            },
-                            authors: {
-                                anyOf: [
-                                    { type: "null" },
-                                    {
-                                        type: "array",
-                                        items: { type: "string" },
-                                    },
-                                ],
-                            },
-                            journal: {
-                                anyOf: [{ type: "null" }, { type: "string" }],
-                            },
-                            date: {
-                                anyOf: [
-                                    { type: "null" },
-                                    {
-                                        type: "array",
-                                        minItems: 1,
-                                        maxItems: 3,
-                                        items: { type: "integer" },
-                                    },
-                                ],
-                            },
-                            citers: {
-                                type: "array",
-                                items: { type: "string" },
-                            },
-                            updated: {
-                                anyOf: [
-                                    { type: "null" },
-                                    { type: "integer", minimum: 0 },
-                                ],
-                            },
-                            selected: { type: "boolean" },
-                            bibtex: {
-                                anyOf: [{ type: "null" }, { type: "string" }],
-                            },
-                            x: {
-                                anyOf: [{ type: "null" }, { type: "number" }],
-                            },
-                            y: {
-                                anyOf: [{ type: "null" }, { type: "number" }],
-                            },
-                            locked: { type: "boolean" },
-                            tag: {
-                                anyOf: [
-                                    { type: "null" },
-                                    { type: "integer", minimum: 0, maximum: 5 },
-                                ],
-                            },
-                        },
-                        additionalProperties: false,
                         anyOf: [
                             {
                                 type: "object",
@@ -311,6 +248,7 @@ const validate = new Ajv({ removeAdditional: true }).compile({
                                     "locked",
                                     "tag",
                                 ],
+                                additionalProperties: false,
                             },
                             {
                                 type: "object",
@@ -332,7 +270,12 @@ const validate = new Ajv({ removeAdditional: true }).compile({
                                         items: { type: "integer" },
                                     },
                                     citers: { type: "array", maxItems: 0 },
-                                    updated: { type: "null" },
+                                    updated: {
+                                        anyOf: [
+                                            { type: "null" },
+                                            { type: "integer", minimum: 0 },
+                                        ],
+                                    },
                                     selected: { type: "boolean" },
                                     bibtex: { type: "null" },
                                     x: {
@@ -365,6 +308,7 @@ const validate = new Ajv({ removeAdditional: true }).compile({
                                     "locked",
                                     "tag",
                                 ],
+                                additionalProperties: false,
                             },
                             {
                                 type: "object",
@@ -426,6 +370,7 @@ const validate = new Ajv({ removeAdditional: true }).compile({
                                     "locked",
                                     "tag",
                                 ],
+                                additionalProperties: false,
                             },
                         ],
                     },
@@ -652,127 +597,13 @@ export function jsonToState(json, saveFilename, previousState) {
             merge(stateCandidate, saveFilename, previousState),
         ];
     }
-    for (;;) {
-        let errors = validate.errors;
-
-        console.log(errors); // @DEV
-
-        console.error(
-            errors.map(error => error.keyword).join(", "),
-            errors,
-            errors.map(error => eval(`stateCandidate${error.dataPath}`))
-        );
-        if (
-            errors.length > 1 &&
-            errors[errors.length - 1].keyword === "anyOf"
-        ) {
-            errors = errors
-                .slice(0, errors.length - 1)
-                .filter(error => error.keyword !== "const");
-            if (errors.length === 0) {
-                const match = /(^[\w\.]+)\[(\d+)\]/.exec(
-                    validate.errors[validate.errors.length - 1].dataPath
-                );
-                if (!match) {
-                    return [
-                        new Error(
-                            "The data path for an 'anyOf' constraint does not have the expected format"
-                        ),
-                        false,
-                        null,
-                    ];
-                }
-                eval(`stateCandidate${match[1]}.splice(${match[2]}, 1);`);
-                continue;
-            }
-        }
-        for (const error of errors) {
-            switch (error.keyword) {
-                case "required": {
-                    eval(
-                        `stateCandidate${error.dataPath}.${error.params.missingProperty} = null;`
-                    );
-                    break;
-                }
-                case "type": {
-                    const types = [
-                        "null",
-                        "boolean",
-                        "integer",
-                        "number",
-                        "string",
-                        "array",
-                        "object",
-                    ].filter(type =>
-                        error.params.type.split(",").includes(type)
-                    );
-                    if (types.length === 0) {
-                        return [
-                            new Error(`Unknown type '${error.params.type}'`),
-                            false,
-                            null,
-                        ];
-                    }
-                    switch (types[0]) {
-                        case "null":
-                            eval(`stateCandidate${error.dataPath} = null;`);
-                            break;
-                        case "boolean":
-                            eval(`stateCandidate${error.dataPath} = false;`);
-                            break;
-                        case "integer":
-                            eval(`stateCandidate${error.dataPath} = 0;`);
-                            break;
-                        case "number":
-                            eval(`stateCandidate${error.dataPath} = 0;`);
-                            break;
-                        case "string":
-                            eval(`stateCandidate${error.dataPath} = '';`);
-                            break;
-                        case "array":
-                            eval(`stateCandidate${error.dataPath} = [];`);
-                            break;
-                        case "object":
-                            eval(`stateCandidate${error.dataPath} = {};`);
-                            break;
-                        default:
-                            return [
-                                new Error(`Unknown type '${types[0]}'`),
-                                false,
-                                null,
-                            ];
-                    }
-                    break;
-                }
-                case "maximum":
-                case "minimum": {
-                    eval(
-                        `stateCandidate${error.dataPath} = ${error.params.limit};`
-                    );
-                    break;
-                }
-                case "multipleOf": {
-                    eval(
-                        `stateCandidate${error.dataPath} = Math.round(stateCandidate${error.dataPath} / ${error.params.multipleOf}) * ${error.params.multipleOf};`
-                    );
-                    break;
-                }
-                default:
-                    return [
-                        new Error(`Unknown error keyword '${error.keyword}'`),
-                        false,
-                        null,
-                    ];
-            }
-        }
-        if (validate(stateCandidate)) {
-            return [
-                null,
-                true,
-                merge(stateCandidate, saveFilename, previousState),
-            ];
-        }
-    }
+    return [
+        new Error(
+            `Validation failed: ${validate.errors[0].instancePath} ${validate.errors[0].message}`
+        ),
+        false,
+        null,
+    ];
 }
 
 /// resetState generates a reset state with incremented hashes.

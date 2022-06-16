@@ -33,17 +33,44 @@ import {
 } from "../actions/manageMenu";
 import {
     PUBLICATION_STATUS_UNVALIDATED,
-    PUBLICATION_STATUS_DEFAULT,
     PUBLICATION_STATUS_IN_COLLECTION,
-    CROSSREF_REQUEST_TYPE_VALIDATION,
     CROSSREF_REQUEST_TYPE_CITER_METADATA,
-    CROSSREF_REQUEST_TYPE_IMPORTED_METADATA,
 } from "../constants/enums";
 import {
     MINIMUM_WINDOW_WIDTH,
     MINIMUM_LEFT_SIDE_WIDTH,
     MINIMUM_RIGHT_SIDE_WIDTH,
 } from "../constants/styles";
+
+const publicationsToBibtex = publications => {
+    const keysAndBibtexs = publications
+        .filter(publication => publication.bibtex != null)
+        .map(publication => {
+            const match = /@\w+\s*{\s*([^,]+?)\s*,/.exec(publication.bibtex);
+            return [match ? match[1] : "", publication.bibtex];
+        });
+    const keyToDuplicated = new Map();
+    const keyToIndex = new Map();
+    for (const [key, _] of keysAndBibtexs) {
+        const duplicated = keyToDuplicated.has(key);
+        keyToDuplicated.set(key, duplicated);
+        if (duplicated) {
+            keyToIndex.set(key, 0);
+        }
+    }
+    for (const keyAndBibtex of keysAndBibtexs) {
+        if (keyToIndex.has(keyAndBibtex[0])) {
+            const key = keyAndBibtex[0];
+            const index = keyToIndex.get(key);
+            keyAndBibtex[0] = `${key}_${index}`;
+            keyToIndex.set(key, index + 1);
+        }
+    }
+    return `${keysAndBibtexs
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([_, bibtex]) => bibtex)
+        .join("\n")}\n`;
+};
 
 class Origami extends React.Component {
     constructor(props) {
@@ -725,45 +752,11 @@ class Origami extends React.Component {
                                         onClick: () => {
                                             ipcRenderer.send(
                                                 "export-bibtex",
-                                                Array.from(
-                                                    this.props.state.publications.entries()
+                                                publicationsToBibtex(
+                                                    Array.from(
+                                                        this.props.state.publications.values()
+                                                    )
                                                 )
-                                                    .filter(
-                                                        ([doi, publication]) =>
-                                                            publication.bibtex !=
-                                                            null
-                                                    )
-                                                    .map(
-                                                        ([
-                                                            doi,
-                                                            publication,
-                                                        ]) => {
-                                                            const match =
-                                                                /@\w+\s*{\s*([^,]+?)\s*,/.exec(
-                                                                    publication.bibtex
-                                                                );
-                                                            return [
-                                                                match
-                                                                    ? match[1]
-                                                                    : "",
-                                                                publication.bibtex,
-                                                            ];
-                                                        }
-                                                    )
-                                                    .sort(
-                                                        (
-                                                            [firstKey],
-                                                            [secondKey]
-                                                        ) =>
-                                                            firstKey.localeCompare(
-                                                                secondKey
-                                                            )
-                                                    )
-                                                    .map(
-                                                        ([key, bibtex]) =>
-                                                            bibtex
-                                                    )
-                                                    .join("\n")
                                             );
                                         },
                                         shortcut: "e",

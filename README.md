@@ -8,9 +8,9 @@ Origami is an open-source research tool. It automatically scraps Google Scholar 
 
 ## Download
 
-| [<div align="center"><img src="images/linux.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-linux-x64.zip) | [<div align="center"><img src="images/macos.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-darwin-x64.zip) | [<div align="center"><img src="images/windows.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-win32-x64.zip) |
+| [<div align="center"><img src="images/linux.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.11.1/Origami-linux-x64.zip) | [<div align="center"><img src="images/macos.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.11.1/Origami-darwin-x64.zip) | [<div align="center"><img src="images/windows.png" width="50px"/></div>](https://github.com/aMarcireau/origami/releases/download/v0.11.1/Origami-win32-x64.zip) |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-linux-x64.zip)                                                   | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-darwin-x64.zip)                                                   | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.10.3/Origami-win32-x64.zip)                                                   |
+| [Download for Linux](https://github.com/aMarcireau/origami/releases/download/v0.11.1/Origami-linux-x64.zip)                                                   | [Download for macOS](https://github.com/aMarcireau/origami/releases/download/v0.11.1/Origami-darwin-x64.zip)                                                   | [Download for Windows](https://github.com/aMarcireau/origami/releases/download/v0.11.1/Origami-win32-x64.zip)                                                   |
 
 Visit the [Releases](https://github.com/aMarcireau/origami/releases) page to download Origami for other platforms.
 
@@ -37,7 +37,7 @@ Origami can load several DOIs at once from a [JSON](https://www.json.org) format
     "10.3389/fnins.2017.00535",
     "10.1109/tbcas.2017.2759700",
     "10.3389/fnins.2016.00594",
-    "10.1007/s11263-017-1050-6",
+    "10.1007/s11263-017-1050-6"
 ]
 ```
 
@@ -47,21 +47,21 @@ Origami saves and loads collections in [JSON](https://www.json.org) format. The 
 
 ```yaml
 {
-  "appVersion": "0.10.3", # the version of the app used to generate this save
+  "appVersion": "0.11.1", # the version of the app used to generate this save
   "display": 0, # the current display's index (0 for graph, 1 for list)
   "knownDois": ["10.1109/tpami.2016.2574707"], # list of DOIs clicked at least once (used to highlight new publications)
   "crossref": # pending requests to crossref.org
     [
       {
         "type": "CROSSREF_REQUEST_TYPE_VALIDATION",
-        "doi": "10.1038/nature06293",
+        "doi": "10.1038/nature06293"
       },
       {
         "type": "CROSSREF_REQUEST_TYPE_CITER_METADATA",
         "parentDoi": "10.1109/tpami.2016.2574707",
         "title": "A Motion-Based Feature for Event-Based Pattern Recognition",
         "authors": ["X Clady", "JM Maro", "S Barré", "RB Benosman"],
-        "dateAsString": "2017",
+        "dateAsString": "2017"
       },
       {
         "type": "CROSSREF_REQUEST_TYPE_IMPORTED_METADATA",
@@ -71,10 +71,10 @@ Origami saves and loads collections in [JSON](https://www.json.org) format. The 
             "Henri Rebecq",
             "Guillermo Gallego",
             "Elias Mueggler",
-            "Davide Scaramuzza",
+            "Davide Scaramuzza"
           ],
-        "dateAsString": "2017",
-      },
+        "dateAsString": "2017"
+      }
     ],
   "doi": [{ "doi": "10.1038/nature06293" }], # pending requests to doi.org
   "scholar": [ # pending requests to scholar.google.com
@@ -83,25 +83,25 @@ Origami saves and loads collections in [JSON](https://www.json.org) format. The 
           {
             "type": "SCHOLAR_REQUEST_TYPE_INITIALIZE",
             "doi": "10.3389/fnins.2016.00594",
-            "url": "https://scholar.google.com/scholar?hl=en&q=10.3389%2Ffnins.2016.00594",
+            "url": "https://scholar.google.com/scholar?hl=en&q=10.3389%2Ffnins.2016.00594"
           },
           {
             "type": "SCHOLAR_REQUEST_TYPE_CITERS",
             "doi": "10.1109/biorob.2016.7523449",
             "url": "https://scholar.google.com/scholar?cites=3831926773876645447&start=0&hl=en",
             "number": 1,
-            "total": 1,
-          },
+            "total": 1
+          }
         ],
       "minimumRefractoryPeriod": 2000, # minimum waiting time between scholar requests, in milliseconds
-      "maximumRefractoryPeriod": 8000, # maximum waiting time between scholar requests, in milliseconds
+      "maximumRefractoryPeriod": 8000 # maximum waiting time between scholar requests, in milliseconds
     ],
   "graph": {
       "threshold": 1, # the current threshold used to filter suggestions, non-zero integer
       "zoom": 0, # the current zoom level, integer in the range [-50, 50]
       "xOffset": 0, # the current graph positions' x coordinate, float
       "yOffset": 0, # the current graph positions' y coordinate, float
-      "sticky": false, # false means that the 'sticky' box is unchecked
+      "sticky": false # false means that the 'sticky' box is unchecked
     },
   "publications": [ # list of known publications
       [
@@ -121,7 +121,7 @@ Origami saves and loads collections in [JSON](https://www.json.org) format. The 
               "Garrick Orchard",
               "Francesco Galluppi",
               "Bertram E. Shi",
-              "Ryad B. Benosman",
+              "Ryad B. Benosman"
             ],
           "journal": "Institute of Electrical and Electronics Engineers (IEEE)",
           "date": [2016, 7, 14], # the publication's release date, list of one to three integer values (optional month and day)
@@ -132,7 +132,7 @@ Origami saves and loads collections in [JSON](https://www.json.org) format. The 
               "10.3389/fnins.2017.00535",
               "10.1109/tbcas.2017.2759700",
               "10.3389/fnins.2016.00594",
-              "10.1007/s11263-017-1050-6",
+              "10.1007/s11263-017-1050-6"
             ],
           "updated": 1513430331442, # last metadata update, in milliseconds since 1970-01-01
           "selected":
@@ -142,8 +142,8 @@ Origami saves and loads collections in [JSON](https://www.json.org) format. The 
           "x": 1.0813568646326681, # the publication's node position's x coordinate in the graph, float
           "y": -1.563450690825733, # the publication's node position's y coordinate in the graph, float
           "locked": false, # false means that the publication's node's position is not stuck
-        },
-      ],
+        }
+      ]
     ],
   "search": "", # the current regular expression in the search input
   "tabs": 0, # the active tab (0 for information, 1 for search, 2 for warnings)
@@ -152,9 +152,9 @@ Origami saves and loads collections in [JSON](https://www.json.org) format. The 
       {
         "title": "The Crossref request for 'Poker-DVS and MNIST-DVS. Their history, how they were made, and other details' failed",
         "subtitle": "The returned article was older than the cited one (10.1109/tpami.2016.2574707)",
-        "level": "warning",
-      },
-    ],
+        "level": "warning"
+      }
+    ]
 }
 ```
 
